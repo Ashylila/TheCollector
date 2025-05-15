@@ -20,7 +20,7 @@ public class CollectableAutomationHandler
     private readonly IPluginLog _log;
     private readonly CollectibleWindowHandler _collectibleWindowHandler;
     private readonly IDataManager _dataManager;
-    
+    private string removeme;
 
     private string _currentItem;
     private List<Item> _currentCollectables = new();
