@@ -9,13 +9,12 @@ using ECommons.Logging;
 using ECommons.UIHelpers.AddonMasterImplementations;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using Lumina.Data.Parsing.Uld;
-using TheCollector.Models;
 using ValueType = FFXIVClientStructs.FFXIV.Component.GUI.ValueType;
 
 
-namespace TheCollector.CollectibleManager;
+namespace TheCollector.CollectableManager;
 
- public unsafe class CollectibleWindowHandler
+ public unsafe class CollectableWindowHandler
  {
      public unsafe bool IsReady => GenericHelpers.TryGetAddonByName<AtkUnitBase>("CollectablesShop", out var addon) &&
                                    GenericHelpers.IsAddonReady(addon);

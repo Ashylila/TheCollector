@@ -9,7 +9,7 @@ using Dalamud.Plugin.Services;
 using ECommons;
 using ECommons.DalamudServices;
 using FFXIVClientStructs.FFXIV.Client.Game;
-using TheCollector.CollectibleManager;
+using TheCollector.CollectableManager;
 using TheCollector.Utility;
 using TheCollector.Windows;
 
@@ -24,7 +24,7 @@ public sealed class Plugin : IDalamudPlugin
     internal static ICommandManager CommandManager { get; private set; } = null!;
     
     
-    private readonly CollectibleWindowHandler collectibleWindowHandler;
+    private readonly CollectableWindowHandler _collectableWindowHandler;
 
     private const string CommandName = "/pmycommand";
 
@@ -33,7 +33,6 @@ public sealed class Plugin : IDalamudPlugin
     public readonly WindowSystem WindowSystem = new("TheCollector");
     private ConfigWindow ConfigWindow { get; init; }
     private MainWindow MainWindow { get; init; }
-
     public Plugin()
     {
         Configuration = PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
@@ -58,7 +57,7 @@ public sealed class Plugin : IDalamudPlugin
         
         PluginInterface.UiBuilder.OpenMainUi += ToggleMainUI;
         
-        collectibleWindowHandler = new();
+        _collectableWindowHandler = new();
         Start();
     }
 

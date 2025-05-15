@@ -5,7 +5,7 @@ using ECommons.Automation.NeoTaskManager;
 using ECommons.DalamudServices;
 using FFXIVClientStructs.Havok.Animation.Rig;
 using Microsoft.Extensions.DependencyInjection;
-using TheCollector.CollectibleManager;
+using TheCollector.CollectableManager;
 using TheCollector.Windows;
 
 namespace TheCollector.Utility;
@@ -26,14 +26,8 @@ public static class ServiceWrapper
         collection.AddSingleton(plugin);
         collection.AddSingleton(plugin.Configuration);
         
-        collection.AddSingleton<CollectibleWindowHandler>();
-        collection.AddSingleton<CollectableAutomationHandler>(sp =>
-                                                                  new CollectableAutomationHandler(
-                                                                      sp.GetRequiredService<TaskManager>(),
-                                                                      sp.GetRequiredService<IPluginLog>(),
-                                                                      sp.GetRequiredService<CollectibleWindowHandler>(),
-                                                                      sp.GetRequiredService<IDataManager>()
-                                                                  ));
+        collection.AddSingleton<CollectableWindowHandler>();
+        collection.AddSingleton<CollectableAutomationHandler>();
 
         collection.AddSingleton<MainWindow>();
         collection.AddSingleton<ConfigWindow>();

@@ -5,9 +5,8 @@ using Dalamud.Game.Inventory;
 using ECommons;
 using ECommons.DalamudServices;
 using ECommons.Logging;
-using FFXIVClientStructs.FFXIV.Client.Game;
 using Lumina.Excel.Sheets;
-using TheCollector.CollectibleManager;
+using TheCollector.CollectableManager;
 
 namespace TheCollector.Utility;
 

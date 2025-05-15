@@ -7,9 +7,9 @@ using ECommons.Logging;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using FFXIVClientStructs.Interop;
 using FFXIVClientStructs.STD;
-using TheCollector.CollectibleManager;
+using TheCollector.CollectableManager;
 
-namespace TheCollector.Models;
+namespace TheCollector.CollectableManager;
 
 public unsafe class TurninWindow
 {
@@ -63,7 +63,7 @@ public unsafe class TurninWindow
             if (string.IsNullOrWhiteSpace(label))
                 continue;
 
-            // Check for level header
+            
             foreach (var kvp in HeaderMap)
             {
                 if (label.Contains(kvp.Key))

@@ -1,4 +1,4 @@
-﻿namespace TheCollector.CollectibleManager;
+﻿namespace TheCollector.CollectableManager;
 
 public enum LevelRange
 {
