@@ -1,9 +1,16 @@
-﻿using Dalamud.Game.Command;
+﻿using System;
+using Dalamud.Game.Command;
 using Dalamud.IoC;
 using Dalamud.Plugin;
 using System.IO;
+using System.Threading.Tasks;
 using Dalamud.Interface.Windowing;
 using Dalamud.Plugin.Services;
+using ECommons;
+using ECommons.DalamudServices;
+using FFXIVClientStructs.FFXIV.Client.Game;
+using TheCollector.CollectibleManager;
+using TheCollector.Utility;
 using TheCollector.Windows;
 
 namespace TheCollector;
@@ -14,19 +21,10 @@ public sealed class Plugin : IDalamudPlugin
     internal static IDalamudPluginInterface PluginInterface { get; private set; } = null!;
 
     [PluginService]
-    internal static ITextureProvider TextureProvider { get; private set; } = null!;
-
-    [PluginService]
     internal static ICommandManager CommandManager { get; private set; } = null!;
-
-    [PluginService]
-    internal static IClientState ClientState { get; private set; } = null!;
-
-    [PluginService]
-    internal static IDataManager DataManager { get; private set; } = null!;
-
-    [PluginService]
-    internal static IPluginLog Log { get; private set; } = null!;
+    
+    
+    private readonly CollectibleWindowHandler collectibleWindowHandler;
 
     private const string CommandName = "/pmycommand";
 
@@ -39,10 +37,12 @@ public sealed class Plugin : IDalamudPlugin
     public Plugin()
     {
         Configuration = PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
+        ECommonsMain.Init(PluginInterface, this, Module.DalamudReflector);
+        
+        ServiceWrapper.Init(this);
 
-
-        ConfigWindow = new ConfigWindow(this);
-        MainWindow = new MainWindow(this);
+        ConfigWindow = ServiceWrapper.Get<ConfigWindow>();
+        MainWindow = ServiceWrapper.Get<MainWindow>();
 
         WindowSystem.AddWindow(ConfigWindow);
         WindowSystem.AddWindow(MainWindow);
@@ -55,24 +55,46 @@ public sealed class Plugin : IDalamudPlugin
         PluginInterface.UiBuilder.Draw += DrawUI;
 
         PluginInterface.UiBuilder.OpenConfigUi += ToggleConfigUI;
-
-        // Adds another button that is doing the same but for the main ui of the plugin
+        
         PluginInterface.UiBuilder.OpenMainUi += ToggleMainUI;
-
-        // Add a simple message to the log with level set to information
-        // Use /xllog to open the log window in-game
-        // Example Output: 00:57:54.959 | INF | [SamplePlugin] ===A cool log message from Sample Plugin===
-        Log.Information($"===A cool log message from {PluginInterface.Manifest.Name}===");
+        
+        collectibleWindowHandler = new();
+        Start();
     }
 
+    public void Start()
+    {
+        Svc.Log.Debug("Plugin Start called.");
+    
+        var handler = ServiceWrapper.Get<CollectableAutomationHandler>();
+        if (handler == null)
+        {
+            Svc.Log.Error("CollectableAutomationHandler is null!");
+            return;
+        }
+
+        Svc.Log.Debug("Handler resolved successfully. Starting automation...");
+    
+        try
+        {
+            handler.Start();
+            handler.TradeEachCollectable();
+        }
+        catch (Exception ex)
+        {
+            Svc.Log.Error($"Handler execution threw: {ex}");
+        }
+    }
     public void Dispose()
     {
+        if(ServiceWrapper.ServiceProvider is IDisposable disposable)
+        {
+            disposable.Dispose();
+        }
         WindowSystem.RemoveAllWindows();
 
-        ConfigWindow.Dispose();
-        MainWindow.Dispose();
-
         CommandManager.RemoveHandler(CommandName);
+        
     }
 
     private void OnCommand(string command, string args)
