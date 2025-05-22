@@ -77,7 +77,6 @@ public sealed class Plugin : IDalamudPlugin
         try
         {
             handler.Start();
-            handler.TradeEachCollectable();
         }
         catch (Exception ex)
         {

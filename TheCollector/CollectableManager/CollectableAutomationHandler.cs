@@ -1,10 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Dalamud.Game.ClientState.Objects;
+using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Plugin.Services;
+using ECommons.Automation;
 using ECommons.Automation.NeoTaskManager;
 using ECommons.Logging;
+using FFXIVClientStructs.FFXIV.Client.Game.Control;
 using Lumina.Excel.Sheets;
+using TheCollector.Ipc;
 using TheCollector.Utility;
 
 namespace TheCollector.CollectableManager;
@@ -18,11 +23,16 @@ public class CollectableAutomationHandler
     private readonly CollectableWindowHandler _collectibleWindowHandler;
     private readonly IDataManager _dataManager;
     private readonly Configuration _configuration;
+    private readonly IObjectTable _objectTable;
+    private readonly ITargetManager _targetManager;
+    private readonly IFramework _framework;
+    private readonly IClientState _clientState;
     
     
     private TaskManagerConfiguration _config = new  TaskManagerConfiguration()
     {
         ExecuteDefaultConfigurationEvents = true,
+        ShowDebug = true
         
     };
 
@@ -32,7 +42,7 @@ public class CollectableAutomationHandler
     
     public bool HasCollectible => ItemHelper.GetCurrentInventoryItems().Any(i => i.IsCollectable);
 
-    public CollectableAutomationHandler( IPluginLog log, CollectableWindowHandler collectibleWindowHandler, IDataManager data, Configuration config)
+    public CollectableAutomationHandler( IPluginLog log, CollectableWindowHandler collectibleWindowHandler, IDataManager data, Configuration config, IObjectTable objectTable, ITargetManager targetManager, IFramework frameWork, IClientState clientState )
     {
         _taskManager = new TaskManager(_config);
         _config.OnTaskTimeout += OnTaskTimeout;
@@ -40,29 +50,60 @@ public class CollectableAutomationHandler
         _collectibleWindowHandler = collectibleWindowHandler;
         _dataManager = data;
         _configuration = config;
+        _objectTable = objectTable;
+        _targetManager = targetManager;
+        _framework = frameWork;
+        _clientState = clientState;
+        
     }
 
     public void Start()
     {
         IsRunning = true;
         _log.Debug(GetCollectablesInInventory().Count.ToString());
-        if (GetCollectablesInInventory().Count == 0) return;
+        //if (GetCollectablesInInventory().Count == 0) return;
         _currentCollectables = GetCollectablesInInventory();
         _taskManager.Enqueue(()=>PlayerHelper.CanAct);
-        _taskManager.Enqueue(()=>TeleportToCollectableShop());
-        _taskManager.EnqueueDelay(700);
+        _taskManager.Enqueue(()=>TeleportToCollectableShop(), nameof(TeleportToCollectableShop));
+        _taskManager.EnqueueDelay(8000);
+        _taskManager.Enqueue(()=>VNavmesh_IPCSubscriber.Nav_Rebuild());
         _taskManager.Enqueue(()=>PlayerHelper.CanAct);
-        _taskManager.Enqueue(()=>MoveToCollectableShop());
+        _taskManager.Enqueue(()=>VNavmesh_IPCSubscriber.Nav_IsReady());
+        _taskManager.Enqueue(()=>MoveToCollectableShop(), nameof(MoveToCollectableShop));
     }
 //TODO:Teleporting to collectable shop
 
-    private void MoveToCollectableShop()
+    private unsafe void MoveToCollectableShop()
     {
-        throw new NotImplementedException();
+        //_framework.Run(()=>_targetManager.Target = FindNearbyAetheryte());
+        //TargetSystem.Instance()->OpenObjectInteraction(TargetSystem.Instance()->Target);
+        var loc = CollectableNpcLocations.CollectableNpcLocationVectors(_clientState.TerritoryType);
+        _log.Debug($"vnav moveto {loc.X} {loc.Y.ToString().Replace(",", ".")} {loc.Z}");
+        _framework.Run(() => Chat.ExecuteCommand($"/vnav moveto {loc.X} {loc.Y.ToString().Replace(",", ".")} {loc.Z}"));
+        _taskManager.Enqueue(() =>
+        {
+            if (PlayerHelper.GetDistanceToPlayer(CollectableNpcLocations.CollectableNpcLocationVectors(_clientState.TerritoryType)) >= 4) return false;
+            _log.Debug(PlayerHelper.GetDistanceToPlayer(CollectableNpcLocations.CollectableNpcLocationVectors(_clientState.TerritoryType)).ToString());
+            return true;
+        });
+        _taskManager.Enqueue(() =>
+        {
+            _targetManager.Target = _objectTable.FirstOrDefault(a => a.Name.TextValue.Contains(
+                                                                    "collectable", StringComparison.OrdinalIgnoreCase));
+        });
+        
     }
+    
+    private IGameObject findNearbyGameObject(string name)
+    {
+        var target = _objectTable.FirstOrDefault(i => i.Name.TextValue == name);
+        if (target == null) return null;
+        return target;
+    }
+    
     private void TeleportToCollectableShop()
     {
-        if (TeleportHelper.TryFindAetheryteByName(_configuration.PreferredCollectableShop.ToString(), out var aetheryte,
+        if (TeleportHelper.TryFindAetheryteByName("nine", out var aetheryte,
                 out var name))
         {
             TeleportHelper.Teleport(aetheryte.AetheryteId, aetheryte.SubIndex);

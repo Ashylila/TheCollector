@@ -20,6 +20,10 @@ public static class ServiceWrapper
         
         collection.AddSingleton(Svc.Log);
         collection.AddSingleton(Svc.Data);
+        collection.AddSingleton(Svc.Objects);
+        collection.AddSingleton(Svc.Targets);
+        collection.AddSingleton(Svc.Framework);
+        collection.AddSingleton(Svc.ClientState);
         
         collection.AddSingleton<TaskManager>();
         
