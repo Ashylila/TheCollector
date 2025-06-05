@@ -3,12 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using Dalamud.Game.ClientState.Objects;
 using Dalamud.Game.ClientState.Objects.Types;
+using Dalamud.Game.Inventory;
 using Dalamud.Plugin.Services;
+using ECommons;
 using ECommons.Automation;
 using ECommons.Automation.NeoTaskManager;
+using ECommons.DalamudServices;
 using ECommons.Logging;
+using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.Game.Control;
+using FFXIVClientStructs.FFXIV.Component.GUI;
 using Lumina.Excel.Sheets;
+using TheCollector.Data;
 using TheCollector.Ipc;
 using TheCollector.Utility;
 
@@ -54,32 +60,30 @@ public class CollectableAutomationHandler
         _targetManager = targetManager;
         _framework = frameWork;
         _clientState = clientState;
-        
     }
 
     public void Start()
     {
         IsRunning = true;
         _log.Debug(GetCollectablesInInventory().Count.ToString());
-        //if (GetCollectablesInInventory().Count == 0) return;
+        //if (GetCollectablesInInventory().Count == 0) return; DEBUG PURPOSES
         _currentCollectables = GetCollectablesInInventory();
         _taskManager.Enqueue(()=>PlayerHelper.CanAct);
         _taskManager.Enqueue(()=>TeleportToCollectableShop(), nameof(TeleportToCollectableShop));
-        _taskManager.EnqueueDelay(8000);
-        _taskManager.Enqueue(()=>VNavmesh_IPCSubscriber.Nav_Rebuild());
+        _taskManager.EnqueueDelay(10000);
         _taskManager.Enqueue(()=>PlayerHelper.CanAct);
         _taskManager.Enqueue(()=>VNavmesh_IPCSubscriber.Nav_IsReady());
         _taskManager.Enqueue(()=>MoveToCollectableShop(), nameof(MoveToCollectableShop));
     }
-//TODO:Teleporting to collectable shop
+//TODO:Teleporting to collectable shop dynamic
 
     private unsafe void MoveToCollectableShop()
     {
-        //_framework.Run(()=>_targetManager.Target = FindNearbyAetheryte());
-        //TargetSystem.Instance()->OpenObjectInteraction(TargetSystem.Instance()->Target);
-        var loc = CollectableNpcLocations.CollectableNpcLocationVectors(_clientState.TerritoryType);
+        Plugin.State = PluginState.MovingToCollectableVendor;
+        var loc = _configuration.PreferredCollectableShop.Location;
         _log.Debug($"vnav moveto {loc.X} {loc.Y.ToString().Replace(",", ".")} {loc.Z}");
-        _framework.Run(() => Chat.ExecuteCommand($"/vnav moveto {loc.X} {loc.Y.ToString().Replace(",", ".")} {loc.Z}"));
+        //_framework.Run(() => Chat.ExecuteCommand($"/vnav moveto {loc.X} {loc.Y.ToString().Replace(",", ".")} {loc.Z}"));
+        VNavmesh_IPCSubscriber.Path_MoveTo([loc], false);
         _taskManager.Enqueue(() =>
         {
             if (PlayerHelper.GetDistanceToPlayer(CollectableNpcLocations.CollectableNpcLocationVectors(_clientState.TerritoryType)) >= 4) return false;
@@ -91,10 +95,13 @@ public class CollectableAutomationHandler
             _targetManager.Target = _objectTable.FirstOrDefault(a => a.Name.TextValue.Contains(
                                                                     "collectable", StringComparison.OrdinalIgnoreCase));
         });
-        
+        _taskManager.Enqueue(() =>
+        {
+            TargetSystem.Instance()->OpenObjectInteraction(TargetSystem.Instance()->Target);
+        });
     }
     
-    private IGameObject findNearbyGameObject(string name)
+    private IGameObject FindNearbyGameObject(string name)
     {
         var target = _objectTable.FirstOrDefault(i => i.Name.TextValue == name);
         if (target == null) return null;
@@ -103,7 +110,8 @@ public class CollectableAutomationHandler
     
     private void TeleportToCollectableShop()
     {
-        if (TeleportHelper.TryFindAetheryteByName("nine", out var aetheryte,
+        Plugin.State = PluginState.Teleporting;
+        if (TeleportHelper.TryFindAetheryteByName(_configuration.PreferredCollectableShop.Name, out var aetheryte,
                 out var name))
         {
             TeleportHelper.Teleport(aetheryte.AetheryteId, aetheryte.SubIndex);
@@ -113,10 +121,12 @@ public class CollectableAutomationHandler
             ForceStop("Error while finding aetheryte for collectable shop");
         }
     }
-    public void TradeEachCollectable()
+    public unsafe void TradeEachCollectable()
     {
+        Plugin.State = PluginState.ExchangingItems;
         foreach (var item in _currentCollectables)
         {
+            
             if (!ItemHelper.RarefiedItemToClassJob.TryGetValue(item.Name.ExtractText(), out var value))
             {
                 PluginLog.Error($"error finding job for item: {item.Name.ExtractText()}");
@@ -130,12 +140,20 @@ public class CollectableAutomationHandler
             _taskManager.EnqueueDelay(100);
             _taskManager.Enqueue(() => _collectibleWindowHandler.SubmitItem());
             _taskManager.EnqueueDelay(100);
+            
+            if (GenericHelpers.TryGetAddonByName("SelectYesno", out AtkUnitBase* addon))
+            {
+                addon->Close(true);
+                _log.Debug("Max scrips reached, stopping automatic turn-in");
+                _taskManager.Abort();
+            }
         }
     }
     private void ForceStop(string reason)
     {
         _taskManager.Abort();
         IsRunning = false;
+        Plugin.State = PluginState.Idle;
         _log.Error("TheCollector has stopped unexpectedly.", reason);
     }
     public void OnTaskTimeout(TaskManagerTask task, ref long remainingTime)

@@ -10,6 +10,7 @@ using ECommons;
 using ECommons.DalamudServices;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using TheCollector.CollectableManager;
+using TheCollector.Data;
 using TheCollector.Utility;
 using TheCollector.Windows;
 
@@ -33,6 +34,8 @@ public sealed class Plugin : IDalamudPlugin
     public readonly WindowSystem WindowSystem = new("TheCollector");
     private ConfigWindow ConfigWindow { get; init; }
     private MainWindow MainWindow { get; init; }
+
+    public static PluginState State = PluginState.Idle;
     public Plugin()
     {
         Configuration = PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
@@ -76,7 +79,6 @@ public sealed class Plugin : IDalamudPlugin
     
         try
         {
-            handler.Start();
         }
         catch (Exception ex)
         {

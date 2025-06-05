@@ -43,8 +43,6 @@ public class CollectableMovementHelper
         Vector3 position, float tollerance = 0.25f, float lastPointTollerance = 0.25f, bool fly = false,
         bool useMesh = true)
     {
-        if (!PlayerHelper.IsValid)
-            return false;
 
         if (fly && !IsFlyingSupported)
             fly = false;
