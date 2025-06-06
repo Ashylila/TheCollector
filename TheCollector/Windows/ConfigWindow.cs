@@ -1,13 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using Dalamud.Interface.Windowing;
 using Dalamud.Plugin.Services;
+using ECommons.DalamudServices;
 using ImGuiNET;
 using Lumina.Excel.Sheets;
 using TheCollector.CollectableManager;
 using TheCollector.Data.Models;
 using TheCollector.Ipc;
+using TheCollector.ScripShopManager;
 
 namespace TheCollector.Windows;
 
@@ -16,16 +19,6 @@ public class ConfigWindow : Window, IDisposable
     private readonly IDataManager _dataManager;
     private readonly CollectableAutomationHandler _collectableAutomationHandler;
     private Configuration Configuration;
-    private string[] _collectableShops = new []
-    {
-        "Eulmore",
-        "Collectable Appraiser (Radz-at-Han)",
-        "Collectable Appraiser (Old Sharlayan)",
-        "Collectable Appraiser (Thavnair)",
-        "Collectable Appraiser (Rhalgr's Reach)",
-        "Collectable Appraiser (Mor Dhona)",
-        "Collectable Appraiser (Ishgard)"
-    };
     
     // We give this window a constant ID using ###
     // This allows for labels being dynamic, like "{FPS Counter}fps###XYZ counter window",
@@ -66,28 +59,40 @@ public class ConfigWindow : Window, IDisposable
         {
             VNavmesh_IPCSubscriber.Path_MoveTo([Configuration.PreferredCollectableShop.Location], false);
         }
+
+        if (ImGui.Button("Debug"))
+        {
+            var debug = new ScripShopCache(Svc.Data);
+        }
     }
     public void DrawShopSelection()
     {
         ImGui.TextUnformatted("Select your preferred collectable shop:");
         ImGui.SameLine();
 
-        int selectedIndex = 0;
-        if (selectedIndex < 0) selectedIndex = 0;
+        
+        int selectedIndex = CollectableNpcLocations.CollectableShops.IndexOf(Configuration.PreferredCollectableShop);
 
-        if (ImGui.BeginCombo("Shop", _collectableShops[selectedIndex]))
+        string currentShopName;
+        if (selectedIndex != -1)
         {
-            for (int i = 0; i < _collectableShops.Length; i++)
+            currentShopName = Configuration.PreferredCollectableShop.Name;
+        }
+        else
+        {
+            currentShopName = "Select a shop...";
+        }
+
+        if (ImGui.BeginCombo("Shop", currentShopName))
+        {
+            for (int i = 0; i < CollectableNpcLocations.CollectableShops.Count; i++)
             {
-                bool isSelected = selectedIndex == i;
-                if (ImGui.Selectable(_collectableShops[i], isSelected))
+                
+                if (ImGui.Selectable(CollectableNpcLocations.CollectableShops[i].Name))
                 {
-                    Configuration.PreferredCollectableShop = CollectableNpcLocations.CollectableShops.FirstOrDefault(s => s.Name == _collectableShops[i]) ?? new CollectableShop();
+                    Configuration.PreferredCollectableShop = CollectableNpcLocations.CollectableShops[i];
                     Configuration.Save();
                 }
-
-                if (isSelected)
-                    ImGui.SetItemDefaultFocus();
             }
 
             ImGui.EndCombo();

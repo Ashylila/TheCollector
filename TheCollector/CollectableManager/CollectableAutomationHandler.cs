@@ -66,7 +66,12 @@ public class CollectableAutomationHandler
     {
         IsRunning = true;
         _log.Debug(GetCollectablesInInventory().Count.ToString());
-        //if (GetCollectablesInInventory().Count == 0) return; DEBUG PURPOSES
+        if (GetCollectablesInInventory().Count == 0)
+        {
+            _log.Debug("No collectables found in inventory, cancelling");
+            IsRunning = false;
+            return;
+        };
         _currentCollectables = GetCollectablesInInventory();
         _taskManager.Enqueue(()=>PlayerHelper.CanAct);
         _taskManager.Enqueue(()=>TeleportToCollectableShop(), nameof(TeleportToCollectableShop));
@@ -74,22 +79,20 @@ public class CollectableAutomationHandler
         _taskManager.Enqueue(()=>PlayerHelper.CanAct);
         _taskManager.Enqueue(()=>VNavmesh_IPCSubscriber.Nav_IsReady());
         _taskManager.Enqueue(()=>MoveToCollectableShop(), nameof(MoveToCollectableShop));
+        _taskManager.Enqueue(()=>TradeEachCollectable(), nameof(TradeEachCollectable));
     }
-//TODO:Teleporting to collectable shop dynamic
 
     private unsafe void MoveToCollectableShop()
     {
         Plugin.State = PluginState.MovingToCollectableVendor;
         var loc = _configuration.PreferredCollectableShop.Location;
         _log.Debug($"vnav moveto {loc.X} {loc.Y.ToString().Replace(",", ".")} {loc.Z}");
-        //_framework.Run(() => Chat.ExecuteCommand($"/vnav moveto {loc.X} {loc.Y.ToString().Replace(",", ".")} {loc.Z}"));
         VNavmesh_IPCSubscriber.Path_MoveTo([loc], false);
         _taskManager.Enqueue(() =>
         {
-            if (PlayerHelper.GetDistanceToPlayer(CollectableNpcLocations.CollectableNpcLocationVectors(_clientState.TerritoryType)) >= 4) return false;
-            _log.Debug(PlayerHelper.GetDistanceToPlayer(CollectableNpcLocations.CollectableNpcLocationVectors(_clientState.TerritoryType)).ToString());
+            if (PlayerHelper.GetDistanceToPlayer(_configuration.PreferredCollectableShop.Location) > 2) return false;
             return true;
-        });
+        }, "DistanceToShopCheck");
         _taskManager.Enqueue(() =>
         {
             _targetManager.Target = _objectTable.FirstOrDefault(a => a.Name.TextValue.Contains(
@@ -146,6 +149,7 @@ public class CollectableAutomationHandler
                 addon->Close(true);
                 _log.Debug("Max scrips reached, stopping automatic turn-in");
                 _taskManager.Abort();
+                return;
             }
         }
     }
