@@ -129,18 +129,26 @@ public class CollectableAutomationHandler
         Plugin.State = PluginState.ExchangingItems;
         foreach (var item in _currentCollectables)
         {
-            
+            int currentJob = -2; // -2 means no job selected, not -1 in-case of index not found
+            string currentItem = string.Empty;
             if (!ItemHelper.RarefiedItemToClassJob.TryGetValue(item.Name.ExtractText(), out var value))
             {
                 PluginLog.Error($"error finding job for item: {item.Name.ExtractText()}");
                 continue;
             }
             _log.Debug($"Collecting {value.ToString()}");
-            
-            _taskManager.Enqueue(()=>_collectibleWindowHandler.SelectJob((uint)value));
-            _taskManager.EnqueueDelay(100);
-            _taskManager.Enqueue(()=>_collectibleWindowHandler.SelectItem(item.Name.ExtractText()));
-            _taskManager.EnqueueDelay(100);
+            if (currentJob != (int)value)
+            {
+                _taskManager.Enqueue(() => _collectibleWindowHandler.SelectJob((uint)value));
+                _taskManager.EnqueueDelay(100);
+                currentJob = (int)value;
+            }
+            if (currentItem != item.Name.ExtractText())
+            {
+                _taskManager.Enqueue(() => _collectibleWindowHandler.SelectItem(item.Name.ExtractText()));
+                _taskManager.EnqueueDelay(100);
+                currentItem = item.Name.ExtractText();
+            }
             _taskManager.Enqueue(() => _collectibleWindowHandler.SubmitItem());
             _taskManager.EnqueueDelay(100);
             
@@ -149,9 +157,15 @@ public class CollectableAutomationHandler
                 addon->Close(true);
                 _log.Debug("Max scrips reached, stopping automatic turn-in");
                 _taskManager.Abort();
+                _collectibleWindowHandler.CloseWindow();
+                IsRunning = false;
+                Plugin.State = PluginState.Idle;
                 return;
             }
         }
+        _collectibleWindowHandler.CloseWindow();
+        IsRunning = false;
+        Plugin.State = PluginState.Idle;
     }
     private void ForceStop(string reason)
     {

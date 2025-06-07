@@ -24,6 +24,7 @@ public static class ServiceWrapper
         collection.AddSingleton(Svc.Targets);
         collection.AddSingleton(Svc.Framework);
         collection.AddSingleton(Svc.ClientState);
+        collection.AddSingleton(Svc.PluginInterface);
         
         collection.AddSingleton<TaskManager>();
         

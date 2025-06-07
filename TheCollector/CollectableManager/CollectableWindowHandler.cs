@@ -63,4 +63,12 @@ namespace TheCollector.CollectableManager;
             addon->FireCallback(2, submitItem, true);
         }
     }
+    public unsafe void CloseWindow()
+    {
+        if (GenericHelpers.TryGetAddonByName<AtkUnitBase>("CollectablesShop", out var addon) &&
+            GenericHelpers.IsAddonReady(addon))
+        {
+            addon->Close(true);
+        }
+    }
 }

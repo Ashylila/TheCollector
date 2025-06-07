@@ -60,10 +60,21 @@ public class ConfigWindow : Window, IDisposable
             VNavmesh_IPCSubscriber.Path_MoveTo([Configuration.PreferredCollectableShop.Location], false);
         }
 
-        if (ImGui.Button("Debug"))
+        if (ImGui.Button("Map"))
         {
-            var debug = new ScripShopCache(Svc.Data);
+            ScripShopCache.Map();
         }
+
+        if (ImGui.Button("Advance page"))
+        {
+            ScripShopCache.Page++;
+            ScripShopCache.SubPage = 1;
+        }
+        if(ImGui.Button("Done mapping"))
+        {
+            ScripShopCache.SaveList();
+        }
+        
     }
     public void DrawShopSelection()
     {
