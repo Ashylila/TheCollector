@@ -68,23 +68,8 @@ public sealed class Plugin : IDalamudPlugin
     public void Start()
     {
         Svc.Log.Debug("Plugin Start called.");
-    
-        var handler = ServiceWrapper.Get<CollectableAutomationHandler>();
-        if (handler == null)
-        {
-            Svc.Log.Error("CollectableAutomationHandler is null!");
-            return;
-        }
 
-        Svc.Log.Debug("Handler resolved successfully. Starting automation...");
-    
-        try
-        {
-        }
-        catch (Exception ex)
-        {
-            Svc.Log.Error($"Handler execution threw: {ex}");
-        }
+        ServiceWrapper.Get<CollectableAutomationHandler>();
     }
     public void Dispose()
     {

@@ -39,7 +39,8 @@ public class CollectableAutomationHandler
     private readonly ITargetManager _targetManager;
     private readonly IFramework _framework;
     private readonly IClientState _clientState;
-    private readonly ScripShopAutomationHandler _scripShopAutomationHandler;
+    private readonly GatherBuddyService _gatherbuddyService;
+    public ScripShopAutomationHandler ScripShopAutomationHandler { get; set; }
     private List<CollectableShopItem> _collectableShopItems = new();
     
     
@@ -56,7 +57,7 @@ public class CollectableAutomationHandler
     
     public bool HasCollectible => ItemHelper.GetCurrentInventoryItems().Any(i => i.IsCollectable);
 
-    public CollectableAutomationHandler( IPluginLog log, CollectableWindowHandler collectibleWindowHandler, IDataManager data, Configuration config, IObjectTable objectTable, ITargetManager targetManager, IFramework frameWork, IClientState clientState, ScripShopAutomationHandler scripShopAutomationHandler )
+    public CollectableAutomationHandler( IPluginLog log, CollectableWindowHandler collectibleWindowHandler, IDataManager data, Configuration config, IObjectTable objectTable, ITargetManager targetManager, IFramework frameWork, IClientState clientState, GatherBuddyService gatherbuddyService )
     {
         _taskManager = new TaskManager(_config);
         _config.OnTaskTimeout += OnTaskTimeout;
@@ -68,12 +69,16 @@ public class CollectableAutomationHandler
         _targetManager = targetManager;
         _framework = frameWork;
         _clientState = clientState;
-        _scripShopAutomationHandler = scripShopAutomationHandler;
-
-        GatherbuddyReborn_IPCSubscriber.OnAutoGatherStatusChanged += Invoke;
+        _gatherbuddyService = gatherbuddyService;
+        
         LoadItems();
+        Init();
     }
-
+    public void Init()
+    {
+        _gatherbuddyService.OnAutoGatherStatusChanged += Invoke;
+        _log.Debug("TheCollector loaded and ready to collect.");
+    }
     public void Start()
     { 
         IsRunning = true;
@@ -96,6 +101,7 @@ public class CollectableAutomationHandler
 
     public void Invoke(bool disabled)
     {
+        _log.Debug("ibeencalled");
         if (_configuration.CollectOnAutogatherDisabled && disabled)
         {
             _log.Debug("Gatherbuddy disabled, starting to collect");
@@ -207,7 +213,7 @@ public class CollectableAutomationHandler
                     _collectibleWindowHandler.CloseWindow();
                     IsRunning = false;
                     Plugin.State = PluginState.Idle;
-                    _scripShopAutomationHandler.Start();
+                    ScripShopAutomationHandler.Start();
                     return;
                 }
             });

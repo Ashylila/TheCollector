@@ -9,7 +9,8 @@ public static class GatherbuddyReborn_IPCSubscriber
     private static readonly EzIPCDisposalToken[] _disposalTokens;
     static GatherbuddyReborn_IPCSubscriber()
     {
-        _disposalTokens = EzIPC.Init(typeof(GatherbuddyReborn_IPCSubscriber),"GatherBuddyReborn");
+        _disposalTokens = EzIPC.Init(typeof(GatherbuddyReborn_IPCSubscriber),"GatherBuddyReborn", SafeWrapper.IPCException);
+        IsAutoGatherEnabled();
     }
 
 

@@ -37,10 +37,15 @@ public static class ServiceWrapper
         collection.AddSingleton<ScripShopAutomationHandler>();
         collection.AddSingleton<ScripShopWindowHandler>();
 
+        collection.AddSingleton<GatherBuddyService>();
+
         collection.AddSingleton<MainWindow>();
         collection.AddSingleton<ConfigWindow>();
         
         ServiceProvider = collection.BuildServiceProvider();
+        var scripShopHandler = Get<ScripShopAutomationHandler>();
+        var collectableHandler = Get<CollectableAutomationHandler>();
+        collectableHandler.ScripShopAutomationHandler = scripShopHandler;
     }
 
     public static T Get<T>() where T : notnull => ServiceProvider.GetRequiredService<T>();
