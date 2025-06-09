@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Game.ClientState.Objects;
 using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Game.Inventory;
@@ -110,7 +111,7 @@ public class CollectableAutomationHandler
         };
 
         _taskManager.EnqueueMulti(tasks);
-        _taskManager.EnqueueDelay(1000);
+        _taskManager.EnqueueDelay(2000);
     }
     
     private IGameObject FindNearbyGameObject(string name)
@@ -145,17 +146,23 @@ public class CollectableAutomationHandler
                 PluginLog.Error($"error finding job for item: {item.Name.ExtractText()}");
                 continue;
             }
-            _log.Debug($"Collecting {value.ToString()}");
+            
             if (currentItem != item.Name.ExtractText())
             {
                 currentItem = item.Name.ExtractText();
                 _taskManager.Enqueue(() => _collectibleWindowHandler.SelectJob((uint)value));
-                _taskManager.EnqueueDelay(100);
+                _taskManager.EnqueueDelay(300);
                 _taskManager.Enqueue(() => _collectibleWindowHandler.SelectItem(item.Name.ExtractText()));
-                _taskManager.EnqueueDelay(100);
+                _taskManager.EnqueueDelay(300);
             }
+            else
+            {
+                _taskManager.EnqueueDelay(300);
+            }
+            
+            _taskManager.Enqueue(()=>_log.Debug($"Collecting {value.ToString()}"));
             _taskManager.Enqueue(() => _collectibleWindowHandler.SubmitItem());
-            _taskManager.EnqueueDelay(100);
+            _taskManager.EnqueueDelay(300);
             
             _taskManager.Enqueue(() =>
             {
@@ -192,6 +199,6 @@ public class CollectableAutomationHandler
     }
     private List<Item> GetCollectablesInInventory()
     {
-        return ItemHelper.GetLuminaItemsFromInventory().Where(i => i.IsCollectable).ToList().OrderBy(i => i.Name).ToList();
+        return ItemHelper.GetLuminaItemsFromInventory().Where(i => i.IsCollectable).ToList().OrderBy(i => i.Name.ExtractText()).ToList();
     }
 }
