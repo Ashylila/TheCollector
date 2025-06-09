@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using Dalamud.Game.ClientState.Objects;
 using Dalamud.Interface.Windowing;
 using Dalamud.Plugin.Services;
 using ECommons.DalamudServices;
@@ -19,11 +20,11 @@ public class ConfigWindow : Window, IDisposable
     private readonly IDataManager _dataManager;
     private readonly CollectableAutomationHandler _collectableAutomationHandler;
     private Configuration Configuration;
+    private ScripShopAutomationHandler ScripShopAutomationHandler;
+    private readonly ScripShopWindowHandler _scripShopWindowHandler;
+    private readonly ITargetManager _targetManager;
     
-    // We give this window a constant ID using ###
-    // This allows for labels being dynamic, like "{FPS Counter}fps###XYZ counter window",
-    // and the window ID will always be "###XYZ counter window" for ImGui
-    public ConfigWindow(Plugin plugin, CollectableAutomationHandler collectableAutomationHandler, IDataManager data) : base("A Wonderful Configuration Window###With a constant ID")
+    public ConfigWindow(Plugin plugin, CollectableAutomationHandler collectableAutomationHandler, IDataManager data, ScripShopAutomationHandler scripShopAutomationHandler, ScripShopWindowHandler handler, ITargetManager target) : base("Configuration###With a constant ID")
     {
         Flags = ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar |
                 ImGuiWindowFlags.NoScrollWithMouse;
@@ -34,6 +35,9 @@ public class ConfigWindow : Window, IDisposable
         _collectableAutomationHandler = collectableAutomationHandler;
         _dataManager = data;
         Configuration = plugin.Configuration;
+        ScripShopAutomationHandler = scripShopAutomationHandler;
+        _scripShopWindowHandler = handler;
+        _targetManager = target;
     }
 
     public void Dispose() { }
@@ -45,6 +49,7 @@ public class ConfigWindow : Window, IDisposable
     public override void Draw()
     {
         DrawDebugStartButton();
+        DrawOptions();
         DrawShopSelection();
     }
 
@@ -60,21 +65,38 @@ public class ConfigWindow : Window, IDisposable
             VNavmesh_IPCSubscriber.Path_MoveTo([Configuration.PreferredCollectableShop.Location], false);
         }
 
-        if (ImGui.Button("Map"))
+        if (ImGui.Button("Buy Items"))
         {
-            ScripShopCache.Map();
+            ScripShopAutomationHandler.Start();
+        }
+        if (ImGui.Button("Page"))
+        {
+            _scripShopWindowHandler.SelectPage(2);
         }
 
-        if (ImGui.Button("Advance page"))
+        if (ImGui.Button("Unstuck"))
         {
-            ScripShopCache.Page++;
-            ScripShopCache.SubPage = 1;
-        }
-        if(ImGui.Button("Done mapping"))
-        {
-            ScripShopCache.SaveList();
+            _targetManager.Target = null;
         }
         
+    }
+
+    public void DrawOptions()
+    {
+        ImGui.TextUnformatted("Options:");
+        var toggleOnAutogatherStop = Configuration.CollectOnAutogatherDisabled;
+        if (ImGui.Checkbox("Collect on Autogather Stop", ref toggleOnAutogatherStop))
+        {
+            Configuration.CollectOnAutogatherDisabled = toggleOnAutogatherStop;
+            Configuration.Save();
+        }
+
+        var toggleAutogatherOnFinish = Configuration.EnableAutogatherOnFinish;
+        if (ImGui.Checkbox("Enable Autogather on Finish", ref toggleAutogatherOnFinish))
+        {
+            Configuration.EnableAutogatherOnFinish = toggleAutogatherOnFinish;
+            Configuration.Save();
+        }
     }
     public void DrawShopSelection()
     {

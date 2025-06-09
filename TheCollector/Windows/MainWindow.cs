@@ -17,27 +17,23 @@ namespace TheCollector.Windows;
 public class MainWindow : Window, IDisposable
 {
     private readonly IDalamudPluginInterface pluginInterface;
-    private string filterText = "";
     private string comboFilter = "";
     private string GoatImagePath;
-    private Plugin Plugin;
+    private Configuration configuration;
     private List<ScripShopItem> ShopItems;
     private ScripShopItem? SelectedScripItem = null;
     private bool IsLoaded = false;
-
-    // We give this window a hidden ID using ##
-    // So that the user will see "My Amazing Window" as window title,
-    // but for ImGui the ID is "My Amazing Window##With a hidden ID"
+    
     public MainWindow(Plugin plugin, IDalamudPluginInterface pluginInterface)
         : base("The Collector##With a hidden ID", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse)
     {
         SizeConstraints = new WindowSizeConstraints
         {
-            MinimumSize = new Vector2(200, 200),
+            MinimumSize = new Vector2(150, 100),
             MaximumSize = new Vector2(float.MaxValue, float.MaxValue)
         };
         
-        Plugin = plugin;
+        this.configuration = plugin.Configuration;
         this.pluginInterface = pluginInterface;
     }
     
@@ -58,7 +54,7 @@ public class MainWindow : Window, IDisposable
     public void Dispose() { }
     public override void PreDraw()
     {
-        ImGui.SetNextWindowSize(new Vector2(200, 200), ImGuiCond.FirstUseEver);
+        ImGui.SetNextWindowSize(new Vector2(150, 100), ImGuiCond.FirstUseEver);
     }
 
     public override void Draw()
@@ -85,7 +81,7 @@ public class MainWindow : Window, IDisposable
                 bool isSelected = item == SelectedScripItem;
                 var iconTexture = item.IconTexture;
 
-                ImGui.Image(iconTexture.GetWrapOrDefault().ImGuiHandle, new Vector2(20, 20));
+                ImGui.Image(iconTexture.GetWrapOrEmpty().ImGuiHandle, new Vector2(20, 20));
                 ImGui.SameLine();
                 if (ImGui.Selectable(item.Name, isSelected))
                 {
@@ -103,14 +99,14 @@ public class MainWindow : Window, IDisposable
         
         if (ImGui.Button("+") && SelectedScripItem != null)
         {
-            if (!Plugin.Configuration.ItemsToPurchase.Any(i => i.Item == SelectedScripItem))
+            if (!configuration.ItemsToPurchase.Any(i => i.Item == SelectedScripItem))
             {
-                Plugin.Configuration.ItemsToPurchase.Add(new ItemToPurchase()
+                configuration.ItemsToPurchase.Add(new ItemToPurchase()
                 {
                     Item = SelectedScripItem,
                     Quantity = 1
                 });
-                Plugin.Configuration.Save();
+                configuration.Save();
             }
         }
 
@@ -120,22 +116,33 @@ public class MainWindow : Window, IDisposable
         ImGui.Text("Items to purchase:");
         ImGui.BeginChild("##ItemList", new Vector2(0, -ImGui.GetFrameHeightWithSpacing()), true);
 
-        foreach (var item in Plugin.Configuration.ItemsToPurchase)
+        for (int i = 0; i < configuration.ItemsToPurchase.Count; i++)
         {
+            var item = configuration.ItemsToPurchase[i];
+            if (ImGui.Button($"-##Remove{i}"))
+            {
+                configuration.ItemsToPurchase.RemoveAt(i);
+                configuration.Save();
+                i--;
+            }
+            ImGui.SameLine();
             var iconTexture = item.Item.IconTexture;
             ImGui.Image(iconTexture.GetWrapOrDefault().ImGuiHandle, new Vector2(20, 20));
             ImGui.SameLine();
             ImGui.Text(item.Item.Name);
             ImGui.SameLine();
-            ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, new Vector2(5, 5));
-            if (ImGui.Button("-"))
-            {
-                Plugin.Configuration.ItemsToPurchase.Remove(item);
-                Plugin.Configuration.Save();
-            }
-            ImGui.PopStyleVar();
-        }
 
+            int quantity = item.Quantity;
+            ImGui.PushItemWidth(100);
+            if (ImGui.InputInt($"##Quantity{i}", ref quantity))
+            {
+                item.Quantity = quantity;
+                configuration.ItemsToPurchase[i] = item; // Write back the updated item
+                configuration.Save();
+            }
+            ImGui.PopItemWidth();
+            
+        }
         ImGui.EndChild();
     }
 

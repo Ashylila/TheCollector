@@ -16,6 +16,7 @@ using FFXIVClientStructs.FFXIV.Component.GUI;
 using Lumina.Excel.Sheets;
 using TheCollector.Data;
 using TheCollector.Ipc;
+using TheCollector.ScripShopManager;
 using TheCollector.Utility;
 
 namespace TheCollector.CollectableManager;
@@ -33,12 +34,13 @@ public class CollectableAutomationHandler
     private readonly ITargetManager _targetManager;
     private readonly IFramework _framework;
     private readonly IClientState _clientState;
+    private readonly ScripShopAutomationHandler _scripShopAutomationHandler;
     
     
     private TaskManagerConfiguration _config = new  TaskManagerConfiguration()
     {
-        ExecuteDefaultConfigurationEvents = true,
-        ShowDebug = true
+        ExecuteDefaultConfigurationEvents = false,
+        ShowDebug = true,
         
     };
 
@@ -48,7 +50,7 @@ public class CollectableAutomationHandler
     
     public bool HasCollectible => ItemHelper.GetCurrentInventoryItems().Any(i => i.IsCollectable);
 
-    public CollectableAutomationHandler( IPluginLog log, CollectableWindowHandler collectibleWindowHandler, IDataManager data, Configuration config, IObjectTable objectTable, ITargetManager targetManager, IFramework frameWork, IClientState clientState )
+    public CollectableAutomationHandler( IPluginLog log, CollectableWindowHandler collectibleWindowHandler, IDataManager data, Configuration config, IObjectTable objectTable, ITargetManager targetManager, IFramework frameWork, IClientState clientState, ScripShopAutomationHandler scripShopAutomationHandler )
     {
         _taskManager = new TaskManager(_config);
         _config.OnTaskTimeout += OnTaskTimeout;
@@ -60,6 +62,7 @@ public class CollectableAutomationHandler
         _targetManager = targetManager;
         _framework = frameWork;
         _clientState = clientState;
+        _scripShopAutomationHandler = scripShopAutomationHandler;
     }
 
     public void Start()
@@ -88,20 +91,26 @@ public class CollectableAutomationHandler
         var loc = _configuration.PreferredCollectableShop.Location;
         _log.Debug($"vnav moveto {loc.X} {loc.Y.ToString().Replace(",", ".")} {loc.Z}");
         VNavmesh_IPCSubscriber.Path_MoveTo([loc], false);
-        _taskManager.Enqueue(() =>
+        var tasks = new[]
         {
-            if (PlayerHelper.GetDistanceToPlayer(_configuration.PreferredCollectableShop.Location) > 2) return false;
-            return true;
-        }, "DistanceToShopCheck");
-        _taskManager.Enqueue(() =>
-        {
-            _targetManager.Target = _objectTable.FirstOrDefault(a => a.Name.TextValue.Contains(
-                                                                    "collectable", StringComparison.OrdinalIgnoreCase));
-        });
-        _taskManager.Enqueue(() =>
-        {
-            TargetSystem.Instance()->OpenObjectInteraction(TargetSystem.Instance()->Target);
-        });
+            new TaskManagerTask(() =>
+            {
+                if (PlayerHelper.GetDistanceToPlayer(_configuration.PreferredCollectableShop.Location) > 2) return false;
+                return true;
+            }),
+            new TaskManagerTask(() =>
+            {
+                _targetManager.Target = _objectTable.FirstOrDefault(a => a.Name.TextValue.Contains(
+                                                                        "collectable", StringComparison.OrdinalIgnoreCase));
+            }),
+            new TaskManagerTask(() =>
+            {
+                TargetSystem.Instance()->OpenObjectInteraction(TargetSystem.Instance()->Target);
+            }),
+        };
+
+        _taskManager.EnqueueMulti(tasks);
+        _taskManager.EnqueueDelay(1000);
     }
     
     private IGameObject FindNearbyGameObject(string name)
@@ -126,46 +135,49 @@ public class CollectableAutomationHandler
     }
     public unsafe void TradeEachCollectable()
     {
+        string currentItem = string.Empty;
         Plugin.State = PluginState.ExchangingItems;
         foreach (var item in _currentCollectables)
         {
-            int currentJob = -2; // -2 means no job selected, not -1 in-case of index not found
-            string currentItem = string.Empty;
+            _log.Debug(_currentCollectables.Count.ToString());
             if (!ItemHelper.RarefiedItemToClassJob.TryGetValue(item.Name.ExtractText(), out var value))
             {
                 PluginLog.Error($"error finding job for item: {item.Name.ExtractText()}");
                 continue;
             }
             _log.Debug($"Collecting {value.ToString()}");
-            if (currentJob != (int)value)
-            {
-                _taskManager.Enqueue(() => _collectibleWindowHandler.SelectJob((uint)value));
-                _taskManager.EnqueueDelay(100);
-                currentJob = (int)value;
-            }
             if (currentItem != item.Name.ExtractText())
             {
+                currentItem = item.Name.ExtractText();
+                _taskManager.Enqueue(() => _collectibleWindowHandler.SelectJob((uint)value));
+                _taskManager.EnqueueDelay(100);
                 _taskManager.Enqueue(() => _collectibleWindowHandler.SelectItem(item.Name.ExtractText()));
                 _taskManager.EnqueueDelay(100);
-                currentItem = item.Name.ExtractText();
             }
             _taskManager.Enqueue(() => _collectibleWindowHandler.SubmitItem());
             _taskManager.EnqueueDelay(100);
             
-            if (GenericHelpers.TryGetAddonByName("SelectYesno", out AtkUnitBase* addon))
+            _taskManager.Enqueue(() =>
             {
-                addon->Close(true);
-                _log.Debug("Max scrips reached, stopping automatic turn-in");
-                _taskManager.Abort();
-                _collectibleWindowHandler.CloseWindow();
-                IsRunning = false;
-                Plugin.State = PluginState.Idle;
-                return;
-            }
+                if (GenericHelpers.TryGetAddonByName("SelectYesno", out AtkUnitBase* addon))
+                {
+                    addon->Close(true);
+                    _log.Debug("Max scrips reached, stopping automatic turn-in");
+                    _taskManager.Abort();
+                    _collectibleWindowHandler.CloseWindow();
+                    IsRunning = false;
+                    Plugin.State = PluginState.Idle;
+                }
+
+                return true;
+            });
         }
-        _collectibleWindowHandler.CloseWindow();
-        IsRunning = false;
-        Plugin.State = PluginState.Idle;
+        _taskManager.Enqueue(() =>
+        {
+            _collectibleWindowHandler.CloseWindow();
+            IsRunning = false;
+            Plugin.State = PluginState.Idle;
+        });
     }
     private void ForceStop(string reason)
     {
@@ -180,6 +192,6 @@ public class CollectableAutomationHandler
     }
     private List<Item> GetCollectablesInInventory()
     {
-        return ItemHelper.GetLuminaItemsFromInventory().Where(i => i.IsCollectable).ToList() ?? new List<Item>();
+        return ItemHelper.GetLuminaItemsFromInventory().Where(i => i.IsCollectable).ToList().OrderBy(i => i.Name).ToList();
     }
 }

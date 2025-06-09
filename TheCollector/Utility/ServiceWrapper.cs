@@ -6,6 +6,7 @@ using ECommons.DalamudServices;
 using FFXIVClientStructs.Havok.Animation.Rig;
 using Microsoft.Extensions.DependencyInjection;
 using TheCollector.CollectableManager;
+using TheCollector.ScripShopManager;
 using TheCollector.Windows;
 
 namespace TheCollector.Utility;
@@ -33,6 +34,8 @@ public static class ServiceWrapper
         
         collection.AddSingleton<CollectableWindowHandler>();
         collection.AddSingleton<CollectableAutomationHandler>();
+        collection.AddSingleton<ScripShopAutomationHandler>();
+        collection.AddSingleton<ScripShopWindowHandler>();
 
         collection.AddSingleton<MainWindow>();
         collection.AddSingleton<ConfigWindow>();
