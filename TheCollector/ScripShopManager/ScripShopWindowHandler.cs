@@ -84,7 +84,6 @@ public unsafe class ScripShopWindowHandler
     {
         if (GenericHelpers.TryGetAddonByName("InclusionShop", out AtkUnitBase* addon))
         {
-            Svc.Log.Debug(addon->UldManager.NodeListCount.ToString());
             for(int i = 0; i < addon->UldManager.NodeListCount; i++)
             {
                 var node = addon->UldManager.NodeList[i];
@@ -93,7 +92,6 @@ public unsafe class ScripShopWindowHandler
                     var textNode = node->GetAsAtkTextNode();
                     if (textNode != null)
                     {
-                        Svc.Log.Debug(textNode->NodeText.ToString());
                         return int.Parse(textNode->NodeText.ToString());
                     }
                 }

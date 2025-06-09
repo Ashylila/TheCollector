@@ -35,7 +35,8 @@ public sealed class Plugin : IDalamudPlugin
     private ConfigWindow ConfigWindow { get; init; }
     private MainWindow MainWindow { get; init; }
 
-    public static PluginState State = PluginState.Idle;
+    public static PluginState State { get; set; } = PluginState.Idle;
+    public static event Action<bool> OnCollectorStatusChanged;
     public Plugin()
     {
         Configuration = PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();

@@ -15,6 +15,13 @@
         </Content>
     </ItemGroup>
     <ItemGroup>
+        <Content Include="..\Data\CollectableShopItems.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+            <Visible>false</Visible>
+        </Content>
+    </ItemGroup>
+    <ItemGroup>
         <ProjectReference Include="..\ECommons\ECommons\ECommons.csproj" />
     </ItemGroup>
     <ItemGroup>

@@ -69,11 +69,13 @@ public class CollectableAutomationHandler
         _framework = frameWork;
         _clientState = clientState;
         _scripShopAutomationHandler = scripShopAutomationHandler;
+
+        GatherbuddyReborn_IPCSubscriber.OnAutoGatherStatusChanged += Invoke;
         LoadItems();
     }
 
     public void Start()
-    {
+    { 
         IsRunning = true;
         _log.Debug(GetCollectablesInInventory().Count.ToString());
         if (GetCollectablesInInventory().Count == 0)
@@ -92,6 +94,15 @@ public class CollectableAutomationHandler
         _taskManager.Enqueue(()=>TradeEachCollectable(), nameof(TradeEachCollectable));
     }
 
+    public void Invoke(bool disabled)
+    {
+        if (_configuration.CollectOnAutogatherDisabled && disabled)
+        {
+            _log.Debug("Gatherbuddy disabled, starting to collect");
+            Start();
+        }
+    }
+    
     private unsafe void MoveToCollectableShop()
     {
         Plugin.State = PluginState.MovingToCollectableVendor;
@@ -102,7 +113,7 @@ public class CollectableAutomationHandler
         {
             new TaskManagerTask(() =>
             {
-                if (PlayerHelper.GetDistanceToPlayer(_configuration.PreferredCollectableShop.Location) > 2) return false;
+                if (PlayerHelper.GetDistanceToPlayer(_configuration.PreferredCollectableShop.Location) > 1) return false;
                 return true;
             }),
             new TaskManagerTask(() =>
@@ -112,12 +123,44 @@ public class CollectableAutomationHandler
             }),
             new TaskManagerTask(() =>
             {
+                VNavmesh_IPCSubscriber.Path_Stop();
+            }),
+            new TaskManagerTask(() =>
+            {
                 TargetSystem.Instance()->OpenObjectInteraction(TargetSystem.Instance()->Target);
             }),
         };
 
         _taskManager.EnqueueMulti(tasks);
         _taskManager.EnqueueDelay(2000);
+    }
+
+    public unsafe void RestartAfterTrading()
+    {
+        var tasks = new[]
+        {
+            new TaskManagerTask(() =>
+            {
+                if (PlayerHelper.GetDistanceToPlayer(_configuration.PreferredCollectableShop.Location) > 1) return false;
+                return true;
+            }),
+            new TaskManagerTask(() =>
+            {
+                _targetManager.Target = _objectTable.FirstOrDefault(a => a.Name.TextValue.Contains(
+                                                                        "collectable", StringComparison.OrdinalIgnoreCase));
+            }),
+            new TaskManagerTask(() =>
+            {
+                VNavmesh_IPCSubscriber.Path_Stop();
+            }),
+            new TaskManagerTask(() =>
+            {
+                TargetSystem.Instance()->OpenObjectInteraction(TargetSystem.Instance()->Target);
+            }),
+        };
+        _taskManager.EnqueueMulti(tasks);
+        _taskManager.EnqueueDelay(2000);
+        _taskManager.Enqueue(()=>TradeEachCollectable(), nameof(TradeEachCollectable));
     }
     
     private IGameObject FindNearbyGameObject(string name)
@@ -164,6 +207,7 @@ public class CollectableAutomationHandler
                     _collectibleWindowHandler.CloseWindow();
                     IsRunning = false;
                     Plugin.State = PluginState.Idle;
+                    _scripShopAutomationHandler.Start();
                     return;
                 }
             });

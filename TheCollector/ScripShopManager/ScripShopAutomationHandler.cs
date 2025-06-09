@@ -5,6 +5,7 @@ using Dalamud.Plugin.Services;
 using ECommons.Automation.NeoTaskManager;
 using ECommons.DalamudServices;
 using FFXIVClientStructs.FFXIV.Client.Game.Control;
+using TheCollector.CollectableManager;
 using TheCollector.Data;
 
 namespace TheCollector.ScripShopManager;
@@ -25,8 +26,9 @@ public class ScripShopAutomationHandler
         
     };
     private readonly ScripShopWindowHandler _scripShopWindowHandler;
+    private readonly CollectableAutomationHandler _collectableAutomationHandler;
     public bool IsRunning { get; private set; } = false;
-    public ScripShopAutomationHandler(IPluginLog log, ITargetManager targetManager, IFramework framework, IClientState clientState, Configuration configuration, IObjectTable objectTable, ScripShopWindowHandler handler)
+    public ScripShopAutomationHandler(IPluginLog log, ITargetManager targetManager, IFramework framework, IClientState clientState, Configuration configuration, IObjectTable objectTable, ScripShopWindowHandler handler, CollectableAutomationHandler collectableAutomationHandler)
     {
         _taskManager = new TaskManager(_config);
         _config.OnTaskTimeout += OnTaskTimeout;
@@ -37,6 +39,7 @@ public class ScripShopAutomationHandler
         _configuration = configuration;
         _objectTable = objectTable;
         _scripShopWindowHandler = handler;
+        _collectableAutomationHandler = collectableAutomationHandler;
     }
 
     public unsafe void Start()
@@ -87,10 +90,17 @@ public class ScripShopAutomationHandler
             _taskManager.Enqueue(()=>
             {
                 _scripShopWindowHandler.PurchaseItem();
+                scripItem.AmountPurchased += quantity;
+                _configuration.Save();
             });
-            scripItem.AmountPurchased += quantity;
-            _configuration.Save();
         }
+        _taskManager.Enqueue((() =>
+                                 {
+                                     if (_collectableAutomationHandler.HasCollectible)
+                                     {
+                                         _collectableAutomationHandler.RestartAfterTrading();
+                                     }
+                                 }));
         Plugin.State = PluginState.Idle;
     }
     private void ForceStop(string reason)

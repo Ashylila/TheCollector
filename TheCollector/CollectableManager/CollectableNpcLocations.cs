@@ -16,7 +16,7 @@ public static class CollectableNpcLocations
         new CollectableShop()
         {
             Name = "Eulmore",
-            Location = new Vector3(18.05f, 82.05f, -17.8f)
+            Location = new Vector3(16.94f, 82.05f, -19.177f)
         }
     };
     public static Vector3 CollectableNpcLocationVectors(int territoryId)
