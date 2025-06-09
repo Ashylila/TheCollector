@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text.Json;
 using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Game.ClientState.Objects;
 using Dalamud.Game.ClientState.Objects.Types;
@@ -14,8 +16,10 @@ using ECommons.Logging;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.Game.Control;
 using FFXIVClientStructs.FFXIV.Component.GUI;
+using FFXIVClientStructs.Havok.Common.Serialize.Util;
 using Lumina.Excel.Sheets;
 using TheCollector.Data;
+using TheCollector.Data.Models;
 using TheCollector.Ipc;
 using TheCollector.ScripShopManager;
 using TheCollector.Utility;
@@ -36,6 +40,7 @@ public class CollectableAutomationHandler
     private readonly IFramework _framework;
     private readonly IClientState _clientState;
     private readonly ScripShopAutomationHandler _scripShopAutomationHandler;
+    private List<CollectableShopItem> _collectableShopItems = new();
     
     
     private TaskManagerConfiguration _config = new  TaskManagerConfiguration()
@@ -64,6 +69,7 @@ public class CollectableAutomationHandler
         _framework = frameWork;
         _clientState = clientState;
         _scripShopAutomationHandler = scripShopAutomationHandler;
+        LoadItems();
     }
 
     public void Start()
@@ -141,16 +147,30 @@ public class CollectableAutomationHandler
         foreach (var item in _currentCollectables)
         {
             _log.Debug(_currentCollectables.Count.ToString());
-            if (!ItemHelper.RarefiedItemToClassJob.TryGetValue(item.Name.ExtractText(), out var value))
+            if (!_collectableShopItems.TryGetFirst(i=> i.Name.Contains(item.Name.ExtractText(), StringComparison.OrdinalIgnoreCase), out var value))
             {
                 PluginLog.Error($"error finding job for item: {item.Name.ExtractText()}");
                 continue;
             }
-            
+
+            _taskManager.Enqueue(() =>
+            {
+                if (value.Amount > (4000 -(value.ScripType == 0
+                                               ? _collectibleWindowHandler.PurpleScripCount()
+                                               : _collectibleWindowHandler.OrangeScripCount())))
+                {
+                    _log.Debug("Max scrips reached, stopping automatic turn-in");
+                    _taskManager.Abort();
+                    _collectibleWindowHandler.CloseWindow();
+                    IsRunning = false;
+                    Plugin.State = PluginState.Idle;
+                    return;
+                }
+            });
             if (currentItem != item.Name.ExtractText())
             {
                 currentItem = item.Name.ExtractText();
-                _taskManager.Enqueue(() => _collectibleWindowHandler.SelectJob((uint)value));
+                _taskManager.Enqueue(() => _collectibleWindowHandler.SelectJob((uint)value.Class));
                 _taskManager.EnqueueDelay(300);
                 _taskManager.Enqueue(() => _collectibleWindowHandler.SelectItem(item.Name.ExtractText()));
                 _taskManager.EnqueueDelay(300);
@@ -163,22 +183,8 @@ public class CollectableAutomationHandler
             _taskManager.Enqueue(()=>_log.Debug($"Collecting {value.ToString()}"));
             _taskManager.Enqueue(() => _collectibleWindowHandler.SubmitItem());
             _taskManager.EnqueueDelay(300);
-            
-            _taskManager.Enqueue(() =>
-            {
-                if (GenericHelpers.TryGetAddonByName("SelectYesno", out AtkUnitBase* addon))
-                {
-                    addon->Close(true);
-                    _log.Debug("Max scrips reached, stopping automatic turn-in");
-                    _taskManager.Abort();
-                    _collectibleWindowHandler.CloseWindow();
-                    IsRunning = false;
-                    Plugin.State = PluginState.Idle;
-                }
-
-                return true;
-            });
         }
+        _taskManager.EnqueueDelay(500);
         _taskManager.Enqueue(() =>
         {
             _collectibleWindowHandler.CloseWindow();
@@ -200,5 +206,26 @@ public class CollectableAutomationHandler
     private List<Item> GetCollectablesInInventory()
     {
         return ItemHelper.GetLuminaItemsFromInventory().Where(i => i.IsCollectable).ToList().OrderBy(i => i.Name.ExtractText()).ToList();
+    }
+
+    private void LoadItems()
+    {
+        var fileName = "CollectableShopItems.json";
+        var path = Svc.PluginInterface.AssemblyLocation.DirectoryName;
+        var fullPath = System.IO.Path.Combine(path, fileName);
+        try
+        {
+            var text = File.ReadAllText(fullPath);
+            _collectableShopItems = JsonSerializer.Deserialize<List<CollectableShopItem>>(text) ?? new List<CollectableShopItem>();
+            _log.Debug($"Loaded {_collectableShopItems.Count} items");
+            foreach (var item in _collectableShopItems)
+            {
+                _log.Debug(item.Name);
+            }
+        }
+        catch (Exception e)
+        {
+            _log.Error(e.Message);
+        }
     }
 }

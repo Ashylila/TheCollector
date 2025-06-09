@@ -17,6 +17,7 @@ public class ScripShopItem
     
     [JsonIgnore]
     private Item? _itemCache;
+    [JsonIgnore]
     public Item Item => _itemCache ??= Svc.Data.GetExcelSheet<Item>().FirstOrDefault(i => i.Name == Name);
     [JsonIgnore]
     private ISharedImmediateTexture? _iconTextureCache;

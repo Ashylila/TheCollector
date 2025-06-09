@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Dalamud.Game.Inventory;
 using Dalamud.Memory;
+using Dalamud.Utility;
 using ECommons;
 using ECommons.DalamudServices;
 using ECommons.Logging;
@@ -70,5 +71,66 @@ namespace TheCollector.CollectableManager;
         {
             addon->Close(true);
         }
+    }
+    public unsafe int PurpleScripCount()
+    {
+        if (GenericHelpers.TryGetAddonByName<AtkUnitBase>("CollectablesShop", out var addon) &&
+            GenericHelpers.IsAddonReady(addon))
+        {
+            for (int i = 0; i < addon->UldManager.NodeListCount; i++)
+            {
+                var node = addon->UldManager.NodeList[i];
+                if (node->Type == NodeType.Res && node->NodeId == 14)
+                {
+                    var child = node->ChildNode;
+                    if (child->NodeId == 16)
+                    {
+                        var componentNode = child->GetAsAtkComponentNode();
+                        return int.Parse(componentNode->Component->GetTextNodeById(4)->GetAsAtkTextNode()->NodeText.StringPtr
+                                             .ExtractText().Split('/')[0]);
+
+                    }
+                    else
+                    {
+                        child = child->NextSiblingNode;
+                        var componentNode = child->GetAsAtkComponentNode();
+                        return int.Parse(componentNode->Component->GetTextNodeById(4)->GetAsAtkTextNode()->NodeText.StringPtr
+                                             .ExtractText().Split('/')[0].Replace(",", ""));
+                    }
+                }
+            }
+        }
+        return -1;
+    }
+    public unsafe int OrangeScripCount()
+    {
+        if (GenericHelpers.TryGetAddonByName<AtkUnitBase>("CollectablesShop", out var addon) &&
+            GenericHelpers.IsAddonReady(addon))
+        {
+            for (int i = 0; i < addon->UldManager.NodeListCount; i++)
+            {
+                var node = addon->UldManager.NodeList[i];
+                
+                if (node->Type == NodeType.Res && node->NodeId == 14)
+                {
+                    var child = node->ChildNode;
+                    if (child->NodeId == 15)
+                    {
+                        var componentNode = child->GetAsAtkComponentNode();
+                        return int.Parse(componentNode->Component->GetTextNodeById(4)->GetAsAtkTextNode()->NodeText.StringPtr
+                                             .ExtractText().Split('/')[0]);
+
+                    }
+                    else
+                    {
+                        var nextChild = child->PrevSiblingNode;
+                        var componentNode = nextChild->GetAsAtkComponentNode();
+                        return int.Parse(componentNode->Component->GetTextNodeById(4)->GetAsAtkTextNode()->NodeText.StringPtr
+                                             .ExtractText().Split('/')[0].Replace(",", ""));
+                    }
+                }
+            }
+        }
+        return -1;
     }
 }

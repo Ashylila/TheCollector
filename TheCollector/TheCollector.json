@@ -5,8 +5,7 @@
   "Description": "A description that shows up in /xlplugins. List any major slash-command(s).",
   "ApplicableVersion": "any",
   "Tags": [
-    "sample",
-    "plugin",
-    "goats"
+    "collectables",
+      "automation"
   ]
 }

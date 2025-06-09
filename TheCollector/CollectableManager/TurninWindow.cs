@@ -13,7 +13,7 @@ namespace TheCollector.CollectableManager;
 
 public unsafe class TurninWindow
 {
-    private readonly string[] _labels;
+    public readonly string[] _labels;
     private readonly StdVector<Pointer<AtkComponentTreeListItem>> _items;
     private readonly int _itemCount;
     private readonly AtkUnitBase* _addon;

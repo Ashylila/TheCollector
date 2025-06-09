@@ -23,8 +23,9 @@ public class ConfigWindow : Window, IDisposable
     private ScripShopAutomationHandler ScripShopAutomationHandler;
     private readonly ScripShopWindowHandler _scripShopWindowHandler;
     private readonly ITargetManager _targetManager;
+    private readonly CollectableWindowHandler _collectableWindowHandler;
     
-    public ConfigWindow(Plugin plugin, CollectableAutomationHandler collectableAutomationHandler, IDataManager data, ScripShopAutomationHandler scripShopAutomationHandler, ScripShopWindowHandler handler, ITargetManager target) : base("Configuration###With a constant ID")
+    public ConfigWindow(Plugin plugin, CollectableAutomationHandler collectableAutomationHandler, IDataManager data, ScripShopAutomationHandler scripShopAutomationHandler, ScripShopWindowHandler handler, ITargetManager target, CollectableWindowHandler windowHandler) : base("Configuration###With a constant ID")
     {
         Flags = ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar |
                 ImGuiWindowFlags.NoScrollWithMouse;
@@ -38,6 +39,7 @@ public class ConfigWindow : Window, IDisposable
         ScripShopAutomationHandler = scripShopAutomationHandler;
         _scripShopWindowHandler = handler;
         _targetManager = target;
+        _collectableWindowHandler = windowHandler;
     }
 
     public void Dispose() { }
@@ -77,6 +79,12 @@ public class ConfigWindow : Window, IDisposable
         if (ImGui.Button("Unstuck"))
         {
             _targetManager.Target = null;
+        }
+
+        if (ImGui.Button("Check"))
+        {
+            Svc.Log.Debug(_collectableWindowHandler.PurpleScripCount().ToString());
+            Svc.Log.Debug(_collectableWindowHandler.OrangeScripCount().ToString());
         }
         
     }
