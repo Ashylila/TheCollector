@@ -3,6 +3,7 @@ on:
   push:
     tags:
       - '*.*'
+
 jobs:
   Build:
     permissions:
@@ -17,9 +18,8 @@ jobs:
       - name: Get Environment Variables
         run: |
           $tag = "${{ github.ref }}" -replace 'refs/tags/', ''
-
           "tag=$tag" | Out-File -Append -FilePath $Env:GITHUB_ENV
-          
+
       - name: Set up .NET
         uses: actions/setup-dotnet@v1
         with:
@@ -40,7 +40,7 @@ jobs:
         run: Compress-Archive -Path .\build\* -DestinationPath .\build\TheCollector.zip
 
       - name: Publish Plugin
-        uses: softprops/action-gh-release@v2
+        uses: ncipollo/release-action@v1
         with:
-          files: ./build/TheCollector.zip
+          artifacts: ./build/TheCollector.zip
           token: ${{ secrets.GITHUB_TOKEN }}
