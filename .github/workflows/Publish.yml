@@ -44,3 +44,5 @@ jobs:
         with:
           artifacts: ./build/TheCollector.zip
           token: ${{ secrets.GITHUB_TOKEN }}
+          allowUpdates: true
+
