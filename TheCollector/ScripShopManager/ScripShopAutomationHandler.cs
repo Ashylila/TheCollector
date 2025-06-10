@@ -30,8 +30,8 @@ public class ScripShopAutomationHandler
     public bool IsRunning { get; private set; } = false;
     public ScripShopAutomationHandler(IPluginLog log, ITargetManager targetManager, IFramework framework, IClientState clientState, Configuration configuration, IObjectTable objectTable, ScripShopWindowHandler handler, CollectableAutomationHandler collectableAutomationHandler)
     {
-        _taskManager = new TaskManager(_config);
         _config.OnTaskTimeout += OnTaskTimeout;
+        _taskManager = new TaskManager(_config);
         _log = log;
         _targetManager = targetManager;
         _framework = framework;
@@ -94,14 +94,19 @@ public class ScripShopAutomationHandler
                 _configuration.Save();
             });
         }
-        _taskManager.Enqueue((() =>
+        _taskManager.Enqueue((() => 
                                  {
                                      if (_collectableAutomationHandler.HasCollectible)
                                      {
+                                         _scripShopWindowHandler.CloseShop();
                                          _collectableAutomationHandler.RestartAfterTrading();
                                      }
+                                     else
+                                     { 
+                                         _scripShopWindowHandler.CloseShop();
+                                         Plugin.State = PluginState.Idle;
+                                     }
                                  }));
-        Plugin.State = PluginState.Idle;
     }
     private void ForceStop(string reason)
     {

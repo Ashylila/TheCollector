@@ -87,7 +87,7 @@ namespace TheCollector.CollectableManager;
                     {
                         var componentNode = child->GetAsAtkComponentNode();
                         return int.Parse(componentNode->Component->GetTextNodeById(4)->GetAsAtkTextNode()->NodeText.StringPtr
-                                             .ExtractText().Split('/')[0]);
+                                             .ExtractText().Split('/')[0].Replace(",", ""));
 
                     }
                     else

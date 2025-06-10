@@ -99,4 +99,11 @@ public unsafe class ScripShopWindowHandler
         }
         return -1;
     }
+    public void CloseShop()
+    {
+        if (GenericHelpers.TryGetAddonByName("InclusionShop", out AtkUnitBase* addon))
+        {
+            addon->Close(true);
+        }
+    }
 }

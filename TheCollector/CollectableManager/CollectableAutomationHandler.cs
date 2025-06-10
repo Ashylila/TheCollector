@@ -39,7 +39,7 @@ public class CollectableAutomationHandler
     private readonly ITargetManager _targetManager;
     private readonly IFramework _framework;
     private readonly IClientState _clientState;
-    private readonly GatherBuddyService _gatherbuddyService;
+    private readonly GatherbuddyReborn_IPCSubscriber _gatherbuddyService;
     public ScripShopAutomationHandler ScripShopAutomationHandler { get; set; }
     private List<CollectableShopItem> _collectableShopItems = new();
     
@@ -57,7 +57,7 @@ public class CollectableAutomationHandler
     
     public bool HasCollectible => ItemHelper.GetCurrentInventoryItems().Any(i => i.IsCollectable);
 
-    public CollectableAutomationHandler( IPluginLog log, CollectableWindowHandler collectibleWindowHandler, IDataManager data, Configuration config, IObjectTable objectTable, ITargetManager targetManager, IFramework frameWork, IClientState clientState, GatherBuddyService gatherbuddyService )
+    public CollectableAutomationHandler( IPluginLog log, CollectableWindowHandler collectibleWindowHandler, IDataManager data, Configuration config, IObjectTable objectTable, ITargetManager targetManager, IFramework frameWork, IClientState clientState, GatherbuddyReborn_IPCSubscriber gatherbuddyService )
     {
         _taskManager = new TaskManager(_config);
         _config.OnTaskTimeout += OnTaskTimeout;
@@ -99,10 +99,10 @@ public class CollectableAutomationHandler
         _taskManager.Enqueue(()=>TradeEachCollectable(), nameof(TradeEachCollectable));
     }
 
-    public void Invoke(bool disabled)
+    public void Invoke(bool disabled) // enabled
     {
         _log.Debug("ibeencalled");
-        if (_configuration.CollectOnAutogatherDisabled && disabled)
+        if (_configuration.CollectOnAutogatherDisabled && !disabled)
         {
             _log.Debug("Gatherbuddy disabled, starting to collect");
             Start();
@@ -268,10 +268,6 @@ public class CollectableAutomationHandler
             var text = File.ReadAllText(fullPath);
             _collectableShopItems = JsonSerializer.Deserialize<List<CollectableShopItem>>(text) ?? new List<CollectableShopItem>();
             _log.Debug($"Loaded {_collectableShopItems.Count} items");
-            foreach (var item in _collectableShopItems)
-            {
-                _log.Debug(item.Name);
-            }
         }
         catch (Exception e)
         {

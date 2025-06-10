@@ -6,6 +6,7 @@ using ECommons.DalamudServices;
 using FFXIVClientStructs.Havok.Animation.Rig;
 using Microsoft.Extensions.DependencyInjection;
 using TheCollector.CollectableManager;
+using TheCollector.Ipc;
 using TheCollector.ScripShopManager;
 using TheCollector.Windows;
 
@@ -37,7 +38,7 @@ public static class ServiceWrapper
         collection.AddSingleton<ScripShopAutomationHandler>();
         collection.AddSingleton<ScripShopWindowHandler>();
 
-        collection.AddSingleton<GatherBuddyService>();
+        collection.AddSingleton<GatherbuddyReborn_IPCSubscriber>();
 
         collection.AddSingleton<MainWindow>();
         collection.AddSingleton<ConfigWindow>();
