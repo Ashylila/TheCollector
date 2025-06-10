@@ -1,0 +1,7186 @@
+[
+    {
+        "Name": "Adept's Hat",
+        "Index": 0,
+        "ItemCost": 60,
+        "Page": 0,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Adept's Gown",
+        "Index": 1,
+        "ItemCost": 135,
+        "Page": 0,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Adept's Gloves",
+        "Index": 2,
+        "ItemCost": 60,
+        "Page": 0,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Adept's Hose",
+        "Index": 3,
+        "ItemCost": 52,
+        "Page": 0,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Adept's Thighboots",
+        "Index": 4,
+        "ItemCost": 52,
+        "Page": 0,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Millkeep's Saw",
+        "Index": 0,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Millkeep's Claw Hammer",
+        "Index": 1,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Millkeep's Cap",
+        "Index": 2,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Millkeep's Apron",
+        "Index": 3,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Millkeep's Gloves",
+        "Index": 4,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Millkeep's Slops",
+        "Index": 5,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Millkeep's Workboots",
+        "Index": 6,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Forgekeep's Hammer",
+        "Index": 7,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Forgekeep's File",
+        "Index": 8,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Forgekeep's Goggles",
+        "Index": 9,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Forgekeep's Redingote",
+        "Index": 10,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Forgekeep's Gloves",
+        "Index": 11,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Forgekeep's Slops",
+        "Index": 12,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Forgekeep's Sandals",
+        "Index": 13,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Hammerkeep's Beetle",
+        "Index": 14,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Hammerkeep's Pliers",
+        "Index": 15,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Hammerkeep's Visor",
+        "Index": 16,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Hammerkeep's Waist Apron",
+        "Index": 17,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Hammerkeep's Work Gloves",
+        "Index": 18,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Hammerkeep's Slops",
+        "Index": 19,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Hammerkeep's Workboots",
+        "Index": 20,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Gemkeep's Mallet",
+        "Index": 21,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Gemkeep's Grinding Wheel",
+        "Index": 22,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Gemkeep's Coronal",
+        "Index": 23,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Gemkeep's Gown",
+        "Index": 24,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Gemkeep's Chaplets",
+        "Index": 25,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Gemkeep's Trousers",
+        "Index": 26,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Gemkeep's Sandals",
+        "Index": 27,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Hidekeep's Knife",
+        "Index": 28,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Hidekeep's Awl",
+        "Index": 29,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Hidekeep's Cap",
+        "Index": 30,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Hidekeep's Apron",
+        "Index": 31,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Hidekeep's Gloves",
+        "Index": 32,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Hidekeep's Trousers",
+        "Index": 33,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Hidekeep's Workboots",
+        "Index": 34,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Boltkeep's Needle",
+        "Index": 35,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Boltkeep's Spinning Wheel",
+        "Index": 36,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Boltkeep's Gibus",
+        "Index": 37,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Boltkeep's Dreadnought",
+        "Index": 38,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Boltkeep's Gloves",
+        "Index": 39,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Boltkeep's Slacks",
+        "Index": 40,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Boltkeep's Top Boots",
+        "Index": 41,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Cauldronkeep's Alembic",
+        "Index": 42,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Cauldronkeep's Mortar",
+        "Index": 43,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Cauldronkeep's Spectacles",
+        "Index": 44,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Cauldronkeep's Overcoat",
+        "Index": 45,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Cauldronkeep's Gloves",
+        "Index": 46,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Cauldronkeep's Longkilt",
+        "Index": 47,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Cauldronkeep's Jackboots",
+        "Index": 48,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Galleykeep's Frypan",
+        "Index": 49,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Galleykeep's Culinary Knife",
+        "Index": 50,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Galleykeep's Toque",
+        "Index": 51,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Galleykeep's Whites",
+        "Index": 52,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Galleykeep's Gloves",
+        "Index": 53,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Galleykeep's Trousers",
+        "Index": 54,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Galleykeep's Top Boots",
+        "Index": 55,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Handmaster's Earrings",
+        "Index": 56,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Handmaster's Necklace",
+        "Index": 57,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Handmaster's Armillae",
+        "Index": 58,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Handmaster's Ring",
+        "Index": 59,
+        "ItemCost": 50,
+        "Page": 0,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Millking's Saw",
+        "Index": 0,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Millking's Claw Hammer",
+        "Index": 1,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Millking's Cap",
+        "Index": 2,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Millking's Coat",
+        "Index": 3,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Millking's Gloves",
+        "Index": 4,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Millking's Slops",
+        "Index": 5,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Millking's Boots",
+        "Index": 6,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Forgeking's Hammer",
+        "Index": 7,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Forgeking's File",
+        "Index": 8,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Forgeking's Bandana",
+        "Index": 9,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Forgeking's Apron",
+        "Index": 10,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Forgeking's Gloves",
+        "Index": 11,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Forgeking's Slops",
+        "Index": 12,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Forgeking's Boots",
+        "Index": 13,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Hammerking's Beetle",
+        "Index": 14,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Hammerking's Pliers",
+        "Index": 15,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Hammerking's Visor",
+        "Index": 16,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Hammerking's Redingote",
+        "Index": 17,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Hammerking's Gloves",
+        "Index": 18,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Hammerking's Slops",
+        "Index": 19,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Hammerking's Boots",
+        "Index": 20,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Gemking's Mallet",
+        "Index": 21,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Gemking's Grinding Wheel",
+        "Index": 22,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Gemking's Turban",
+        "Index": 23,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Gemking's Coat",
+        "Index": 24,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Gemking's Gloves",
+        "Index": 25,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Gemking's Slops",
+        "Index": 26,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Gemking's Boots",
+        "Index": 27,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Hideking's Knife",
+        "Index": 28,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Hideking's Awl",
+        "Index": 29,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Hideking's Bandana",
+        "Index": 30,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Hideking's Jacket",
+        "Index": 31,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Hideking's Gloves",
+        "Index": 32,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Hideking's Slacks",
+        "Index": 33,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Hideking's Thighboots",
+        "Index": 34,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Boltking's Needle",
+        "Index": 35,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Boltking's Spinning Wheel",
+        "Index": 36,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Boltking's Cap",
+        "Index": 37,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Boltking's Jacket",
+        "Index": 38,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Boltking's Gloves",
+        "Index": 39,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Boltking's Slops",
+        "Index": 40,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Boltking's Boots",
+        "Index": 41,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Cauldronking's Alembic",
+        "Index": 42,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Cauldronking's Mortar",
+        "Index": 43,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Cauldronking's Hat",
+        "Index": 44,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Cauldronking's Coat",
+        "Index": 45,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Cauldronking's Dress Gloves",
+        "Index": 46,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Cauldronking's Slops",
+        "Index": 47,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Cauldronking's Boots",
+        "Index": 48,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Galleyking's Frypan",
+        "Index": 49,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Galleyking's Culinary Knife",
+        "Index": 50,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Galleyking's Toque",
+        "Index": 51,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Galleyking's Apron",
+        "Index": 52,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Galleyking's Mittens",
+        "Index": 53,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Galleyking's Trousers",
+        "Index": 54,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Galleyking's Shoes",
+        "Index": 55,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Millfiend's Saw",
+        "Index": 0,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Millfiend's Cap",
+        "Index": 1,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Millfiend's Apron",
+        "Index": 2,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Millfiend's Halfgloves",
+        "Index": 3,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Millfiend's Kecks",
+        "Index": 4,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Millfiend's Workboots",
+        "Index": 5,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Forgefiend's Hammer",
+        "Index": 6,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Forgefiend's Goggles",
+        "Index": 7,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Forgefiend's Apron",
+        "Index": 8,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Forgefiend's Work Gloves",
+        "Index": 9,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Forgefiend's Trousers",
+        "Index": 10,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Forgefiend's Leggings",
+        "Index": 11,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Hammerfiend's Beetle",
+        "Index": 12,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Hammerfiend's Visor",
+        "Index": 13,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Hammerfiend's Apron",
+        "Index": 14,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Hammerfiend's Work Gloves",
+        "Index": 15,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Hammerfiend's Trousers",
+        "Index": 16,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Hammerfiend's Workboots",
+        "Index": 17,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Gemfiend's Mallet",
+        "Index": 18,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Gemfiend's Monocle",
+        "Index": 19,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Gemfiend's Vest",
+        "Index": 20,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Gemfiend's Shortgloves",
+        "Index": 21,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Gemfiend's Trousers",
+        "Index": 22,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Gemfiend's Boots",
+        "Index": 23,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Hidefiend's Knife",
+        "Index": 24,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Hidefiend's Cap",
+        "Index": 25,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Hidefiend's Jacket",
+        "Index": 26,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Hidefiend's Armlets",
+        "Index": 27,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Hidefiend's Kecks",
+        "Index": 28,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Hidefiend's Thighboots",
+        "Index": 29,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Boltfiend's Needle",
+        "Index": 30,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Boltfiend's Top Hat",
+        "Index": 31,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Boltfiend's Swallowtail",
+        "Index": 32,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Boltfiend's Fingerstalls",
+        "Index": 33,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Boltfiend's Slacks",
+        "Index": 34,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Boltfiend's Boots",
+        "Index": 35,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Cauldronfiend's Alembic",
+        "Index": 36,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Cauldronfiend's Spectacles",
+        "Index": 37,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Cauldronfiend's Coat",
+        "Index": 38,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Cauldronfiend's Gloves",
+        "Index": 39,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Cauldronfiend's Kecks",
+        "Index": 40,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Cauldronfiend's Shoes",
+        "Index": 41,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Galleyfiend's Frypan",
+        "Index": 42,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Galleyfiend's Toque",
+        "Index": 43,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Galleyfiend's Apron",
+        "Index": 44,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Galleyfiend's Mittens",
+        "Index": 45,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Galleyfiend's Trousers",
+        "Index": 46,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Galleyfiend's Pattens",
+        "Index": 47,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Professional's Saw",
+        "Index": 0,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 5,
+        "ScripType": 0
+    },
+    {
+        "Name": "Millfiend's Claw Hammer",
+        "Index": 1,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 5,
+        "ScripType": 0
+    },
+    {
+        "Name": "Professional's Cross-pein Hammer",
+        "Index": 2,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 5,
+        "ScripType": 0
+    },
+    {
+        "Name": "Forgefiend's File",
+        "Index": 3,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 5,
+        "ScripType": 0
+    },
+    {
+        "Name": "Professional's Raising Hammer",
+        "Index": 4,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 5,
+        "ScripType": 0
+    },
+    {
+        "Name": "Hammerfiend's Pliers",
+        "Index": 5,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 5,
+        "ScripType": 0
+    },
+    {
+        "Name": "Professional's Lapidary Hammer",
+        "Index": 6,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 5,
+        "ScripType": 0
+    },
+    {
+        "Name": "Gemfiend's Grinding Wheel",
+        "Index": 7,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 5,
+        "ScripType": 0
+    },
+    {
+        "Name": "Professional's Round Knife",
+        "Index": 8,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 5,
+        "ScripType": 0
+    },
+    {
+        "Name": "Hidefiend's Awl",
+        "Index": 9,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 5,
+        "ScripType": 0
+    },
+    {
+        "Name": "Professional's Needle",
+        "Index": 10,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 5,
+        "ScripType": 0
+    },
+    {
+        "Name": "Boltfiend's Spinning Wheel",
+        "Index": 11,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 5,
+        "ScripType": 0
+    },
+    {
+        "Name": "Professional's Alembic",
+        "Index": 12,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 5,
+        "ScripType": 0
+    },
+    {
+        "Name": "Cauldronfiend's Mortar",
+        "Index": 13,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 5,
+        "ScripType": 0
+    },
+    {
+        "Name": "Professional's Frypan",
+        "Index": 14,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 5,
+        "ScripType": 0
+    },
+    {
+        "Name": "Galleyfiend's Culinary Knife",
+        "Index": 15,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 5,
+        "ScripType": 0
+    },
+    {
+        "Name": "Professional's Beret of Crafting",
+        "Index": 16,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 5,
+        "ScripType": 0
+    },
+    {
+        "Name": "Professional's Jacket of Crafting",
+        "Index": 17,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 5,
+        "ScripType": 0
+    },
+    {
+        "Name": "Professional's Fingerless Gloves of Crafting",
+        "Index": 18,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 5,
+        "ScripType": 0
+    },
+    {
+        "Name": "Professional's Trousers of Crafting",
+        "Index": 19,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 5,
+        "ScripType": 0
+    },
+    {
+        "Name": "Professional's Shoes of Crafting",
+        "Index": 20,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 5,
+        "ScripType": 0
+    },
+    {
+        "Name": "Handsaint's Saw",
+        "Index": 0,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 6,
+        "ScripType": 0
+    },
+    {
+        "Name": "Handsaint's Claw Hammer",
+        "Index": 1,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 6,
+        "ScripType": 0
+    },
+    {
+        "Name": "Handsaint's Cross-pein Hammer",
+        "Index": 2,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 6,
+        "ScripType": 0
+    },
+    {
+        "Name": "Handsaint's File",
+        "Index": 3,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 6,
+        "ScripType": 0
+    },
+    {
+        "Name": "Handsaint's Raising Hammer",
+        "Index": 4,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 6,
+        "ScripType": 0
+    },
+    {
+        "Name": "Handsaint's Pliers",
+        "Index": 5,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 6,
+        "ScripType": 0
+    },
+    {
+        "Name": "Handsaint's Lapidary Hammer",
+        "Index": 6,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 6,
+        "ScripType": 0
+    },
+    {
+        "Name": "Handsaint's Grinding Wheel",
+        "Index": 7,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 6,
+        "ScripType": 0
+    },
+    {
+        "Name": "Handsaint's Knife",
+        "Index": 8,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 6,
+        "ScripType": 0
+    },
+    {
+        "Name": "Handsaint's Awl",
+        "Index": 9,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 6,
+        "ScripType": 0
+    },
+    {
+        "Name": "Handsaint's Needle",
+        "Index": 10,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 6,
+        "ScripType": 0
+    },
+    {
+        "Name": "Handsaint's Spinning Wheel",
+        "Index": 11,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 6,
+        "ScripType": 0
+    },
+    {
+        "Name": "Handsaint's Alembic",
+        "Index": 12,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 6,
+        "ScripType": 0
+    },
+    {
+        "Name": "Handsaint's Mortar",
+        "Index": 13,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 6,
+        "ScripType": 0
+    },
+    {
+        "Name": "Handsaint's Frypan",
+        "Index": 14,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 6,
+        "ScripType": 0
+    },
+    {
+        "Name": "Handsaint's Culinary Knife",
+        "Index": 15,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 6,
+        "ScripType": 0
+    },
+    {
+        "Name": "Handsaint's Beret",
+        "Index": 16,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 6,
+        "ScripType": 0
+    },
+    {
+        "Name": "Handsaint's Jacket",
+        "Index": 17,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 6,
+        "ScripType": 0
+    },
+    {
+        "Name": "Handsaint's Fingerless Gloves",
+        "Index": 18,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 6,
+        "ScripType": 0
+    },
+    {
+        "Name": "Handsaint's Trousers",
+        "Index": 19,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 6,
+        "ScripType": 0
+    },
+    {
+        "Name": "Handsaint's Shoes",
+        "Index": 20,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 6,
+        "ScripType": 0
+    },
+    {
+        "Name": "Handsaint's Earrings",
+        "Index": 21,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 6,
+        "ScripType": 0
+    },
+    {
+        "Name": "Handsaint's Necklace",
+        "Index": 22,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 6,
+        "ScripType": 0
+    },
+    {
+        "Name": "Handsaint's Bracelets",
+        "Index": 23,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 6,
+        "ScripType": 0
+    },
+    {
+        "Name": "Handsaint's Ring",
+        "Index": 24,
+        "ItemCost": 50,
+        "Page": 0,
+        "SubPage": 6,
+        "ScripType": 0
+    },
+    {
+        "Name": "Millsoph's Saw",
+        "Index": 0,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Millsoph's Bandana",
+        "Index": 1,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Millsoph's Apron",
+        "Index": 2,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Millsoph's Gloves",
+        "Index": 3,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Millsoph's Breeches",
+        "Index": 4,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Millsoph's Gaiters",
+        "Index": 5,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Forgesoph's Hammer",
+        "Index": 6,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Forgesoph's Goggles",
+        "Index": 7,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Forgesoph's Apron",
+        "Index": 8,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Forgesoph's Work Gloves",
+        "Index": 9,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Forgesoph's Trousers",
+        "Index": 10,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Forgesoph's Boots",
+        "Index": 11,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Hammersoph's Beetle",
+        "Index": 12,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Hammersoph's Visor",
+        "Index": 13,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Hammersoph's Apron",
+        "Index": 14,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Hammersoph's Work Gloves",
+        "Index": 15,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Hammersoph's Trousers",
+        "Index": 16,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Hammersoph's Workboots",
+        "Index": 17,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Gemsoph's Mallet",
+        "Index": 18,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Gemsoph's Hat",
+        "Index": 19,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Gemsoph's Vest",
+        "Index": 20,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Gemsoph's Wristdresses",
+        "Index": 21,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Gemsoph's Trousers",
+        "Index": 22,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Gemsoph's Thighboots",
+        "Index": 23,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Hidesoph's Knife",
+        "Index": 24,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Hidesoph's Cap",
+        "Index": 25,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Hidesoph's Apron",
+        "Index": 26,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Hidesoph's Gloves",
+        "Index": 27,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Hidesoph's Kecks",
+        "Index": 28,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Hidesoph's Boots",
+        "Index": 29,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Boltsoph's Needle",
+        "Index": 30,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Boltsoph's Hat",
+        "Index": 31,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Boltsoph's Swallowtail",
+        "Index": 32,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Boltsoph's Cuffs",
+        "Index": 33,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Boltsoph's Slacks",
+        "Index": 34,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Boltsoph's Boots",
+        "Index": 35,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Cauldronsoph's Alembic",
+        "Index": 36,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Cauldronsoph's Hat",
+        "Index": 37,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Cauldronsoph's Mantle",
+        "Index": 38,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Cauldronsoph's Gloves",
+        "Index": 39,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Cauldronsoph's Kecks",
+        "Index": 40,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Cauldronsoph's Shoes",
+        "Index": 41,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Galleysoph's Frypan",
+        "Index": 42,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Galleysoph's Cap",
+        "Index": 43,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Galleysoph's Apron",
+        "Index": 44,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Galleysoph's Mittens",
+        "Index": 45,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Galleysoph's Trousers",
+        "Index": 46,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Galleysoph's Shoes",
+        "Index": 47,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Perfectionist's Saw",
+        "Index": 0,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 8,
+        "ScripType": 0
+    },
+    {
+        "Name": "Perfectionist's Claw Hammer",
+        "Index": 1,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 8,
+        "ScripType": 0
+    },
+    {
+        "Name": "Perfectionist's Cross-pein Hammer",
+        "Index": 2,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 8,
+        "ScripType": 0
+    },
+    {
+        "Name": "Perfectionist's File",
+        "Index": 3,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 8,
+        "ScripType": 0
+    },
+    {
+        "Name": "Perfectionist's Raising Hammer",
+        "Index": 4,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 8,
+        "ScripType": 0
+    },
+    {
+        "Name": "Perfectionist's Pliers",
+        "Index": 5,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 8,
+        "ScripType": 0
+    },
+    {
+        "Name": "Perfectionist's Lapidary Hammer",
+        "Index": 6,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 8,
+        "ScripType": 0
+    },
+    {
+        "Name": "Perfectionist's Grinding Wheel",
+        "Index": 7,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 8,
+        "ScripType": 0
+    },
+    {
+        "Name": "Perfectionist's Round Knife",
+        "Index": 8,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 8,
+        "ScripType": 0
+    },
+    {
+        "Name": "Perfectionist's Awl",
+        "Index": 9,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 8,
+        "ScripType": 0
+    },
+    {
+        "Name": "Perfectionist's Needle",
+        "Index": 10,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 8,
+        "ScripType": 0
+    },
+    {
+        "Name": "Perfectionist's Spinning Wheel",
+        "Index": 11,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 8,
+        "ScripType": 0
+    },
+    {
+        "Name": "Perfectionist's Alembic",
+        "Index": 12,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 8,
+        "ScripType": 0
+    },
+    {
+        "Name": "Perfectionist's Mortar",
+        "Index": 13,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 8,
+        "ScripType": 0
+    },
+    {
+        "Name": "Perfectionist's Frypan",
+        "Index": 14,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 8,
+        "ScripType": 0
+    },
+    {
+        "Name": "Perfectionist's Culinary Knife",
+        "Index": 15,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 8,
+        "ScripType": 0
+    },
+    {
+        "Name": "Perfectionist's Cap of Crafting",
+        "Index": 16,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 8,
+        "ScripType": 0
+    },
+    {
+        "Name": "Perfectionist's Doublet of Crafting",
+        "Index": 17,
+        "ItemCost": 225,
+        "Page": 0,
+        "SubPage": 8,
+        "ScripType": 0
+    },
+    {
+        "Name": "Perfectionist's Fingerless Gloves of Crafting",
+        "Index": 18,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 8,
+        "ScripType": 0
+    },
+    {
+        "Name": "Perfectionist's Trousers of Crafting",
+        "Index": 19,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 8,
+        "ScripType": 0
+    },
+    {
+        "Name": "Perfectionist's Boots of Crafting",
+        "Index": 20,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 8,
+        "ScripType": 0
+    },
+    {
+        "Name": "Afflatus Saw",
+        "Index": 0,
+        "ItemCost": 350,
+        "Page": 0,
+        "SubPage": 9,
+        "ScripType": 0
+    },
+    {
+        "Name": "Afflatus Claw Hammer",
+        "Index": 1,
+        "ItemCost": 350,
+        "Page": 0,
+        "SubPage": 9,
+        "ScripType": 0
+    },
+    {
+        "Name": "Afflatus Cross-pein Hammer",
+        "Index": 2,
+        "ItemCost": 350,
+        "Page": 0,
+        "SubPage": 9,
+        "ScripType": 0
+    },
+    {
+        "Name": "Afflatus File",
+        "Index": 3,
+        "ItemCost": 350,
+        "Page": 0,
+        "SubPage": 9,
+        "ScripType": 0
+    },
+    {
+        "Name": "Afflatus Raising Hammer",
+        "Index": 4,
+        "ItemCost": 350,
+        "Page": 0,
+        "SubPage": 9,
+        "ScripType": 0
+    },
+    {
+        "Name": "Afflatus Pliers",
+        "Index": 5,
+        "ItemCost": 350,
+        "Page": 0,
+        "SubPage": 9,
+        "ScripType": 0
+    },
+    {
+        "Name": "Afflatus Mallet",
+        "Index": 6,
+        "ItemCost": 350,
+        "Page": 0,
+        "SubPage": 9,
+        "ScripType": 0
+    },
+    {
+        "Name": "Afflatus Grinding Wheel",
+        "Index": 7,
+        "ItemCost": 350,
+        "Page": 0,
+        "SubPage": 9,
+        "ScripType": 0
+    },
+    {
+        "Name": "Afflatus Round Knife",
+        "Index": 8,
+        "ItemCost": 350,
+        "Page": 0,
+        "SubPage": 9,
+        "ScripType": 0
+    },
+    {
+        "Name": "Afflatus Awl",
+        "Index": 9,
+        "ItemCost": 350,
+        "Page": 0,
+        "SubPage": 9,
+        "ScripType": 0
+    },
+    {
+        "Name": "Afflatus Needle",
+        "Index": 10,
+        "ItemCost": 350,
+        "Page": 0,
+        "SubPage": 9,
+        "ScripType": 0
+    },
+    {
+        "Name": "Afflatus Spinning Wheel",
+        "Index": 11,
+        "ItemCost": 350,
+        "Page": 0,
+        "SubPage": 9,
+        "ScripType": 0
+    },
+    {
+        "Name": "Afflatus Alembic",
+        "Index": 12,
+        "ItemCost": 350,
+        "Page": 0,
+        "SubPage": 9,
+        "ScripType": 0
+    },
+    {
+        "Name": "Afflatus Mortar",
+        "Index": 13,
+        "ItemCost": 350,
+        "Page": 0,
+        "SubPage": 9,
+        "ScripType": 0
+    },
+    {
+        "Name": "Afflatus Frypan",
+        "Index": 14,
+        "ItemCost": 350,
+        "Page": 0,
+        "SubPage": 9,
+        "ScripType": 0
+    },
+    {
+        "Name": "Afflatus Culinary Knife",
+        "Index": 15,
+        "ItemCost": 350,
+        "Page": 0,
+        "SubPage": 9,
+        "ScripType": 0
+    },
+    {
+        "Name": "Artful Afflatus Work Cap",
+        "Index": 16,
+        "ItemCost": 100,
+        "Page": 0,
+        "SubPage": 9,
+        "ScripType": 0
+    },
+    {
+        "Name": "Artful Afflatus Work Shirt",
+        "Index": 17,
+        "ItemCost": 300,
+        "Page": 0,
+        "SubPage": 9,
+        "ScripType": 0
+    },
+    {
+        "Name": "Artful Afflatus Halfgloves",
+        "Index": 18,
+        "ItemCost": 100,
+        "Page": 0,
+        "SubPage": 9,
+        "ScripType": 0
+    },
+    {
+        "Name": "Artful Afflatus Hose",
+        "Index": 19,
+        "ItemCost": 100,
+        "Page": 0,
+        "SubPage": 9,
+        "ScripType": 0
+    },
+    {
+        "Name": "Artful Afflatus Workboots",
+        "Index": 20,
+        "ItemCost": 100,
+        "Page": 0,
+        "SubPage": 9,
+        "ScripType": 0
+    },
+    {
+        "Name": "Artful Afflatus Earrings",
+        "Index": 21,
+        "ItemCost": 100,
+        "Page": 0,
+        "SubPage": 9,
+        "ScripType": 0
+    },
+    {
+        "Name": "Artful Afflatus Necklace",
+        "Index": 22,
+        "ItemCost": 100,
+        "Page": 0,
+        "SubPage": 9,
+        "ScripType": 0
+    },
+    {
+        "Name": "Artful Afflatus Bracelet",
+        "Index": 23,
+        "ItemCost": 100,
+        "Page": 0,
+        "SubPage": 9,
+        "ScripType": 0
+    },
+    {
+        "Name": "Artful Afflatus Ring",
+        "Index": 24,
+        "ItemCost": 75,
+        "Page": 0,
+        "SubPage": 9,
+        "ScripType": 0
+    },
+    {
+        "Name": "Millrise Saw",
+        "Index": 0,
+        "ItemCost": 350,
+        "Page": 0,
+        "SubPage": 10,
+        "ScripType": 1
+    },
+    {
+        "Name": "Millrise Goggles",
+        "Index": 1,
+        "ItemCost": 100,
+        "Page": 0,
+        "SubPage": 10,
+        "ScripType": 1
+    },
+    {
+        "Name": "Millrise Vest",
+        "Index": 2,
+        "ItemCost": 300,
+        "Page": 0,
+        "SubPage": 10,
+        "ScripType": 1
+    },
+    {
+        "Name": "Millrise Work Gloves",
+        "Index": 3,
+        "ItemCost": 100,
+        "Page": 0,
+        "SubPage": 10,
+        "ScripType": 1
+    },
+    {
+        "Name": "Millrise Slops",
+        "Index": 4,
+        "ItemCost": 100,
+        "Page": 0,
+        "SubPage": 10,
+        "ScripType": 1
+    },
+    {
+        "Name": "Millrise Boots",
+        "Index": 5,
+        "ItemCost": 100,
+        "Page": 0,
+        "SubPage": 10,
+        "ScripType": 1
+    },
+    {
+        "Name": "Forgerise Hammer",
+        "Index": 6,
+        "ItemCost": 350,
+        "Page": 0,
+        "SubPage": 10,
+        "ScripType": 1
+    },
+    {
+        "Name": "Forgerise Cap",
+        "Index": 7,
+        "ItemCost": 100,
+        "Page": 0,
+        "SubPage": 10,
+        "ScripType": 1
+    },
+    {
+        "Name": "Forgerise Chestwrap",
+        "Index": 8,
+        "ItemCost": 300,
+        "Page": 0,
+        "SubPage": 10,
+        "ScripType": 1
+    },
+    {
+        "Name": "Forgerise Mittens",
+        "Index": 9,
+        "ItemCost": 100,
+        "Page": 0,
+        "SubPage": 10,
+        "ScripType": 1
+    },
+    {
+        "Name": "Forgerise Longkilt",
+        "Index": 10,
+        "ItemCost": 100,
+        "Page": 0,
+        "SubPage": 10,
+        "ScripType": 1
+    },
+    {
+        "Name": "Forgerise Workboots",
+        "Index": 11,
+        "ItemCost": 100,
+        "Page": 0,
+        "SubPage": 10,
+        "ScripType": 1
+    },
+    {
+        "Name": "Hammerrise Beetle",
+        "Index": 12,
+        "ItemCost": 350,
+        "Page": 0,
+        "SubPage": 10,
+        "ScripType": 1
+    },
+    {
+        "Name": "Hammerrise Mesail",
+        "Index": 13,
+        "ItemCost": 100,
+        "Page": 0,
+        "SubPage": 10,
+        "ScripType": 1
+    },
+    {
+        "Name": "Hammerrise Apron",
+        "Index": 14,
+        "ItemCost": 300,
+        "Page": 0,
+        "SubPage": 10,
+        "ScripType": 1
+    },
+    {
+        "Name": "Hammerrise Work Gloves",
+        "Index": 15,
+        "ItemCost": 100,
+        "Page": 0,
+        "SubPage": 10,
+        "ScripType": 1
+    },
+    {
+        "Name": "Hammerrise Brais",
+        "Index": 16,
+        "ItemCost": 100,
+        "Page": 0,
+        "SubPage": 10,
+        "ScripType": 1
+    },
+    {
+        "Name": "Hammerrise Jackboots",
+        "Index": 17,
+        "ItemCost": 100,
+        "Page": 0,
+        "SubPage": 10,
+        "ScripType": 1
+    },
+    {
+        "Name": "Gemrise Mallet",
+        "Index": 18,
+        "ItemCost": 350,
+        "Page": 0,
+        "SubPage": 10,
+        "ScripType": 1
+    },
+    {
+        "Name": "Gemrise Cap",
+        "Index": 19,
+        "ItemCost": 100,
+        "Page": 0,
+        "SubPage": 10,
+        "ScripType": 1
+    },
+    {
+        "Name": "Gemrise Work Shirt",
+        "Index": 20,
+        "ItemCost": 300,
+        "Page": 0,
+        "SubPage": 10,
+        "ScripType": 1
+    },
+    {
+        "Name": "Gemrise Fingerstalls",
+        "Index": 21,
+        "ItemCost": 100,
+        "Page": 0,
+        "SubPage": 10,
+        "ScripType": 1
+    },
+    {
+        "Name": "Gemrise Pantaloons",
+        "Index": 22,
+        "ItemCost": 100,
+        "Page": 0,
+        "SubPage": 10,
+        "ScripType": 1
+    },
+    {
+        "Name": "Gemrise Crakows",
+        "Index": 23,
+        "ItemCost": 100,
+        "Page": 0,
+        "SubPage": 10,
+        "ScripType": 1
+    },
+    {
+        "Name": "Hiderise Knife",
+        "Index": 24,
+        "ItemCost": 350,
+        "Page": 0,
+        "SubPage": 10,
+        "ScripType": 1
+    },
+    {
+        "Name": "Hiderise Cap",
+        "Index": 25,
+        "ItemCost": 100,
+        "Page": 0,
+        "SubPage": 10,
+        "ScripType": 1
+    },
+    {
+        "Name": "Hiderise Apron",
+        "Index": 26,
+        "ItemCost": 300,
+        "Page": 0,
+        "SubPage": 10,
+        "ScripType": 1
+    },
+    {
+        "Name": "Hiderise Armguards",
+        "Index": 27,
+        "ItemCost": 100,
+        "Page": 0,
+        "SubPage": 10,
+        "ScripType": 1
+    },
+    {
+        "Name": "Cropped Hiderise Slops",
+        "Index": 28,
+        "ItemCost": 100,
+        "Page": 0,
+        "SubPage": 10,
+        "ScripType": 1
+    },
+    {
+        "Name": "Hiderise Boots",
+        "Index": 29,
+        "ItemCost": 100,
+        "Page": 0,
+        "SubPage": 10,
+        "ScripType": 1
+    },
+    {
+        "Name": "Boltrise Needle",
+        "Index": 30,
+        "ItemCost": 350,
+        "Page": 0,
+        "SubPage": 10,
+        "ScripType": 1
+    },
+    {
+        "Name": "Boltrise Hat",
+        "Index": 31,
+        "ItemCost": 100,
+        "Page": 0,
+        "SubPage": 10,
+        "ScripType": 1
+    },
+    {
+        "Name": "Boltrise Vest",
+        "Index": 32,
+        "ItemCost": 300,
+        "Page": 0,
+        "SubPage": 10,
+        "ScripType": 1
+    },
+    {
+        "Name": "Boltrise Shortgloves",
+        "Index": 33,
+        "ItemCost": 100,
+        "Page": 0,
+        "SubPage": 10,
+        "ScripType": 1
+    },
+    {
+        "Name": "Boltrise Trousers",
+        "Index": 34,
+        "ItemCost": 100,
+        "Page": 0,
+        "SubPage": 10,
+        "ScripType": 1
+    },
+    {
+        "Name": "Boltrise Gaiters",
+        "Index": 35,
+        "ItemCost": 100,
+        "Page": 0,
+        "SubPage": 10,
+        "ScripType": 1
+    },
+    {
+        "Name": "Cauldronrise Alembic",
+        "Index": 36,
+        "ItemCost": 350,
+        "Page": 0,
+        "SubPage": 10,
+        "ScripType": 1
+    },
+    {
+        "Name": "Cauldronrise Beret",
+        "Index": 37,
+        "ItemCost": 100,
+        "Page": 0,
+        "SubPage": 10,
+        "ScripType": 1
+    },
+    {
+        "Name": "Cauldronrise Coat",
+        "Index": 38,
+        "ItemCost": 300,
+        "Page": 0,
+        "SubPage": 10,
+        "ScripType": 1
+    },
+    {
+        "Name": "Cauldronrise Wristgauge",
+        "Index": 39,
+        "ItemCost": 100,
+        "Page": 0,
+        "SubPage": 10,
+        "ScripType": 1
+    },
+    {
+        "Name": "Cauldronrise Trousers",
+        "Index": 40,
+        "ItemCost": 100,
+        "Page": 0,
+        "SubPage": 10,
+        "ScripType": 1
+    },
+    {
+        "Name": "Cauldronrise Boots",
+        "Index": 41,
+        "ItemCost": 100,
+        "Page": 0,
+        "SubPage": 10,
+        "ScripType": 1
+    },
+    {
+        "Name": "Galleyrise Frypan",
+        "Index": 42,
+        "ItemCost": 350,
+        "Page": 0,
+        "SubPage": 10,
+        "ScripType": 1
+    },
+    {
+        "Name": "Galleyrise Cap",
+        "Index": 43,
+        "ItemCost": 100,
+        "Page": 0,
+        "SubPage": 10,
+        "ScripType": 1
+    },
+    {
+        "Name": "Galleyrise Apron",
+        "Index": 44,
+        "ItemCost": 300,
+        "Page": 0,
+        "SubPage": 10,
+        "ScripType": 1
+    },
+    {
+        "Name": "Galleyrise Mittens",
+        "Index": 45,
+        "ItemCost": 100,
+        "Page": 0,
+        "SubPage": 10,
+        "ScripType": 1
+    },
+    {
+        "Name": "Galleyrise Trousers",
+        "Index": 46,
+        "ItemCost": 100,
+        "Page": 0,
+        "SubPage": 10,
+        "ScripType": 1
+    },
+    {
+        "Name": "Galleyrise Boots",
+        "Index": 47,
+        "ItemCost": 100,
+        "Page": 0,
+        "SubPage": 10,
+        "ScripType": 1
+    },
+    {
+        "Name": "Innovator's Saw",
+        "Index": 0,
+        "ItemCost": 500,
+        "Page": 0,
+        "SubPage": 11,
+        "ScripType": 1
+    },
+    {
+        "Name": "Innovator's Claw Hammer",
+        "Index": 1,
+        "ItemCost": 500,
+        "Page": 0,
+        "SubPage": 11,
+        "ScripType": 1
+    },
+    {
+        "Name": "Innovator's Cross-pein Hammer",
+        "Index": 2,
+        "ItemCost": 500,
+        "Page": 0,
+        "SubPage": 11,
+        "ScripType": 1
+    },
+    {
+        "Name": "Innovator's File",
+        "Index": 3,
+        "ItemCost": 500,
+        "Page": 0,
+        "SubPage": 11,
+        "ScripType": 1
+    },
+    {
+        "Name": "Innovator's Raising Hammer",
+        "Index": 4,
+        "ItemCost": 500,
+        "Page": 0,
+        "SubPage": 11,
+        "ScripType": 1
+    },
+    {
+        "Name": "Innovator's Pliers",
+        "Index": 5,
+        "ItemCost": 500,
+        "Page": 0,
+        "SubPage": 11,
+        "ScripType": 1
+    },
+    {
+        "Name": "Innovator's Mallet",
+        "Index": 6,
+        "ItemCost": 500,
+        "Page": 0,
+        "SubPage": 11,
+        "ScripType": 1
+    },
+    {
+        "Name": "Innovator's Grinding Wheel",
+        "Index": 7,
+        "ItemCost": 500,
+        "Page": 0,
+        "SubPage": 11,
+        "ScripType": 1
+    },
+    {
+        "Name": "Innovator's Knife",
+        "Index": 8,
+        "ItemCost": 500,
+        "Page": 0,
+        "SubPage": 11,
+        "ScripType": 1
+    },
+    {
+        "Name": "Innovator's Awl",
+        "Index": 9,
+        "ItemCost": 500,
+        "Page": 0,
+        "SubPage": 11,
+        "ScripType": 1
+    },
+    {
+        "Name": "Innovator's Needle",
+        "Index": 10,
+        "ItemCost": 500,
+        "Page": 0,
+        "SubPage": 11,
+        "ScripType": 1
+    },
+    {
+        "Name": "Innovator's Spinning Wheel",
+        "Index": 11,
+        "ItemCost": 500,
+        "Page": 0,
+        "SubPage": 11,
+        "ScripType": 1
+    },
+    {
+        "Name": "Innovator's Alembic",
+        "Index": 12,
+        "ItemCost": 500,
+        "Page": 0,
+        "SubPage": 11,
+        "ScripType": 1
+    },
+    {
+        "Name": "Innovator's Mortar",
+        "Index": 13,
+        "ItemCost": 500,
+        "Page": 0,
+        "SubPage": 11,
+        "ScripType": 1
+    },
+    {
+        "Name": "Innovator's Frypan",
+        "Index": 14,
+        "ItemCost": 500,
+        "Page": 0,
+        "SubPage": 11,
+        "ScripType": 1
+    },
+    {
+        "Name": "Innovator's Culinary Knife",
+        "Index": 15,
+        "ItemCost": 500,
+        "Page": 0,
+        "SubPage": 11,
+        "ScripType": 1
+    },
+    {
+        "Name": "Innovator's Goggles of Crafting",
+        "Index": 16,
+        "ItemCost": 300,
+        "Page": 0,
+        "SubPage": 11,
+        "ScripType": 1
+    },
+    {
+        "Name": "Innovator's Coat of Crafting",
+        "Index": 17,
+        "ItemCost": 900,
+        "Page": 0,
+        "SubPage": 11,
+        "ScripType": 1
+    },
+    {
+        "Name": "Innovator's Gloves of Crafting",
+        "Index": 18,
+        "ItemCost": 300,
+        "Page": 0,
+        "SubPage": 11,
+        "ScripType": 1
+    },
+    {
+        "Name": "Innovator's Trousers of Crafting",
+        "Index": 19,
+        "ItemCost": 300,
+        "Page": 0,
+        "SubPage": 11,
+        "ScripType": 1
+    },
+    {
+        "Name": "Innovator's Boots of Crafting",
+        "Index": 20,
+        "ItemCost": 300,
+        "Page": 0,
+        "SubPage": 11,
+        "ScripType": 1
+    },
+    {
+        "Name": "Master Carpenter III",
+        "Index": 0,
+        "ItemCost": 100,
+        "Page": 1,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Blacksmith III",
+        "Index": 1,
+        "ItemCost": 100,
+        "Page": 1,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Armorer III",
+        "Index": 2,
+        "ItemCost": 100,
+        "Page": 1,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Goldsmith III",
+        "Index": 3,
+        "ItemCost": 100,
+        "Page": 1,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Leatherworker III",
+        "Index": 4,
+        "ItemCost": 100,
+        "Page": 1,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Weaver III",
+        "Index": 5,
+        "ItemCost": 100,
+        "Page": 1,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Alchemist III",
+        "Index": 6,
+        "ItemCost": 100,
+        "Page": 1,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Culinarian III",
+        "Index": 7,
+        "ItemCost": 100,
+        "Page": 1,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Carpenter IV",
+        "Index": 8,
+        "ItemCost": 100,
+        "Page": 1,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Blacksmith IV",
+        "Index": 9,
+        "ItemCost": 100,
+        "Page": 1,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Armorer IV",
+        "Index": 10,
+        "ItemCost": 100,
+        "Page": 1,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Goldsmith IV",
+        "Index": 11,
+        "ItemCost": 100,
+        "Page": 1,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Leatherworker IV",
+        "Index": 12,
+        "ItemCost": 100,
+        "Page": 1,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Weaver IV",
+        "Index": 13,
+        "ItemCost": 100,
+        "Page": 1,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Alchemist IV",
+        "Index": 14,
+        "ItemCost": 100,
+        "Page": 1,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Culinarian IV",
+        "Index": 15,
+        "ItemCost": 100,
+        "Page": 1,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Carpenter V",
+        "Index": 16,
+        "ItemCost": 100,
+        "Page": 1,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Blacksmith V",
+        "Index": 17,
+        "ItemCost": 100,
+        "Page": 1,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Armorer V",
+        "Index": 18,
+        "ItemCost": 100,
+        "Page": 1,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Goldsmith V",
+        "Index": 19,
+        "ItemCost": 100,
+        "Page": 1,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Leatherworker V",
+        "Index": 20,
+        "ItemCost": 100,
+        "Page": 1,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Weaver V",
+        "Index": 21,
+        "ItemCost": 100,
+        "Page": 1,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Alchemist V",
+        "Index": 22,
+        "ItemCost": 100,
+        "Page": 1,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Culinarian V",
+        "Index": 23,
+        "ItemCost": 100,
+        "Page": 1,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Carpenter VI",
+        "Index": 24,
+        "ItemCost": 100,
+        "Page": 1,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Blacksmith VI",
+        "Index": 25,
+        "ItemCost": 100,
+        "Page": 1,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Armorer VI",
+        "Index": 26,
+        "ItemCost": 100,
+        "Page": 1,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Goldsmith VI",
+        "Index": 27,
+        "ItemCost": 100,
+        "Page": 1,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Leatherworker VI",
+        "Index": 28,
+        "ItemCost": 100,
+        "Page": 1,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Weaver VI",
+        "Index": 29,
+        "ItemCost": 100,
+        "Page": 1,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Alchemist VI",
+        "Index": 30,
+        "ItemCost": 100,
+        "Page": 1,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Culinarian VI",
+        "Index": 31,
+        "ItemCost": 100,
+        "Page": 1,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Carpenter VII",
+        "Index": 32,
+        "ItemCost": 100,
+        "Page": 1,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Blacksmith VII",
+        "Index": 33,
+        "ItemCost": 100,
+        "Page": 1,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Armorer VII",
+        "Index": 34,
+        "ItemCost": 100,
+        "Page": 1,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Goldsmith VII",
+        "Index": 35,
+        "ItemCost": 100,
+        "Page": 1,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Leatherworker VII",
+        "Index": 36,
+        "ItemCost": 100,
+        "Page": 1,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Weaver VII",
+        "Index": 37,
+        "ItemCost": 100,
+        "Page": 1,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Alchemist VII",
+        "Index": 38,
+        "ItemCost": 100,
+        "Page": 1,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Culinarian VII",
+        "Index": 39,
+        "ItemCost": 100,
+        "Page": 1,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Carpenter VIII",
+        "Index": 40,
+        "ItemCost": 100,
+        "Page": 1,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Blacksmith VIII",
+        "Index": 41,
+        "ItemCost": 100,
+        "Page": 1,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Armorer VIII",
+        "Index": 42,
+        "ItemCost": 100,
+        "Page": 1,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Goldsmith VIII",
+        "Index": 43,
+        "ItemCost": 100,
+        "Page": 1,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Leatherworker VIII",
+        "Index": 44,
+        "ItemCost": 100,
+        "Page": 1,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Weaver VIII",
+        "Index": 45,
+        "ItemCost": 100,
+        "Page": 1,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Alchemist VIII",
+        "Index": 46,
+        "ItemCost": 100,
+        "Page": 1,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Culinarian VIII",
+        "Index": 47,
+        "ItemCost": 100,
+        "Page": 1,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Carpenter IX",
+        "Index": 48,
+        "ItemCost": 300,
+        "Page": 1,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Blacksmith IX",
+        "Index": 49,
+        "ItemCost": 300,
+        "Page": 1,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Armorer IX",
+        "Index": 50,
+        "ItemCost": 300,
+        "Page": 1,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Goldsmith IX",
+        "Index": 51,
+        "ItemCost": 300,
+        "Page": 1,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Leatherworker IX",
+        "Index": 52,
+        "ItemCost": 300,
+        "Page": 1,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Weaver IX",
+        "Index": 53,
+        "ItemCost": 300,
+        "Page": 1,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Alchemist IX",
+        "Index": 54,
+        "ItemCost": 300,
+        "Page": 1,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Culinarian IX",
+        "Index": 55,
+        "ItemCost": 300,
+        "Page": 1,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Carpenter X",
+        "Index": 0,
+        "ItemCost": 400,
+        "Page": 1,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Blacksmith X",
+        "Index": 1,
+        "ItemCost": 400,
+        "Page": 1,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Armorer X",
+        "Index": 2,
+        "ItemCost": 400,
+        "Page": 1,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Goldsmith X",
+        "Index": 3,
+        "ItemCost": 400,
+        "Page": 1,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Leatherworker X",
+        "Index": 4,
+        "ItemCost": 400,
+        "Page": 1,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Weaver X",
+        "Index": 5,
+        "ItemCost": 400,
+        "Page": 1,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Alchemist X",
+        "Index": 6,
+        "ItemCost": 400,
+        "Page": 1,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Culinarian X",
+        "Index": 7,
+        "ItemCost": 400,
+        "Page": 1,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Carpenter XI",
+        "Index": 8,
+        "ItemCost": 400,
+        "Page": 1,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Blacksmith XI",
+        "Index": 9,
+        "ItemCost": 400,
+        "Page": 1,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Armorer XI",
+        "Index": 10,
+        "ItemCost": 400,
+        "Page": 1,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Goldsmith XI",
+        "Index": 11,
+        "ItemCost": 400,
+        "Page": 1,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Leatherworker XI",
+        "Index": 12,
+        "ItemCost": 400,
+        "Page": 1,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Weaver XI",
+        "Index": 13,
+        "ItemCost": 400,
+        "Page": 1,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Alchemist XI",
+        "Index": 14,
+        "ItemCost": 400,
+        "Page": 1,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Culinarian XI",
+        "Index": 15,
+        "ItemCost": 400,
+        "Page": 1,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Carpenter XII",
+        "Index": 16,
+        "ItemCost": 1200,
+        "Page": 1,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Blacksmith XII",
+        "Index": 17,
+        "ItemCost": 1200,
+        "Page": 1,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Armorer XII",
+        "Index": 18,
+        "ItemCost": 1200,
+        "Page": 1,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Goldsmith XII",
+        "Index": 19,
+        "ItemCost": 1200,
+        "Page": 1,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Leatherworker XII",
+        "Index": 20,
+        "ItemCost": 1200,
+        "Page": 1,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Weaver XII",
+        "Index": 21,
+        "ItemCost": 1200,
+        "Page": 1,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Alchemist XII",
+        "Index": 22,
+        "ItemCost": 1200,
+        "Page": 1,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Master Culinarian XII",
+        "Index": 23,
+        "ItemCost": 1200,
+        "Page": 1,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Soul of the Crafter",
+        "Index": 0,
+        "ItemCost": 480,
+        "Page": 1,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Crafter's Delineation",
+        "Index": 1,
+        "ItemCost": 15,
+        "Page": 1,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Revised Engineering Manual",
+        "Index": 2,
+        "ItemCost": 30,
+        "Page": 1,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Commercial Engineering Manual",
+        "Index": 3,
+        "ItemCost": 30,
+        "Page": 1,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "On High Orchestrion Roll",
+        "Index": 4,
+        "ItemCost": 200,
+        "Page": 1,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Afterglow Orchestrion Roll",
+        "Index": 5,
+        "ItemCost": 200,
+        "Page": 1,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Harmony Orchestrion Roll",
+        "Index": 6,
+        "ItemCost": 200,
+        "Page": 1,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "The Faces We Wear - Under-rim Glasses",
+        "Index": 7,
+        "ItemCost": 500,
+        "Page": 1,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Pastry Cupboard",
+        "Index": 8,
+        "ItemCost": 50,
+        "Page": 1,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Fabric Rack",
+        "Index": 9,
+        "ItemCost": 50,
+        "Page": 1,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Potion Rack",
+        "Index": 10,
+        "ItemCost": 50,
+        "Page": 1,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Mastercraft Demimateria",
+        "Index": 0,
+        "ItemCost": 800,
+        "Page": 1,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Fieldcraft Demimateria III",
+        "Index": 1,
+        "ItemCost": 200,
+        "Page": 1,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Sweet Cream Milk",
+        "Index": 2,
+        "ItemCost": 8,
+        "Page": 1,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Stone Cheese",
+        "Index": 3,
+        "ItemCost": 8,
+        "Page": 1,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Heavensegg",
+        "Index": 4,
+        "ItemCost": 8,
+        "Page": 1,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Loaghtan Fillet",
+        "Index": 5,
+        "ItemCost": 5,
+        "Page": 1,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Golden Apple",
+        "Index": 6,
+        "ItemCost": 5,
+        "Page": 1,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Solstice Garlic",
+        "Index": 7,
+        "ItemCost": 5,
+        "Page": 1,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Mature Olive Oil",
+        "Index": 8,
+        "ItemCost": 5,
+        "Page": 1,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Heavenly Kukuru Powder",
+        "Index": 9,
+        "ItemCost": 8,
+        "Page": 1,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Bouillon Cube",
+        "Index": 10,
+        "ItemCost": 4,
+        "Page": 1,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Oriental Soy Sauce",
+        "Index": 11,
+        "ItemCost": 15,
+        "Page": 1,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Oriental Miso Paste",
+        "Index": 12,
+        "ItemCost": 15,
+        "Page": 1,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Powdered Merman Horn",
+        "Index": 13,
+        "ItemCost": 6,
+        "Page": 1,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Carbon Fiber",
+        "Index": 14,
+        "ItemCost": 25,
+        "Page": 1,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Moonbeam Silk",
+        "Index": 15,
+        "ItemCost": 50,
+        "Page": 1,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Skyspring Water",
+        "Index": 16,
+        "ItemCost": 50,
+        "Page": 1,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Dryad Sap",
+        "Index": 17,
+        "ItemCost": 50,
+        "Page": 1,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Odorless Animal Fat",
+        "Index": 18,
+        "ItemCost": 50,
+        "Page": 1,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Purified Coke",
+        "Index": 19,
+        "ItemCost": 50,
+        "Page": 1,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Raziqcoat",
+        "Index": 20,
+        "ItemCost": 50,
+        "Page": 1,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Flannel",
+        "Index": 0,
+        "ItemCost": 200,
+        "Page": 1,
+        "SubPage": 5,
+        "ScripType": 0
+    },
+    {
+        "Name": "Wool Top",
+        "Index": 1,
+        "ItemCost": 200,
+        "Page": 1,
+        "SubPage": 5,
+        "ScripType": 0
+    },
+    {
+        "Name": "New World Macrame",
+        "Index": 2,
+        "ItemCost": 200,
+        "Page": 1,
+        "SubPage": 5,
+        "ScripType": 0
+    },
+    {
+        "Name": "Pellitory",
+        "Index": 3,
+        "ItemCost": 200,
+        "Page": 1,
+        "SubPage": 5,
+        "ScripType": 0
+    },
+    {
+        "Name": "Blue Crafters' Scrip Token",
+        "Index": 4,
+        "ItemCost": 25,
+        "Page": 1,
+        "SubPage": 5,
+        "ScripType": 0
+    },
+    {
+        "Name": "Kingcraft Demimateria",
+        "Index": 0,
+        "ItemCost": 25,
+        "Page": 1,
+        "SubPage": 6,
+        "ScripType": 0
+    },
+    {
+        "Name": "Reunion Cheese",
+        "Index": 1,
+        "ItemCost": 10,
+        "Page": 1,
+        "SubPage": 6,
+        "ScripType": 0
+    },
+    {
+        "Name": "Rooibos Leaves",
+        "Index": 2,
+        "ItemCost": 10,
+        "Page": 1,
+        "SubPage": 6,
+        "ScripType": 0
+    },
+    {
+        "Name": "Dzo Sirloin",
+        "Index": 3,
+        "ItemCost": 10,
+        "Page": 1,
+        "SubPage": 6,
+        "ScripType": 0
+    },
+    {
+        "Name": "Doman Rice",
+        "Index": 4,
+        "ItemCost": 10,
+        "Page": 1,
+        "SubPage": 6,
+        "ScripType": 0
+    },
+    {
+        "Name": "Honeydew Honey",
+        "Index": 5,
+        "ItemCost": 10,
+        "Page": 1,
+        "SubPage": 6,
+        "ScripType": 0
+    },
+    {
+        "Name": "Koshu Pork",
+        "Index": 6,
+        "ItemCost": 10,
+        "Page": 1,
+        "SubPage": 6,
+        "ScripType": 0
+    },
+    {
+        "Name": "Tea Brick",
+        "Index": 7,
+        "ItemCost": 10,
+        "Page": 1,
+        "SubPage": 6,
+        "ScripType": 0
+    },
+    {
+        "Name": "Secret Recipe Broth",
+        "Index": 8,
+        "ItemCost": 10,
+        "Page": 1,
+        "SubPage": 6,
+        "ScripType": 0
+    },
+    {
+        "Name": "Crimson Pepper",
+        "Index": 9,
+        "ItemCost": 10,
+        "Page": 1,
+        "SubPage": 6,
+        "ScripType": 0
+    },
+    {
+        "Name": "Gyr Abanian Alchemic",
+        "Index": 10,
+        "ItemCost": 100,
+        "Page": 1,
+        "SubPage": 6,
+        "ScripType": 0
+    },
+    {
+        "Name": "Mozzarella",
+        "Index": 0,
+        "ItemCost": 10,
+        "Page": 1,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Chicken Thigh",
+        "Index": 1,
+        "ItemCost": 10,
+        "Page": 1,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Golden Pineapple",
+        "Index": 2,
+        "ItemCost": 10,
+        "Page": 1,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Twilight Apple",
+        "Index": 3,
+        "ItemCost": 10,
+        "Page": 1,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Cardamom",
+        "Index": 4,
+        "ItemCost": 10,
+        "Page": 1,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Silkie Egg",
+        "Index": 5,
+        "ItemCost": 10,
+        "Page": 1,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Highland Cabbage",
+        "Index": 6,
+        "ItemCost": 10,
+        "Page": 1,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Lingonberry",
+        "Index": 7,
+        "ItemCost": 10,
+        "Page": 1,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Strong Flour",
+        "Index": 8,
+        "ItemCost": 10,
+        "Page": 1,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Platinum Herring",
+        "Index": 9,
+        "ItemCost": 10,
+        "Page": 1,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Dzo Tenderloin",
+        "Index": 10,
+        "ItemCost": 10,
+        "Page": 1,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Robe Lettuce",
+        "Index": 11,
+        "ItemCost": 10,
+        "Page": 1,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Pixieberry",
+        "Index": 12,
+        "ItemCost": 10,
+        "Page": 1,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Kriollo Kukuru Bean",
+        "Index": 13,
+        "ItemCost": 10,
+        "Page": 1,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "King Salmon",
+        "Index": 14,
+        "ItemCost": 10,
+        "Page": 1,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Sublime Solution",
+        "Index": 15,
+        "ItemCost": 125,
+        "Page": 1,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Resplendent Carpenter's Material A",
+        "Index": 16,
+        "ItemCost": 25,
+        "Page": 1,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Resplendent Blacksmith's Material A",
+        "Index": 17,
+        "ItemCost": 25,
+        "Page": 1,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Resplendent Armorer's Material A",
+        "Index": 18,
+        "ItemCost": 25,
+        "Page": 1,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Resplendent Goldsmith's Material A",
+        "Index": 19,
+        "ItemCost": 25,
+        "Page": 1,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Resplendent Leatherworker's Material A",
+        "Index": 20,
+        "ItemCost": 25,
+        "Page": 1,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Resplendent Weaver's Material A",
+        "Index": 21,
+        "ItemCost": 25,
+        "Page": 1,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Resplendent Alchemist's Material A",
+        "Index": 22,
+        "ItemCost": 25,
+        "Page": 1,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Resplendent Culinarian's Material A",
+        "Index": 23,
+        "ItemCost": 25,
+        "Page": 1,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Slithersand",
+        "Index": 24,
+        "ItemCost": 125,
+        "Page": 1,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Oddly Specific Petrified Log",
+        "Index": 0,
+        "ItemCost": 20,
+        "Page": 1,
+        "SubPage": 8,
+        "ScripType": 0
+    },
+    {
+        "Name": "Oddly Specific Iron Sand",
+        "Index": 1,
+        "ItemCost": 20,
+        "Page": 1,
+        "SubPage": 8,
+        "ScripType": 0
+    },
+    {
+        "Name": "Oddly Specific Iron Ore",
+        "Index": 2,
+        "ItemCost": 20,
+        "Page": 1,
+        "SubPage": 8,
+        "ScripType": 0
+    },
+    {
+        "Name": "Oddly Specific Uncut Gemstone",
+        "Index": 3,
+        "ItemCost": 20,
+        "Page": 1,
+        "SubPage": 8,
+        "ScripType": 0
+    },
+    {
+        "Name": "Oddly Specific Skin",
+        "Index": 4,
+        "ItemCost": 20,
+        "Page": 1,
+        "SubPage": 8,
+        "ScripType": 0
+    },
+    {
+        "Name": "Oddly Specific Cotton",
+        "Index": 5,
+        "ItemCost": 20,
+        "Page": 1,
+        "SubPage": 8,
+        "ScripType": 0
+    },
+    {
+        "Name": "Oddly Specific Quartz",
+        "Index": 6,
+        "ItemCost": 20,
+        "Page": 1,
+        "SubPage": 8,
+        "ScripType": 0
+    },
+    {
+        "Name": "Oddly Specific Seeds",
+        "Index": 7,
+        "ItemCost": 20,
+        "Page": 1,
+        "SubPage": 8,
+        "ScripType": 0
+    },
+    {
+        "Name": "Gripgel",
+        "Index": 0,
+        "ItemCost": 250,
+        "Page": 1,
+        "SubPage": 9,
+        "ScripType": 0
+    },
+    {
+        "Name": "Immutable Solution",
+        "Index": 1,
+        "ItemCost": 125,
+        "Page": 1,
+        "SubPage": 9,
+        "ScripType": 0
+    },
+    {
+        "Name": "Dark Eggplant",
+        "Index": 2,
+        "ItemCost": 10,
+        "Page": 1,
+        "SubPage": 9,
+        "ScripType": 0
+    },
+    {
+        "Name": "Broccoflower",
+        "Index": 3,
+        "ItemCost": 10,
+        "Page": 1,
+        "SubPage": 9,
+        "ScripType": 0
+    },
+    {
+        "Name": "Dragonfruit",
+        "Index": 4,
+        "ItemCost": 10,
+        "Page": 1,
+        "SubPage": 9,
+        "ScripType": 0
+    },
+    {
+        "Name": "Pure Cumin",
+        "Index": 5,
+        "ItemCost": 10,
+        "Page": 1,
+        "SubPage": 9,
+        "ScripType": 0
+    },
+    {
+        "Name": "Caviar Sturgeon",
+        "Index": 6,
+        "ItemCost": 10,
+        "Page": 1,
+        "SubPage": 9,
+        "ScripType": 0
+    },
+    {
+        "Name": "Prime Loaghtan Rump",
+        "Index": 7,
+        "ItemCost": 10,
+        "Page": 1,
+        "SubPage": 9,
+        "ScripType": 0
+    },
+    {
+        "Name": "Sunset Carrot",
+        "Index": 8,
+        "ItemCost": 10,
+        "Page": 1,
+        "SubPage": 9,
+        "ScripType": 0
+    },
+    {
+        "Name": "Piennolo Tomato",
+        "Index": 9,
+        "ItemCost": 10,
+        "Page": 1,
+        "SubPage": 9,
+        "ScripType": 0
+    },
+    {
+        "Name": "Thundermelon",
+        "Index": 10,
+        "ItemCost": 10,
+        "Page": 1,
+        "SubPage": 9,
+        "ScripType": 0
+    },
+    {
+        "Name": "King Urchin",
+        "Index": 11,
+        "ItemCost": 10,
+        "Page": 1,
+        "SubPage": 9,
+        "ScripType": 0
+    },
+    {
+        "Name": "Butterbeef",
+        "Index": 12,
+        "ItemCost": 10,
+        "Page": 1,
+        "SubPage": 9,
+        "ScripType": 0
+    },
+    {
+        "Name": "Giant Pumpkin",
+        "Index": 13,
+        "ItemCost": 10,
+        "Page": 1,
+        "SubPage": 9,
+        "ScripType": 0
+    },
+    {
+        "Name": "White Peach",
+        "Index": 14,
+        "ItemCost": 10,
+        "Page": 1,
+        "SubPage": 9,
+        "ScripType": 0
+    },
+    {
+        "Name": "Subtle Cinnamon Sticks",
+        "Index": 15,
+        "ItemCost": 10,
+        "Page": 1,
+        "SubPage": 9,
+        "ScripType": 0
+    },
+    {
+        "Name": "Glass Scallop",
+        "Index": 16,
+        "ItemCost": 10,
+        "Page": 1,
+        "SubPage": 9,
+        "ScripType": 0
+    },
+    {
+        "Name": "Queso Fresco",
+        "Index": 0,
+        "ItemCost": 15,
+        "Page": 1,
+        "SubPage": 10,
+        "ScripType": 1
+    },
+    {
+        "Name": "Woolback Loin",
+        "Index": 1,
+        "ItemCost": 15,
+        "Page": 1,
+        "SubPage": 10,
+        "ScripType": 1
+    },
+    {
+        "Name": "Cassava",
+        "Index": 2,
+        "ItemCost": 15,
+        "Page": 1,
+        "SubPage": 10,
+        "ScripType": 1
+    },
+    {
+        "Name": "Splendid Mate Leaves",
+        "Index": 3,
+        "ItemCost": 15,
+        "Page": 1,
+        "SubPage": 10,
+        "ScripType": 1
+    },
+    {
+        "Name": "Aji Amarillo",
+        "Index": 4,
+        "ItemCost": 15,
+        "Page": 1,
+        "SubPage": 10,
+        "ScripType": 1
+    },
+    {
+        "Name": "Condensed Solution",
+        "Index": 5,
+        "ItemCost": 125,
+        "Page": 1,
+        "SubPage": 10,
+        "ScripType": 1
+    },
+    {
+        "Name": "Rumpless Chicken",
+        "Index": 6,
+        "ItemCost": 10,
+        "Page": 1,
+        "SubPage": 10,
+        "ScripType": 1
+    },
+    {
+        "Name": "Navel Orange",
+        "Index": 7,
+        "ItemCost": 10,
+        "Page": 1,
+        "SubPage": 10,
+        "ScripType": 1
+    },
+    {
+        "Name": "Wild Coffee Beans",
+        "Index": 8,
+        "ItemCost": 10,
+        "Page": 1,
+        "SubPage": 10,
+        "ScripType": 1
+    },
+    {
+        "Name": "Brown Cardamom",
+        "Index": 9,
+        "ItemCost": 10,
+        "Page": 1,
+        "SubPage": 10,
+        "ScripType": 1
+    },
+    {
+        "Name": "Royal Lobster",
+        "Index": 10,
+        "ItemCost": 10,
+        "Page": 1,
+        "SubPage": 10,
+        "ScripType": 1
+    },
+    {
+        "Name": "Hingan Rock Garden",
+        "Index": 11,
+        "ItemCost": 1000,
+        "Page": 1,
+        "SubPage": 10,
+        "ScripType": 1
+    },
+    {
+        "Name": "Sweet Dreamer's Stall",
+        "Index": 12,
+        "ItemCost": 500,
+        "Page": 1,
+        "SubPage": 10,
+        "ScripType": 1
+    },
+    {
+        "Name": "Craftsman's Competence Materia XI",
+        "Index": 0,
+        "ItemCost": 250,
+        "Page": 2,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Craftsman's Cunning Materia XI",
+        "Index": 1,
+        "ItemCost": 250,
+        "Page": 2,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Craftsman's Command Materia XI",
+        "Index": 2,
+        "ItemCost": 250,
+        "Page": 2,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Craftsman's Competence Materia X",
+        "Index": 3,
+        "ItemCost": 250,
+        "Page": 2,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Craftsman's Cunning Materia X",
+        "Index": 4,
+        "ItemCost": 250,
+        "Page": 2,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Craftsman's Command Materia X",
+        "Index": 5,
+        "ItemCost": 250,
+        "Page": 2,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Craftsman's Competence Materia IX",
+        "Index": 6,
+        "ItemCost": 200,
+        "Page": 2,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Craftsman's Cunning Materia IX",
+        "Index": 7,
+        "ItemCost": 200,
+        "Page": 2,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Craftsman's Command Materia IX",
+        "Index": 8,
+        "ItemCost": 200,
+        "Page": 2,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Craftsman's Competence Materia VIII",
+        "Index": 9,
+        "ItemCost": 200,
+        "Page": 2,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Craftsman's Cunning Materia VIII",
+        "Index": 10,
+        "ItemCost": 200,
+        "Page": 2,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Craftsman's Command Materia VIII",
+        "Index": 11,
+        "ItemCost": 200,
+        "Page": 2,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Craftsman's Competence Materia VII",
+        "Index": 12,
+        "ItemCost": 200,
+        "Page": 2,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Craftsman's Cunning Materia VII",
+        "Index": 13,
+        "ItemCost": 200,
+        "Page": 2,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Craftsman's Command Materia VII",
+        "Index": 14,
+        "ItemCost": 200,
+        "Page": 2,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Craftsman's Competence Materia VI",
+        "Index": 15,
+        "ItemCost": 200,
+        "Page": 2,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Craftsman's Cunning Materia VI",
+        "Index": 16,
+        "ItemCost": 200,
+        "Page": 2,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Craftsman's Command Materia VI",
+        "Index": 17,
+        "ItemCost": 200,
+        "Page": 2,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Craftsman's Competence Materia V",
+        "Index": 18,
+        "ItemCost": 200,
+        "Page": 2,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Craftsman's Cunning Materia V",
+        "Index": 19,
+        "ItemCost": 200,
+        "Page": 2,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Craftsman's Command Materia V",
+        "Index": 20,
+        "ItemCost": 200,
+        "Page": 2,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Craftsman's Competence Materia IV",
+        "Index": 21,
+        "ItemCost": 25,
+        "Page": 2,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Craftsman's Cunning Materia IV",
+        "Index": 22,
+        "ItemCost": 25,
+        "Page": 2,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Craftsman's Command Materia IV",
+        "Index": 23,
+        "ItemCost": 25,
+        "Page": 2,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Craftsman's Competence Materia XII",
+        "Index": 0,
+        "ItemCost": 500,
+        "Page": 2,
+        "SubPage": 2,
+        "ScripType": 1
+    },
+    {
+        "Name": "Craftsman's Cunning Materia XII",
+        "Index": 1,
+        "ItemCost": 500,
+        "Page": 2,
+        "SubPage": 2,
+        "ScripType": 1
+    },
+    {
+        "Name": "Craftsman's Command Materia XII",
+        "Index": 2,
+        "ItemCost": 500,
+        "Page": 2,
+        "SubPage": 2,
+        "ScripType": 1
+    },
+    {
+        "Name": "Trailblazer's Scarf",
+        "Index": 0,
+        "ItemCost": 100,
+        "Page": 3,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Trailblazer's Vest",
+        "Index": 1,
+        "ItemCost": 135,
+        "Page": 3,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Trailblazer's Wristguards",
+        "Index": 2,
+        "ItemCost": 75,
+        "Page": 3,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Trailblazer's Slops",
+        "Index": 3,
+        "ItemCost": 50,
+        "Page": 3,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Trailblazer's Shoes",
+        "Index": 4,
+        "ItemCost": 50,
+        "Page": 3,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Minekeep's Pickaxe",
+        "Index": 0,
+        "ItemCost": 250,
+        "Page": 3,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Minekeep's Sledgehammer",
+        "Index": 1,
+        "ItemCost": 250,
+        "Page": 3,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Minekeep's Helmet",
+        "Index": 2,
+        "ItemCost": 100,
+        "Page": 3,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Minekeep's Overalls",
+        "Index": 3,
+        "ItemCost": 150,
+        "Page": 3,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Minekeep's Work Gloves",
+        "Index": 4,
+        "ItemCost": 75,
+        "Page": 3,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Minekeep's Slops",
+        "Index": 5,
+        "ItemCost": 75,
+        "Page": 3,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Minekeep's Workboots",
+        "Index": 6,
+        "ItemCost": 75,
+        "Page": 3,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Fieldkeep's Hatchet",
+        "Index": 7,
+        "ItemCost": 250,
+        "Page": 3,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Fieldkeep's Scythe",
+        "Index": 8,
+        "ItemCost": 250,
+        "Page": 3,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Fieldkeep's Canotier",
+        "Index": 9,
+        "ItemCost": 100,
+        "Page": 3,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Fieldkeep's Shirt",
+        "Index": 10,
+        "ItemCost": 150,
+        "Page": 3,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Fieldkeep's Corsage",
+        "Index": 11,
+        "ItemCost": 75,
+        "Page": 3,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Fieldkeep's Slops",
+        "Index": 12,
+        "ItemCost": 75,
+        "Page": 3,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Fieldkeep's Jackboots",
+        "Index": 13,
+        "ItemCost": 75,
+        "Page": 3,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Tacklekeep's Rod",
+        "Index": 14,
+        "ItemCost": 250,
+        "Page": 3,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Tacklekeep's Cap",
+        "Index": 15,
+        "ItemCost": 100,
+        "Page": 3,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Tacklekeep's Vest",
+        "Index": 16,
+        "ItemCost": 150,
+        "Page": 3,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Tacklekeep's Gloves",
+        "Index": 17,
+        "ItemCost": 75,
+        "Page": 3,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Tacklekeep's Gaskins",
+        "Index": 18,
+        "ItemCost": 75,
+        "Page": 3,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Tacklekeep's Waders",
+        "Index": 19,
+        "ItemCost": 75,
+        "Page": 3,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Landmaster's Earrings",
+        "Index": 20,
+        "ItemCost": 75,
+        "Page": 3,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Landmaster's Choker",
+        "Index": 21,
+        "ItemCost": 75,
+        "Page": 3,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Landmaster's Wristbands",
+        "Index": 22,
+        "ItemCost": 75,
+        "Page": 3,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Landmaster's Ring",
+        "Index": 23,
+        "ItemCost": 50,
+        "Page": 3,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Mineking's Pickaxe",
+        "Index": 0,
+        "ItemCost": 250,
+        "Page": 3,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Mineking's Sledgehammer",
+        "Index": 1,
+        "ItemCost": 250,
+        "Page": 3,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Mineking's Helmet",
+        "Index": 2,
+        "ItemCost": 100,
+        "Page": 3,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Mineking's Work Shirt",
+        "Index": 3,
+        "ItemCost": 150,
+        "Page": 3,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Mineking's Work Gloves",
+        "Index": 4,
+        "ItemCost": 75,
+        "Page": 3,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Mineking's Slops",
+        "Index": 5,
+        "ItemCost": 75,
+        "Page": 3,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Mineking's Workboots",
+        "Index": 6,
+        "ItemCost": 75,
+        "Page": 3,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Fieldking's Hatchet",
+        "Index": 7,
+        "ItemCost": 250,
+        "Page": 3,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Fieldking's Scythe",
+        "Index": 8,
+        "ItemCost": 250,
+        "Page": 3,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Fieldking's Hat",
+        "Index": 9,
+        "ItemCost": 100,
+        "Page": 3,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Fieldking's Shirt",
+        "Index": 10,
+        "ItemCost": 150,
+        "Page": 3,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Fieldking's Gloves",
+        "Index": 11,
+        "ItemCost": 75,
+        "Page": 3,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Fieldking's Slops",
+        "Index": 12,
+        "ItemCost": 75,
+        "Page": 3,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Fieldking's Shoes",
+        "Index": 13,
+        "ItemCost": 75,
+        "Page": 3,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Tackleking's Rod",
+        "Index": 14,
+        "ItemCost": 250,
+        "Page": 3,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Tackleking's Bandana",
+        "Index": 15,
+        "ItemCost": 100,
+        "Page": 3,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Tackleking's Vest",
+        "Index": 16,
+        "ItemCost": 150,
+        "Page": 3,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Tackleking's Fingerless Gloves",
+        "Index": 17,
+        "ItemCost": 75,
+        "Page": 3,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Tackleking's Halfslops",
+        "Index": 18,
+        "ItemCost": 75,
+        "Page": 3,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Tackleking's Sandals",
+        "Index": 19,
+        "ItemCost": 75,
+        "Page": 3,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Landking's Pickaxe",
+        "Index": 0,
+        "ItemCost": 250,
+        "Page": 3,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Landking's Hatchet",
+        "Index": 1,
+        "ItemCost": 250,
+        "Page": 3,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Landking's Fishing Rod",
+        "Index": 2,
+        "ItemCost": 250,
+        "Page": 3,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Landking's Turban",
+        "Index": 3,
+        "ItemCost": 100,
+        "Page": 3,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Landking's Coat",
+        "Index": 4,
+        "ItemCost": 150,
+        "Page": 3,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Landking's Gloves",
+        "Index": 5,
+        "ItemCost": 75,
+        "Page": 3,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Landking's Bottoms",
+        "Index": 6,
+        "ItemCost": 75,
+        "Page": 3,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Landking's Shoes",
+        "Index": 7,
+        "ItemCost": 75,
+        "Page": 3,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Landking's Earring",
+        "Index": 8,
+        "ItemCost": 75,
+        "Page": 3,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Landking's Necklace",
+        "Index": 9,
+        "ItemCost": 75,
+        "Page": 3,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Landking's Armillae",
+        "Index": 10,
+        "ItemCost": 75,
+        "Page": 3,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Landking's Ring",
+        "Index": 11,
+        "ItemCost": 50,
+        "Page": 3,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Minefiend's Pickaxe",
+        "Index": 0,
+        "ItemCost": 250,
+        "Page": 3,
+        "SubPage": 5,
+        "ScripType": 0
+    },
+    {
+        "Name": "Minefiend's Helmet",
+        "Index": 1,
+        "ItemCost": 100,
+        "Page": 3,
+        "SubPage": 5,
+        "ScripType": 0
+    },
+    {
+        "Name": "Minefiend's Work Shirt",
+        "Index": 2,
+        "ItemCost": 150,
+        "Page": 3,
+        "SubPage": 5,
+        "ScripType": 0
+    },
+    {
+        "Name": "Minefiend's Work Gloves",
+        "Index": 3,
+        "ItemCost": 75,
+        "Page": 3,
+        "SubPage": 5,
+        "ScripType": 0
+    },
+    {
+        "Name": "Minefiend's Slops",
+        "Index": 4,
+        "ItemCost": 75,
+        "Page": 3,
+        "SubPage": 5,
+        "ScripType": 0
+    },
+    {
+        "Name": "Minefiend's Workboots",
+        "Index": 5,
+        "ItemCost": 75,
+        "Page": 3,
+        "SubPage": 5,
+        "ScripType": 0
+    },
+    {
+        "Name": "Fieldfiend's Hatchet",
+        "Index": 6,
+        "ItemCost": 250,
+        "Page": 3,
+        "SubPage": 5,
+        "ScripType": 0
+    },
+    {
+        "Name": "Fieldfiend's Hat",
+        "Index": 7,
+        "ItemCost": 100,
+        "Page": 3,
+        "SubPage": 5,
+        "ScripType": 0
+    },
+    {
+        "Name": "Fieldfiend's Shirt",
+        "Index": 8,
+        "ItemCost": 150,
+        "Page": 3,
+        "SubPage": 5,
+        "ScripType": 0
+    },
+    {
+        "Name": "Fieldfiend's Halfgloves",
+        "Index": 9,
+        "ItemCost": 75,
+        "Page": 3,
+        "SubPage": 5,
+        "ScripType": 0
+    },
+    {
+        "Name": "Fieldfiend's Slops",
+        "Index": 10,
+        "ItemCost": 75,
+        "Page": 3,
+        "SubPage": 5,
+        "ScripType": 0
+    },
+    {
+        "Name": "Fieldfiend's Workboots",
+        "Index": 11,
+        "ItemCost": 75,
+        "Page": 3,
+        "SubPage": 5,
+        "ScripType": 0
+    },
+    {
+        "Name": "Tacklefiend's Rod",
+        "Index": 12,
+        "ItemCost": 250,
+        "Page": 3,
+        "SubPage": 5,
+        "ScripType": 0
+    },
+    {
+        "Name": "Tacklefiend's Hat",
+        "Index": 13,
+        "ItemCost": 100,
+        "Page": 3,
+        "SubPage": 5,
+        "ScripType": 0
+    },
+    {
+        "Name": "Tacklefiend's Jacket",
+        "Index": 14,
+        "ItemCost": 150,
+        "Page": 3,
+        "SubPage": 5,
+        "ScripType": 0
+    },
+    {
+        "Name": "Tacklefiend's Work Gloves",
+        "Index": 15,
+        "ItemCost": 75,
+        "Page": 3,
+        "SubPage": 5,
+        "ScripType": 0
+    },
+    {
+        "Name": "Tacklefiend's Slops",
+        "Index": 16,
+        "ItemCost": 75,
+        "Page": 3,
+        "SubPage": 5,
+        "ScripType": 0
+    },
+    {
+        "Name": "Tacklefiend's Workboots",
+        "Index": 17,
+        "ItemCost": 75,
+        "Page": 3,
+        "SubPage": 5,
+        "ScripType": 0
+    },
+    {
+        "Name": "Professional's Pickaxe",
+        "Index": 0,
+        "ItemCost": 250,
+        "Page": 3,
+        "SubPage": 6,
+        "ScripType": 0
+    },
+    {
+        "Name": "Minefiend's Sledgehammer",
+        "Index": 1,
+        "ItemCost": 250,
+        "Page": 3,
+        "SubPage": 6,
+        "ScripType": 0
+    },
+    {
+        "Name": "Professional's Hatchet",
+        "Index": 2,
+        "ItemCost": 250,
+        "Page": 3,
+        "SubPage": 6,
+        "ScripType": 0
+    },
+    {
+        "Name": "Fieldfiend's Scythe",
+        "Index": 3,
+        "ItemCost": 250,
+        "Page": 3,
+        "SubPage": 6,
+        "ScripType": 0
+    },
+    {
+        "Name": "Professional's Fishing Rod",
+        "Index": 4,
+        "ItemCost": 250,
+        "Page": 3,
+        "SubPage": 6,
+        "ScripType": 0
+    },
+    {
+        "Name": "Professional's Bandana of Gathering",
+        "Index": 5,
+        "ItemCost": 100,
+        "Page": 3,
+        "SubPage": 6,
+        "ScripType": 0
+    },
+    {
+        "Name": "Professional's Coat of Gathering",
+        "Index": 6,
+        "ItemCost": 150,
+        "Page": 3,
+        "SubPage": 6,
+        "ScripType": 0
+    },
+    {
+        "Name": "Professional's Gloves of Gathering",
+        "Index": 7,
+        "ItemCost": 75,
+        "Page": 3,
+        "SubPage": 6,
+        "ScripType": 0
+    },
+    {
+        "Name": "Professional's Breeches of Gathering",
+        "Index": 8,
+        "ItemCost": 75,
+        "Page": 3,
+        "SubPage": 6,
+        "ScripType": 0
+    },
+    {
+        "Name": "Professional's Boots of Gathering",
+        "Index": 9,
+        "ItemCost": 75,
+        "Page": 3,
+        "SubPage": 6,
+        "ScripType": 0
+    },
+    {
+        "Name": "Landsaint's Pickaxe",
+        "Index": 0,
+        "ItemCost": 250,
+        "Page": 3,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Landsaint's Sledgehammer",
+        "Index": 1,
+        "ItemCost": 250,
+        "Page": 3,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Landsaint's Hatchet",
+        "Index": 2,
+        "ItemCost": 250,
+        "Page": 3,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Landsaint's Scythe",
+        "Index": 3,
+        "ItemCost": 250,
+        "Page": 3,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Landsaint's Fishing Rod",
+        "Index": 4,
+        "ItemCost": 250,
+        "Page": 3,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Landsaint's Bandana",
+        "Index": 5,
+        "ItemCost": 100,
+        "Page": 3,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Landsaint's Coat",
+        "Index": 6,
+        "ItemCost": 150,
+        "Page": 3,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Landsaint's Gloves",
+        "Index": 7,
+        "ItemCost": 75,
+        "Page": 3,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Landsaint's Breeches",
+        "Index": 8,
+        "ItemCost": 75,
+        "Page": 3,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Landsaint's Boots",
+        "Index": 9,
+        "ItemCost": 75,
+        "Page": 3,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Landsaint's Earrings",
+        "Index": 10,
+        "ItemCost": 75,
+        "Page": 3,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Landsaint's Necklace",
+        "Index": 11,
+        "ItemCost": 75,
+        "Page": 3,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Landsaint's Bracelets",
+        "Index": 12,
+        "ItemCost": 75,
+        "Page": 3,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Landsaint's Ring",
+        "Index": 13,
+        "ItemCost": 50,
+        "Page": 3,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Minesoph's Pickaxe",
+        "Index": 0,
+        "ItemCost": 250,
+        "Page": 3,
+        "SubPage": 8,
+        "ScripType": 0
+    },
+    {
+        "Name": "Minesoph's Helmet",
+        "Index": 1,
+        "ItemCost": 100,
+        "Page": 3,
+        "SubPage": 8,
+        "ScripType": 0
+    },
+    {
+        "Name": "Minesoph's Work Shirt",
+        "Index": 2,
+        "ItemCost": 150,
+        "Page": 3,
+        "SubPage": 8,
+        "ScripType": 0
+    },
+    {
+        "Name": "Minesoph's Work Gloves",
+        "Index": 3,
+        "ItemCost": 75,
+        "Page": 3,
+        "SubPage": 8,
+        "ScripType": 0
+    },
+    {
+        "Name": "Minesoph's Slops",
+        "Index": 4,
+        "ItemCost": 75,
+        "Page": 3,
+        "SubPage": 8,
+        "ScripType": 0
+    },
+    {
+        "Name": "Minesoph's Workboots",
+        "Index": 5,
+        "ItemCost": 75,
+        "Page": 3,
+        "SubPage": 8,
+        "ScripType": 0
+    },
+    {
+        "Name": "Fieldsoph's Hatchet",
+        "Index": 6,
+        "ItemCost": 250,
+        "Page": 3,
+        "SubPage": 8,
+        "ScripType": 0
+    },
+    {
+        "Name": "Fieldsoph's Hood",
+        "Index": 7,
+        "ItemCost": 100,
+        "Page": 3,
+        "SubPage": 8,
+        "ScripType": 0
+    },
+    {
+        "Name": "Fieldsoph's Shirt",
+        "Index": 8,
+        "ItemCost": 150,
+        "Page": 3,
+        "SubPage": 8,
+        "ScripType": 0
+    },
+    {
+        "Name": "Fieldsoph's Gloves",
+        "Index": 9,
+        "ItemCost": 75,
+        "Page": 3,
+        "SubPage": 8,
+        "ScripType": 0
+    },
+    {
+        "Name": "Fieldsoph's Slops",
+        "Index": 10,
+        "ItemCost": 75,
+        "Page": 3,
+        "SubPage": 8,
+        "ScripType": 0
+    },
+    {
+        "Name": "Fieldsoph's Crakows",
+        "Index": 11,
+        "ItemCost": 75,
+        "Page": 3,
+        "SubPage": 8,
+        "ScripType": 0
+    },
+    {
+        "Name": "Tacklesoph's Rod",
+        "Index": 12,
+        "ItemCost": 250,
+        "Page": 3,
+        "SubPage": 8,
+        "ScripType": 0
+    },
+    {
+        "Name": "Tacklesoph's Hat",
+        "Index": 13,
+        "ItemCost": 100,
+        "Page": 3,
+        "SubPage": 8,
+        "ScripType": 0
+    },
+    {
+        "Name": "Tacklesoph's Jacket",
+        "Index": 14,
+        "ItemCost": 150,
+        "Page": 3,
+        "SubPage": 8,
+        "ScripType": 0
+    },
+    {
+        "Name": "Tacklesoph's Work Gloves",
+        "Index": 15,
+        "ItemCost": 75,
+        "Page": 3,
+        "SubPage": 8,
+        "ScripType": 0
+    },
+    {
+        "Name": "Tacklesoph's Slops",
+        "Index": 16,
+        "ItemCost": 75,
+        "Page": 3,
+        "SubPage": 8,
+        "ScripType": 0
+    },
+    {
+        "Name": "Tacklesoph's Workboots",
+        "Index": 17,
+        "ItemCost": 75,
+        "Page": 3,
+        "SubPage": 8,
+        "ScripType": 0
+    },
+    {
+        "Name": "Perfectionist's Pickaxe",
+        "Index": 0,
+        "ItemCost": 250,
+        "Page": 3,
+        "SubPage": 9,
+        "ScripType": 0
+    },
+    {
+        "Name": "Perfectionist's Sledgehammer",
+        "Index": 1,
+        "ItemCost": 250,
+        "Page": 3,
+        "SubPage": 9,
+        "ScripType": 0
+    },
+    {
+        "Name": "Perfectionist's Hatchet",
+        "Index": 2,
+        "ItemCost": 250,
+        "Page": 3,
+        "SubPage": 9,
+        "ScripType": 0
+    },
+    {
+        "Name": "Perfectionist's Garden Scythe",
+        "Index": 3,
+        "ItemCost": 250,
+        "Page": 3,
+        "SubPage": 9,
+        "ScripType": 0
+    },
+    {
+        "Name": "Perfectionist's Fishing Rod",
+        "Index": 4,
+        "ItemCost": 250,
+        "Page": 3,
+        "SubPage": 9,
+        "ScripType": 0
+    },
+    {
+        "Name": "Perfectionist's Hat of Gathering",
+        "Index": 5,
+        "ItemCost": 100,
+        "Page": 3,
+        "SubPage": 9,
+        "ScripType": 0
+    },
+    {
+        "Name": "Perfectionist's Doublet of Gathering",
+        "Index": 6,
+        "ItemCost": 150,
+        "Page": 3,
+        "SubPage": 9,
+        "ScripType": 0
+    },
+    {
+        "Name": "Perfectionist's Halfgloves of Gathering",
+        "Index": 7,
+        "ItemCost": 75,
+        "Page": 3,
+        "SubPage": 9,
+        "ScripType": 0
+    },
+    {
+        "Name": "Perfectionist's Trousers of Gathering",
+        "Index": 8,
+        "ItemCost": 75,
+        "Page": 3,
+        "SubPage": 9,
+        "ScripType": 0
+    },
+    {
+        "Name": "Perfectionist's Boots of Gathering",
+        "Index": 9,
+        "ItemCost": 75,
+        "Page": 3,
+        "SubPage": 9,
+        "ScripType": 0
+    },
+    {
+        "Name": "Afflatus Pickaxe",
+        "Index": 0,
+        "ItemCost": 350,
+        "Page": 3,
+        "SubPage": 10,
+        "ScripType": 0
+    },
+    {
+        "Name": "Afflatus Sledgehammer",
+        "Index": 1,
+        "ItemCost": 350,
+        "Page": 3,
+        "SubPage": 10,
+        "ScripType": 0
+    },
+    {
+        "Name": "Afflatus Hatchet",
+        "Index": 2,
+        "ItemCost": 350,
+        "Page": 3,
+        "SubPage": 10,
+        "ScripType": 0
+    },
+    {
+        "Name": "Afflatus Garden Scythe",
+        "Index": 3,
+        "ItemCost": 350,
+        "Page": 3,
+        "SubPage": 10,
+        "ScripType": 0
+    },
+    {
+        "Name": "Afflatus Fishing Rod",
+        "Index": 4,
+        "ItemCost": 350,
+        "Page": 3,
+        "SubPage": 10,
+        "ScripType": 0
+    },
+    {
+        "Name": "Natural Afflatus Trapper's Hat",
+        "Index": 5,
+        "ItemCost": 150,
+        "Page": 3,
+        "SubPage": 10,
+        "ScripType": 0
+    },
+    {
+        "Name": "Natural Afflatus Jacket",
+        "Index": 6,
+        "ItemCost": 250,
+        "Page": 3,
+        "SubPage": 10,
+        "ScripType": 0
+    },
+    {
+        "Name": "Natural Afflatus Halfgloves",
+        "Index": 7,
+        "ItemCost": 100,
+        "Page": 3,
+        "SubPage": 10,
+        "ScripType": 0
+    },
+    {
+        "Name": "Natural Afflatus Culottes",
+        "Index": 8,
+        "ItemCost": 100,
+        "Page": 3,
+        "SubPage": 10,
+        "ScripType": 0
+    },
+    {
+        "Name": "Natural Afflatus Boots",
+        "Index": 9,
+        "ItemCost": 100,
+        "Page": 3,
+        "SubPage": 10,
+        "ScripType": 0
+    },
+    {
+        "Name": "Natural Afflatus Earrings",
+        "Index": 10,
+        "ItemCost": 100,
+        "Page": 3,
+        "SubPage": 10,
+        "ScripType": 0
+    },
+    {
+        "Name": "Natural Afflatus Necklace",
+        "Index": 11,
+        "ItemCost": 100,
+        "Page": 3,
+        "SubPage": 10,
+        "ScripType": 0
+    },
+    {
+        "Name": "Natural Afflatus Wristband",
+        "Index": 12,
+        "ItemCost": 100,
+        "Page": 3,
+        "SubPage": 10,
+        "ScripType": 0
+    },
+    {
+        "Name": "Natural Afflatus Ring",
+        "Index": 13,
+        "ItemCost": 75,
+        "Page": 3,
+        "SubPage": 10,
+        "ScripType": 0
+    },
+    {
+        "Name": "Minerise Pickaxe",
+        "Index": 0,
+        "ItemCost": 350,
+        "Page": 3,
+        "SubPage": 11,
+        "ScripType": 1
+    },
+    {
+        "Name": "Minerise Helmet",
+        "Index": 1,
+        "ItemCost": 150,
+        "Page": 3,
+        "SubPage": 11,
+        "ScripType": 1
+    },
+    {
+        "Name": "Minerise Work Shirt",
+        "Index": 2,
+        "ItemCost": 250,
+        "Page": 3,
+        "SubPage": 11,
+        "ScripType": 1
+    },
+    {
+        "Name": "Minerise Work Gloves",
+        "Index": 3,
+        "ItemCost": 100,
+        "Page": 3,
+        "SubPage": 11,
+        "ScripType": 1
+    },
+    {
+        "Name": "Minerise Slops",
+        "Index": 4,
+        "ItemCost": 100,
+        "Page": 3,
+        "SubPage": 11,
+        "ScripType": 1
+    },
+    {
+        "Name": "Minerise Workboots",
+        "Index": 5,
+        "ItemCost": 100,
+        "Page": 3,
+        "SubPage": 11,
+        "ScripType": 1
+    },
+    {
+        "Name": "Fieldrise Hatchet",
+        "Index": 6,
+        "ItemCost": 350,
+        "Page": 3,
+        "SubPage": 11,
+        "ScripType": 1
+    },
+    {
+        "Name": "Fieldrise Hat",
+        "Index": 7,
+        "ItemCost": 150,
+        "Page": 3,
+        "SubPage": 11,
+        "ScripType": 1
+    },
+    {
+        "Name": "Fieldrise Doublet",
+        "Index": 8,
+        "ItemCost": 250,
+        "Page": 3,
+        "SubPage": 11,
+        "ScripType": 1
+    },
+    {
+        "Name": "Fieldrise Work Gloves",
+        "Index": 9,
+        "ItemCost": 100,
+        "Page": 3,
+        "SubPage": 11,
+        "ScripType": 1
+    },
+    {
+        "Name": "Fieldrise Breeches",
+        "Index": 10,
+        "ItemCost": 100,
+        "Page": 3,
+        "SubPage": 11,
+        "ScripType": 1
+    },
+    {
+        "Name": "Fieldrise Thighboots",
+        "Index": 11,
+        "ItemCost": 100,
+        "Page": 3,
+        "SubPage": 11,
+        "ScripType": 1
+    },
+    {
+        "Name": "Tacklerise Rod",
+        "Index": 12,
+        "ItemCost": 350,
+        "Page": 3,
+        "SubPage": 11,
+        "ScripType": 1
+    },
+    {
+        "Name": "Tacklerise Hat",
+        "Index": 13,
+        "ItemCost": 150,
+        "Page": 3,
+        "SubPage": 11,
+        "ScripType": 1
+    },
+    {
+        "Name": "Tacklerise Work Shirt",
+        "Index": 14,
+        "ItemCost": 250,
+        "Page": 3,
+        "SubPage": 11,
+        "ScripType": 1
+    },
+    {
+        "Name": "Tacklerise Work Gloves",
+        "Index": 15,
+        "ItemCost": 100,
+        "Page": 3,
+        "SubPage": 11,
+        "ScripType": 1
+    },
+    {
+        "Name": "Tacklerise Kecks",
+        "Index": 16,
+        "ItemCost": 100,
+        "Page": 3,
+        "SubPage": 11,
+        "ScripType": 1
+    },
+    {
+        "Name": "Tacklerise Workboots",
+        "Index": 17,
+        "ItemCost": 100,
+        "Page": 3,
+        "SubPage": 11,
+        "ScripType": 1
+    },
+    {
+        "Name": "Innovator's Pickaxe",
+        "Index": 0,
+        "ItemCost": 500,
+        "Page": 3,
+        "SubPage": 12,
+        "ScripType": 1
+    },
+    {
+        "Name": "Innovator's Sledgehammer",
+        "Index": 1,
+        "ItemCost": 500,
+        "Page": 3,
+        "SubPage": 12,
+        "ScripType": 1
+    },
+    {
+        "Name": "Innovator's Hatchet",
+        "Index": 2,
+        "ItemCost": 500,
+        "Page": 3,
+        "SubPage": 12,
+        "ScripType": 1
+    },
+    {
+        "Name": "Innovator's Garden Scythe",
+        "Index": 3,
+        "ItemCost": 500,
+        "Page": 3,
+        "SubPage": 12,
+        "ScripType": 1
+    },
+    {
+        "Name": "Innovator's Rod",
+        "Index": 4,
+        "ItemCost": 500,
+        "Page": 3,
+        "SubPage": 12,
+        "ScripType": 1
+    },
+    {
+        "Name": "Innovator's Helmet of Gathering",
+        "Index": 5,
+        "ItemCost": 300,
+        "Page": 3,
+        "SubPage": 12,
+        "ScripType": 1
+    },
+    {
+        "Name": "Innovator's Doublet Vest of Gathering",
+        "Index": 6,
+        "ItemCost": 900,
+        "Page": 3,
+        "SubPage": 12,
+        "ScripType": 1
+    },
+    {
+        "Name": "Innovator's Armguards of Gathering",
+        "Index": 7,
+        "ItemCost": 300,
+        "Page": 3,
+        "SubPage": 12,
+        "ScripType": 1
+    },
+    {
+        "Name": "Innovator's Bottoms of Gathering",
+        "Index": 8,
+        "ItemCost": 300,
+        "Page": 3,
+        "SubPage": 12,
+        "ScripType": 1
+    },
+    {
+        "Name": "Innovator's Shoes of Gathering",
+        "Index": 9,
+        "ItemCost": 300,
+        "Page": 3,
+        "SubPage": 12,
+        "ScripType": 1
+    },
+    {
+        "Name": "Hi-Cordial",
+        "Index": 0,
+        "ItemCost": 20,
+        "Page": 4,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Revised Survival Manual",
+        "Index": 1,
+        "ItemCost": 30,
+        "Page": 4,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Commercial Survival Manual",
+        "Index": 2,
+        "ItemCost": 30,
+        "Page": 4,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Chocobo Raincoat",
+        "Index": 3,
+        "ItemCost": 800,
+        "Page": 4,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Freedom Orchestrion Roll",
+        "Index": 4,
+        "ItemCost": 200,
+        "Page": 4,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Songs of Salt and Suffering Orchestrion Roll",
+        "Index": 5,
+        "ItemCost": 200,
+        "Page": 4,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Hope Forgotten Orchestrion Roll",
+        "Index": 6,
+        "ItemCost": 200,
+        "Page": 4,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "The Stone Remembers Orchestrion Roll",
+        "Index": 7,
+        "ItemCost": 200,
+        "Page": 4,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Old Wounds Orchestrion Roll",
+        "Index": 8,
+        "ItemCost": 200,
+        "Page": 4,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Fruit Stall",
+        "Index": 9,
+        "ItemCost": 50,
+        "Page": 4,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Vegetable Stall",
+        "Index": 10,
+        "ItemCost": 50,
+        "Page": 4,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Mineral Display",
+        "Index": 11,
+        "ItemCost": 50,
+        "Page": 4,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Garden Gravel",
+        "Index": 12,
+        "ItemCost": 75,
+        "Page": 4,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Carpet of Flowers",
+        "Index": 13,
+        "ItemCost": 75,
+        "Page": 4,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Small Angler's Canvas",
+        "Index": 14,
+        "ItemCost": 150,
+        "Page": 4,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Medium Angler's Canvas",
+        "Index": 15,
+        "ItemCost": 225,
+        "Page": 4,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Large Angler's Canvas",
+        "Index": 16,
+        "ItemCost": 375,
+        "Page": 4,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Extra Large Angler's Canvas",
+        "Index": 17,
+        "ItemCost": 600,
+        "Page": 4,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Major-General Cushion",
+        "Index": 18,
+        "ItemCost": 200,
+        "Page": 4,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Fishing Rod Rack",
+        "Index": 19,
+        "ItemCost": 500,
+        "Page": 4,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Hanging Lure Display",
+        "Index": 20,
+        "ItemCost": 500,
+        "Page": 4,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Fiend Worm",
+        "Index": 0,
+        "ItemCost": 1,
+        "Page": 4,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Magma Worm",
+        "Index": 1,
+        "ItemCost": 1,
+        "Page": 4,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Red Balloon",
+        "Index": 2,
+        "ItemCost": 1,
+        "Page": 4,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Peteinosaur",
+        "Index": 3,
+        "ItemCost": 40,
+        "Page": 4,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Cloud Mythril Ore",
+        "Index": 4,
+        "ItemCost": 20,
+        "Page": 4,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Stormcloud Cotton Boll",
+        "Index": 5,
+        "ItemCost": 20,
+        "Page": 4,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Eurhinosaur",
+        "Index": 6,
+        "ItemCost": 5,
+        "Page": 4,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Thief Betta",
+        "Index": 7,
+        "ItemCost": 5,
+        "Page": 4,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Sphalerite",
+        "Index": 8,
+        "ItemCost": 10,
+        "Page": 4,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Cloud Cotton Boll",
+        "Index": 9,
+        "ItemCost": 10,
+        "Page": 4,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Pterodactyl",
+        "Index": 10,
+        "ItemCost": 20,
+        "Page": 4,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Gem Marimo",
+        "Index": 11,
+        "ItemCost": 10,
+        "Page": 4,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Crown Trout",
+        "Index": 12,
+        "ItemCost": 5,
+        "Page": 4,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Retribution Staff",
+        "Index": 13,
+        "ItemCost": 10,
+        "Page": 4,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Goldsmith Crab",
+        "Index": 14,
+        "ItemCost": 5,
+        "Page": 4,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Royal Mistletoe",
+        "Index": 15,
+        "ItemCost": 10,
+        "Page": 4,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Wind Silk",
+        "Index": 16,
+        "ItemCost": 75,
+        "Page": 4,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Dinosaur Leather",
+        "Index": 17,
+        "ItemCost": 75,
+        "Page": 4,
+        "SubPage": 2,
+        "ScripType": 0
+    },
+    {
+        "Name": "Silkworm",
+        "Index": 0,
+        "ItemCost": 1,
+        "Page": 4,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Bream Lure",
+        "Index": 1,
+        "ItemCost": 15,
+        "Page": 4,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Suspending Minnow",
+        "Index": 2,
+        "ItemCost": 15,
+        "Page": 4,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Brute Leech",
+        "Index": 3,
+        "ItemCost": 1,
+        "Page": 4,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Giant Crane Fly",
+        "Index": 4,
+        "ItemCost": 1,
+        "Page": 4,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Flannel",
+        "Index": 5,
+        "ItemCost": 200,
+        "Page": 4,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Wool Top",
+        "Index": 6,
+        "ItemCost": 200,
+        "Page": 4,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "New World Macrame",
+        "Index": 7,
+        "ItemCost": 200,
+        "Page": 4,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Pellitory",
+        "Index": 8,
+        "ItemCost": 200,
+        "Page": 4,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Blue Gatherers' Scrip Token",
+        "Index": 9,
+        "ItemCost": 25,
+        "Page": 4,
+        "SubPage": 3,
+        "ScripType": 0
+    },
+    {
+        "Name": "Short Bill Minnow",
+        "Index": 0,
+        "ItemCost": 15,
+        "Page": 4,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Jerked Ovim",
+        "Index": 1,
+        "ItemCost": 1,
+        "Page": 4,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Robber Ball",
+        "Index": 2,
+        "ItemCost": 1,
+        "Page": 4,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Blue Bobbit",
+        "Index": 3,
+        "ItemCost": 1,
+        "Page": 4,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Stonefly Larva",
+        "Index": 4,
+        "ItemCost": 1,
+        "Page": 4,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Everbright Aethersand",
+        "Index": 5,
+        "ItemCost": 10,
+        "Page": 4,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Everborn Aethersand",
+        "Index": 6,
+        "ItemCost": 10,
+        "Page": 4,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Everdeep Aethersand",
+        "Index": 7,
+        "ItemCost": 10,
+        "Page": 4,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Dawnlight Aethersand",
+        "Index": 8,
+        "ItemCost": 10,
+        "Page": 4,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Dusklight Aethersand",
+        "Index": 9,
+        "ItemCost": 10,
+        "Page": 4,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Regional Folklore Trader's Token A",
+        "Index": 10,
+        "ItemCost": 5,
+        "Page": 4,
+        "SubPage": 4,
+        "ScripType": 0
+    },
+    {
+        "Name": "Panic Jig",
+        "Index": 0,
+        "ItemCost": 30,
+        "Page": 4,
+        "SubPage": 5,
+        "ScripType": 0
+    },
+    {
+        "Name": "Sky Spoon Lure",
+        "Index": 1,
+        "ItemCost": 30,
+        "Page": 4,
+        "SubPage": 5,
+        "ScripType": 0
+    },
+    {
+        "Name": "Squid Strip",
+        "Index": 2,
+        "ItemCost": 1,
+        "Page": 4,
+        "SubPage": 5,
+        "ScripType": 0
+    },
+    {
+        "Name": "Baitbugs",
+        "Index": 3,
+        "ItemCost": 1,
+        "Page": 4,
+        "SubPage": 5,
+        "ScripType": 0
+    },
+    {
+        "Name": "Levinstrike Aethersand",
+        "Index": 4,
+        "ItemCost": 10,
+        "Page": 4,
+        "SubPage": 5,
+        "ScripType": 0
+    },
+    {
+        "Name": "Agedeep Aethersand",
+        "Index": 5,
+        "ItemCost": 10,
+        "Page": 4,
+        "SubPage": 5,
+        "ScripType": 0
+    },
+    {
+        "Name": "Agewood Aethersand",
+        "Index": 6,
+        "ItemCost": 10,
+        "Page": 4,
+        "SubPage": 5,
+        "ScripType": 0
+    },
+    {
+        "Name": "Ageflow Aethersand",
+        "Index": 7,
+        "ItemCost": 10,
+        "Page": 4,
+        "SubPage": 5,
+        "ScripType": 0
+    },
+    {
+        "Name": "Chiaroglow Aethersand",
+        "Index": 8,
+        "ItemCost": 10,
+        "Page": 4,
+        "SubPage": 5,
+        "ScripType": 0
+    },
+    {
+        "Name": "Scuroglow Aethersand",
+        "Index": 9,
+        "ItemCost": 10,
+        "Page": 4,
+        "SubPage": 5,
+        "ScripType": 0
+    },
+    {
+        "Name": "Regional Folklore Trader's Token B",
+        "Index": 10,
+        "ItemCost": 10,
+        "Page": 4,
+        "SubPage": 5,
+        "ScripType": 0
+    },
+    {
+        "Name": "Dragonfly",
+        "Index": 0,
+        "ItemCost": 5,
+        "Page": 4,
+        "SubPage": 6,
+        "ScripType": 0
+    },
+    {
+        "Name": "Shucked Clam",
+        "Index": 1,
+        "ItemCost": 5,
+        "Page": 4,
+        "SubPage": 6,
+        "ScripType": 0
+    },
+    {
+        "Name": "Popper Lure",
+        "Index": 2,
+        "ItemCost": 50,
+        "Page": 4,
+        "SubPage": 6,
+        "ScripType": 0
+    },
+    {
+        "Name": "White Worm",
+        "Index": 3,
+        "ItemCost": 5,
+        "Page": 4,
+        "SubPage": 6,
+        "ScripType": 0
+    },
+    {
+        "Name": "Mackerel Strip",
+        "Index": 4,
+        "ItemCost": 3,
+        "Page": 4,
+        "SubPage": 6,
+        "ScripType": 0
+    },
+    {
+        "Name": "Mayfly",
+        "Index": 5,
+        "ItemCost": 3,
+        "Page": 4,
+        "SubPage": 6,
+        "ScripType": 0
+    },
+    {
+        "Name": "Chimera Worm",
+        "Index": 6,
+        "ItemCost": 3,
+        "Page": 4,
+        "SubPage": 6,
+        "ScripType": 0
+    },
+    {
+        "Name": "Stardust",
+        "Index": 7,
+        "ItemCost": 3,
+        "Page": 4,
+        "SubPage": 6,
+        "ScripType": 0
+    },
+    {
+        "Name": "Earthbreak Aethersand",
+        "Index": 8,
+        "ItemCost": 30,
+        "Page": 4,
+        "SubPage": 6,
+        "ScripType": 0
+    },
+    {
+        "Name": "Moonlight Aethersand",
+        "Index": 9,
+        "ItemCost": 10,
+        "Page": 4,
+        "SubPage": 6,
+        "ScripType": 0
+    },
+    {
+        "Name": "Endstone Aethersand",
+        "Index": 10,
+        "ItemCost": 20,
+        "Page": 4,
+        "SubPage": 6,
+        "ScripType": 0
+    },
+    {
+        "Name": "Endwood Aethersand",
+        "Index": 11,
+        "ItemCost": 20,
+        "Page": 4,
+        "SubPage": 6,
+        "ScripType": 0
+    },
+    {
+        "Name": "Endtide Aethersand",
+        "Index": 12,
+        "ItemCost": 20,
+        "Page": 4,
+        "SubPage": 6,
+        "ScripType": 0
+    },
+    {
+        "Name": "Regional Folklore Trader's Token C",
+        "Index": 13,
+        "ItemCost": 10,
+        "Page": 4,
+        "SubPage": 6,
+        "ScripType": 0
+    },
+    {
+        "Name": "Tome of Geological Folklore - Yok Tural",
+        "Index": 0,
+        "ItemCost": 1600,
+        "Page": 4,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Tome of Geological Folklore - Xak Tural",
+        "Index": 1,
+        "ItemCost": 1600,
+        "Page": 4,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Tome of Geological Folklore - Alexandria",
+        "Index": 2,
+        "ItemCost": 1600,
+        "Page": 4,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Tome of Botanical Folklore - Yok Tural",
+        "Index": 3,
+        "ItemCost": 1600,
+        "Page": 4,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Tome of Botanical Folklore - Xak Tural",
+        "Index": 4,
+        "ItemCost": 1600,
+        "Page": 4,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Tome of Botanical Folklore - Alexandria",
+        "Index": 5,
+        "ItemCost": 1600,
+        "Page": 4,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Tome of Ichthyological Folklore - Yok Tural",
+        "Index": 6,
+        "ItemCost": 1600,
+        "Page": 4,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Tome of Ichthyological Folklore - Xak Tural",
+        "Index": 7,
+        "ItemCost": 1600,
+        "Page": 4,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Tome of Ichthyological Folklore - Alexandria",
+        "Index": 8,
+        "ItemCost": 1600,
+        "Page": 4,
+        "SubPage": 7,
+        "ScripType": 0
+    },
+    {
+        "Name": "Ghost Nipper",
+        "Index": 0,
+        "ItemCost": 5,
+        "Page": 4,
+        "SubPage": 8,
+        "ScripType": 1
+    },
+    {
+        "Name": "Red Maggots",
+        "Index": 1,
+        "ItemCost": 5,
+        "Page": 4,
+        "SubPage": 8,
+        "ScripType": 1
+    },
+    {
+        "Name": "Sungilt Aethersand",
+        "Index": 2,
+        "ItemCost": 100,
+        "Page": 4,
+        "SubPage": 8,
+        "ScripType": 1
+    },
+    {
+        "Name": "Mythloam Aethersand",
+        "Index": 3,
+        "ItemCost": 200,
+        "Page": 4,
+        "SubPage": 8,
+        "ScripType": 1
+    },
+    {
+        "Name": "Mythroot Aethersand",
+        "Index": 4,
+        "ItemCost": 200,
+        "Page": 4,
+        "SubPage": 8,
+        "ScripType": 1
+    },
+    {
+        "Name": "Mythbrine Aethersand",
+        "Index": 5,
+        "ItemCost": 200,
+        "Page": 4,
+        "SubPage": 8,
+        "ScripType": 1
+    },
+    {
+        "Name": "Mount Token",
+        "Index": 6,
+        "ItemCost": 1000,
+        "Page": 4,
+        "SubPage": 8,
+        "ScripType": 1
+    },
+    {
+        "Name": "Botanist's Wall Frames",
+        "Index": 7,
+        "ItemCost": 500,
+        "Page": 4,
+        "SubPage": 8,
+        "ScripType": 1
+    },
+    {
+        "Name": "Gatherer's Guerdon Materia XI",
+        "Index": 0,
+        "ItemCost": 250,
+        "Page": 5,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Gatherer's Guile Materia XI",
+        "Index": 1,
+        "ItemCost": 250,
+        "Page": 5,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Gatherer's Grasp Materia XI",
+        "Index": 2,
+        "ItemCost": 250,
+        "Page": 5,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Gatherer's Guerdon Materia X",
+        "Index": 3,
+        "ItemCost": 250,
+        "Page": 5,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Gatherer's Guile Materia X",
+        "Index": 4,
+        "ItemCost": 250,
+        "Page": 5,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Gatherer's Grasp Materia X",
+        "Index": 5,
+        "ItemCost": 250,
+        "Page": 5,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Gatherer's Guerdon Materia IX",
+        "Index": 6,
+        "ItemCost": 200,
+        "Page": 5,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Gatherer's Guile Materia IX",
+        "Index": 7,
+        "ItemCost": 200,
+        "Page": 5,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Gatherer's Grasp Materia IX",
+        "Index": 8,
+        "ItemCost": 200,
+        "Page": 5,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Gatherer's Guerdon Materia VIII",
+        "Index": 9,
+        "ItemCost": 200,
+        "Page": 5,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Gatherer's Guile Materia VIII",
+        "Index": 10,
+        "ItemCost": 200,
+        "Page": 5,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Gatherer's Grasp Materia VIII",
+        "Index": 11,
+        "ItemCost": 200,
+        "Page": 5,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Gatherer's Guerdon Materia VII",
+        "Index": 12,
+        "ItemCost": 200,
+        "Page": 5,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Gatherer's Guile Materia VII",
+        "Index": 13,
+        "ItemCost": 200,
+        "Page": 5,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Gatherer's Grasp Materia VII",
+        "Index": 14,
+        "ItemCost": 200,
+        "Page": 5,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Gatherer's Guerdon Materia VI",
+        "Index": 15,
+        "ItemCost": 200,
+        "Page": 5,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Gatherer's Guile Materia VI",
+        "Index": 16,
+        "ItemCost": 200,
+        "Page": 5,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Gatherer's Grasp Materia VI",
+        "Index": 17,
+        "ItemCost": 200,
+        "Page": 5,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Gatherer's Guerdon Materia V",
+        "Index": 18,
+        "ItemCost": 200,
+        "Page": 5,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Gatherer's Guile Materia V",
+        "Index": 19,
+        "ItemCost": 200,
+        "Page": 5,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Gatherer's Grasp Materia V",
+        "Index": 20,
+        "ItemCost": 200,
+        "Page": 5,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Gatherer's Guerdon Materia IV",
+        "Index": 21,
+        "ItemCost": 25,
+        "Page": 5,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Gatherer's Guile Materia IV",
+        "Index": 22,
+        "ItemCost": 25,
+        "Page": 5,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Gatherer's Grasp Materia IV",
+        "Index": 23,
+        "ItemCost": 25,
+        "Page": 5,
+        "SubPage": 1,
+        "ScripType": 0
+    },
+    {
+        "Name": "Gatherer's Guerdon Materia XII",
+        "Index": 0,
+        "ItemCost": 500,
+        "Page": 5,
+        "SubPage": 2,
+        "ScripType": 1
+    },
+    {
+        "Name": "Gatherer's Guile Materia XII",
+        "Index": 1,
+        "ItemCost": 500,
+        "Page": 5,
+        "SubPage": 2,
+        "ScripType": 1
+    },
+    {
+        "Name": "Gatherer's Grasp Materia XII",
+        "Index": 2,
+        "ItemCost": 500,
+        "Page": 5,
+        "SubPage": 2,
+        "ScripType": 1
+    }
+]
