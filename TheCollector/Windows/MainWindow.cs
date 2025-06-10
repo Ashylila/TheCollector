@@ -127,7 +127,7 @@ public class MainWindow : Window, IDisposable
             }
             ImGui.SameLine();
             var iconTexture = item.Item.IconTexture;
-            ImGui.Image(iconTexture.GetWrapOrDefault().ImGuiHandle, new Vector2(20, 20));
+            ImGui.Image(iconTexture.GetWrapOrEmpty().ImGuiHandle, new Vector2(20, 20));
             ImGui.SameLine();
             ImGui.Text(item.Item.Name);
             ImGui.SameLine();

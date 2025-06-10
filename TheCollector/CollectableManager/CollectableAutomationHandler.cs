@@ -209,6 +209,7 @@ public class CollectableAutomationHandler
                                                : _collectibleWindowHandler.OrangeScripCount())))
                 {
                     _log.Debug("Max scrips reached, stopping automatic turn-in");
+                    _targetManager.Target = null;
                     _taskManager.Abort();
                     _collectibleWindowHandler.CloseWindow();
                     IsRunning = false;
@@ -237,6 +238,7 @@ public class CollectableAutomationHandler
         _taskManager.EnqueueDelay(500);
         _taskManager.Enqueue(() =>
         {
+            _targetManager.Target = null;
             _collectibleWindowHandler.CloseWindow();
             IsRunning = false;
             Plugin.State = PluginState.Idle;
