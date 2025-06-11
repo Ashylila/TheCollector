@@ -20,8 +20,9 @@ public class ConfigWindow : Window, IDisposable
     private readonly IDataManager _dataManager;
     private Configuration Configuration;
     private readonly ITargetManager _targetManager;
+    private readonly ScripShopAutomationHandler _scripShopHandler;
     
-    public ConfigWindow(Plugin plugin, IDataManager data, ITargetManager target) : base("Configuration###With a constant ID")
+    public ConfigWindow(Plugin plugin, IDataManager data, ITargetManager target, ScripShopAutomationHandler scripShop) : base("Configuration###With a constant ID")
     {
         Flags = ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar |
                 ImGuiWindowFlags.NoScrollWithMouse;
@@ -32,6 +33,7 @@ public class ConfigWindow : Window, IDisposable
         _dataManager = data;
         Configuration = plugin.Configuration;
         _targetManager = target;
+        _scripShopHandler = scripShop;
     }
 
     public void Dispose() { }
@@ -60,7 +62,11 @@ public class ConfigWindow : Window, IDisposable
         {
             _targetManager.Target = null;
         }
-        
+
+        if (ImGui.Button("Buy"))
+        {
+            ScripShopAutomationHandler.Instance.Start();
+        }
         
         
     }

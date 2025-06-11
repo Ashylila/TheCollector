@@ -26,9 +26,10 @@ public class ScripShopAutomationHandler
         
     };
     private readonly ScripShopWindowHandler _scripShopWindowHandler;
-    private readonly CollectableAutomationHandler _collectableAutomationHandler;
     public bool IsRunning { get; private set; } = false;
-    public ScripShopAutomationHandler(IPluginLog log, ITargetManager targetManager, IFramework framework, IClientState clientState, Configuration configuration, IObjectTable objectTable, ScripShopWindowHandler handler, CollectableAutomationHandler collectableAutomationHandler)
+    
+    internal static ScripShopAutomationHandler? Instance { get; private set; }
+    public ScripShopAutomationHandler(IPluginLog log, ITargetManager targetManager, IFramework framework, IClientState clientState, Configuration configuration, IObjectTable objectTable, ScripShopWindowHandler handler)
     {
         _config.OnTaskTimeout += OnTaskTimeout;
         _taskManager = new TaskManager(_config);
@@ -39,7 +40,7 @@ public class ScripShopAutomationHandler
         _configuration = configuration;
         _objectTable = objectTable;
         _scripShopWindowHandler = handler;
-        _collectableAutomationHandler = collectableAutomationHandler;
+        Instance = this;
     }
 
     public unsafe void Start()
@@ -47,16 +48,19 @@ public class ScripShopAutomationHandler
         Plugin.State = PluginState.SpendingScrip;
         _taskManager.Enqueue(() =>
         {
-            _targetManager.Target = _objectTable.FirstOrDefault(a => a.Name.TextValue.Contains(
-                                                                    "scrip", StringComparison.OrdinalIgnoreCase));
-        });
+            var gameObj = _objectTable.FirstOrDefault(a => a.Name.TextValue.Contains(
+                                                         "scrip", StringComparison.OrdinalIgnoreCase));
+            if (gameObj == null) return false;
+            _targetManager.Target = gameObj;
+            return true;
+        }, "Target Scrip Shop");
         _taskManager.Enqueue(() =>
         {
             TargetSystem.Instance()->OpenObjectInteraction(TargetSystem.Instance()->Target);
-        });
-        _taskManager.Enqueue(()=>_scripShopWindowHandler.OpenShop());
+        }, "Open Interaction with Scrip Shop");
+        _taskManager.Enqueue(()=>_scripShopWindowHandler.OpenShop(), nameof(_scripShopWindowHandler.OpenShop));
         _taskManager.EnqueueDelay(1500);
-        PurchaseItems();
+        _taskManager.Enqueue(()=>PurchaseItems(), nameof(PurchaseItems));
     }
 
     public void PurchaseItems()
@@ -67,39 +71,42 @@ public class ScripShopAutomationHandler
             _taskManager.Enqueue(() =>
             {
                 _scripShopWindowHandler.SelectPage(scripItem.Item.Page);
-            });
+            },"Select Page");
             _taskManager.EnqueueDelay(100);
             _taskManager.Enqueue(()=>
             {
                 _log.Debug(scripItem.Item.SubPage.ToString());
                 _scripShopWindowHandler.SelectSubPage(scripItem.Item.SubPage);
-            });
+            }, "Select SubPage");
             _taskManager.EnqueueDelay(100);
-            
-            var quantity = scripItem.Quantity - scripItem.AmountPurchased;
-            if ((quantity * scripItem.Item.ItemCost) > _scripShopWindowHandler.ScripCount())
+            int quantity = 0;
+            _taskManager.Enqueue(() =>
             {
-                quantity = _scripShopWindowHandler.ScripCount() / (int)scripItem.Item.ItemCost;
-            }
+                quantity = scripItem.Quantity - scripItem.AmountPurchased;
+                if ((quantity * scripItem.Item.ItemCost) > _scripShopWindowHandler.ScripCount())
+                {
+                    quantity = _scripShopWindowHandler.ScripCount() / (int)scripItem.Item.ItemCost;
+                }
+            }, "GetQuantity");
 
             _taskManager.Enqueue(() =>
             {
                 _scripShopWindowHandler.SelectItem(scripItem.Item.Index, quantity);
-            });
+            }, "Select Item, quantity");
             _taskManager.EnqueueDelay(100);
             _taskManager.Enqueue(()=>
             {
                 _scripShopWindowHandler.PurchaseItem();
                 scripItem.AmountPurchased += quantity;
                 _configuration.Save();
-            });
+            } ,"Purchase Item");
         }
         _taskManager.Enqueue((() => 
                                  {
-                                     if (_collectableAutomationHandler.HasCollectible)
+                                     if (CollectableAutomationHandler.Instance.HasCollectible)
                                      {
                                          _scripShopWindowHandler.CloseShop();
-                                         _collectableAutomationHandler.RestartAfterTrading();
+                                         CollectableAutomationHandler.Instance.RestartAfterTrading();
                                      }
                                      else
                                      { 

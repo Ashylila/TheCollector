@@ -92,7 +92,7 @@ public unsafe class ScripShopWindowHandler
                     var textNode = node->GetAsAtkTextNode();
                     if (textNode != null)
                     {
-                        return int.Parse(textNode->NodeText.ToString());
+                        return int.Parse(textNode->NodeText.ToString().Replace(",", ""));
                     }
                 }
             }

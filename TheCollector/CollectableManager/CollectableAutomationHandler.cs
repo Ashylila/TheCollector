@@ -40,7 +40,6 @@ public class CollectableAutomationHandler
     private readonly IFramework _framework;
     private readonly IClientState _clientState;
     private readonly GatherbuddyReborn_IPCSubscriber _gatherbuddyService;
-    public ScripShopAutomationHandler ScripShopAutomationHandler { get; set; }
     private List<CollectableShopItem> _collectableShopItems = new();
     
     
@@ -48,6 +47,7 @@ public class CollectableAutomationHandler
     {
         ExecuteDefaultConfigurationEvents = false,
         ShowDebug = true,
+
         
     };
 
@@ -56,6 +56,8 @@ public class CollectableAutomationHandler
     private List<Item> _currentCollectables = new();
     
     public bool HasCollectible => ItemHelper.GetCurrentInventoryItems().Any(i => i.IsCollectable);
+    
+    internal static CollectableAutomationHandler? Instance { get; private set; }
 
     public CollectableAutomationHandler( IPluginLog log, CollectableWindowHandler collectibleWindowHandler, IDataManager data, Configuration config, IObjectTable objectTable, ITargetManager targetManager, IFramework frameWork, IClientState clientState, GatherbuddyReborn_IPCSubscriber gatherbuddyService )
     {
@@ -70,6 +72,7 @@ public class CollectableAutomationHandler
         _framework = frameWork;
         _clientState = clientState;
         _gatherbuddyService = gatherbuddyService;
+        Instance = this;
         
         LoadItems();
         Init();
@@ -201,23 +204,8 @@ public class CollectableAutomationHandler
                 PluginLog.Error($"error finding job for item: {item.Name.ExtractText()}");
                 continue;
             }
-
-            _taskManager.Enqueue(() =>
-            {
-                if (value.Amount > (4000 -(value.ScripType == 0
-                                               ? _collectibleWindowHandler.PurpleScripCount()
-                                               : _collectibleWindowHandler.OrangeScripCount())))
-                {
-                    _log.Debug("Max scrips reached, stopping automatic turn-in");
-                    _targetManager.Target = null;
-                    _taskManager.Abort();
-                    _collectibleWindowHandler.CloseWindow();
-                    IsRunning = false;
-                    Plugin.State = PluginState.Idle;
-                    ScripShopAutomationHandler.Start();
-                    return;
-                }
-            });
+            
+            if (!IsRunning) return;
             if (currentItem != item.Name.ExtractText())
             {
                 currentItem = item.Name.ExtractText();
@@ -230,6 +218,21 @@ public class CollectableAutomationHandler
             {
                 _taskManager.EnqueueDelay(300);
             }
+            _taskManager.Enqueue(() =>
+            {
+                if ( 200 >(4000 -(value.ScripType == 0
+                                      ? _collectibleWindowHandler.PurpleScripCount()
+                                      : _collectibleWindowHandler.OrangeScripCount())))
+                {
+                    _collectibleWindowHandler.CloseWindow();
+                    _log.Debug("Max scrips reached, stopping automatic turn-in");
+                    _targetManager.Target = null;
+                    IsRunning = false;
+                    Plugin.State = PluginState.Idle;
+                    _taskManager.Abort();
+                    StartBuy();
+                }
+            });
             
             _taskManager.Enqueue(()=>_log.Debug($"Collecting {value.ToString()}"));
             _taskManager.Enqueue(() => _collectibleWindowHandler.SubmitItem());
@@ -242,7 +245,16 @@ public class CollectableAutomationHandler
             _collectibleWindowHandler.CloseWindow();
             IsRunning = false;
             Plugin.State = PluginState.Idle;
+            if (_configuration.EnableAutogatherOnFinish)
+            {
+                _gatherbuddyService.SetAutoGatherEnabled(true);
+            }
         });
+    }
+
+    private void StartBuy()
+    {
+                ScripShopAutomationHandler.Instance.Start();
     }
     private void ForceStop(string reason)
     {
