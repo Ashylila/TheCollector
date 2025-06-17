@@ -15,6 +15,7 @@ using ECommons.DalamudServices;
 using ECommons.Logging;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.Game.Control;
+using FFXIVClientStructs.FFXIV.Client.Game.Object;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using FFXIVClientStructs.Havok.Common.Serialize.Util;
 using Lumina.Excel.Sheets;
@@ -114,8 +115,9 @@ public class CollectableAutomationHandler
             }),
             new TaskManagerTask(() =>
             {
-                _targetManager.Target = _objectTable.FirstOrDefault(a => a.Name.TextValue.Contains(
-                                                                        "collectable", StringComparison.OrdinalIgnoreCase));
+                var gameObj = _objectTable.FirstOrDefault(a => a.Name.TextValue.Contains(
+                                                              "collectable", StringComparison.OrdinalIgnoreCase));
+                TargetSystem.Instance()->Target = (GameObject*)gameObj.Address;
             }),
             new TaskManagerTask(() =>
             {
@@ -142,12 +144,9 @@ public class CollectableAutomationHandler
             }),
             new TaskManagerTask(() =>
             {
-                _targetManager.Target = _objectTable.FirstOrDefault(a => a.Name.TextValue.Contains(
-                                                                        "collectable", StringComparison.OrdinalIgnoreCase));
-            }),
-            new TaskManagerTask(() =>
-            {
-                VNavmesh_IPCSubscriber.Path_Stop();
+                var gameObj = _objectTable.FirstOrDefault(a => a.Name.TextValue.Contains(
+                                                              "collectable", StringComparison.OrdinalIgnoreCase));
+                TargetSystem.Instance()->Target = (GameObject*)gameObj.Address;
             }),
             new TaskManagerTask(() =>
             {

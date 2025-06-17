@@ -70,6 +70,10 @@ public class ScripShopAutomationHandler
 
     public void PurchaseItems()
     {
+        if (_configuration.ItemsToPurchase.Count == 0 || !_configuration.ItemsToPurchase.Any(i => i.Quantity > i.AmountPurchased))
+        {
+            ForceStop("no items available for purchase.");
+        }
         foreach (var scripItem in _configuration.ItemsToPurchase)
         {
             _taskManager.Enqueue(() =>
