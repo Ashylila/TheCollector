@@ -5,6 +5,7 @@ using Dalamud.Plugin.Services;
 using ECommons.Automation.NeoTaskManager;
 using ECommons.DalamudServices;
 using FFXIVClientStructs.FFXIV.Client.Game.Control;
+using FFXIVClientStructs.FFXIV.Client.Game.Object;
 using TheCollector.CollectableManager;
 using TheCollector.Data;
 
@@ -29,6 +30,8 @@ public class ScripShopAutomationHandler
     public bool IsRunning { get; private set; } = false;
     
     internal static ScripShopAutomationHandler? Instance { get; private set; }
+    public event Action? OnFinishedTrading;
+    public event Action<string>? OnError;
     public ScripShopAutomationHandler(IPluginLog log, ITargetManager targetManager, IFramework framework, IClientState clientState, Configuration configuration, IObjectTable objectTable, ScripShopWindowHandler handler)
     {
         _config.OnTaskTimeout += OnTaskTimeout;
@@ -48,12 +51,14 @@ public class ScripShopAutomationHandler
         Plugin.State = PluginState.SpendingScrip;
         _taskManager.Enqueue(() =>
         {
-            var gameObj = _objectTable.FirstOrDefault(a => a.Name.TextValue.Contains(
-                                                         "scrip", StringComparison.OrdinalIgnoreCase));
+            var gameObj = _objectTable.FirstOrDefault(a => a.Name.TextValue.Contains("scrip", StringComparison.OrdinalIgnoreCase));
             if (gameObj == null) return false;
-            _targetManager.Target = gameObj;
+            TargetSystem.Instance()->Target = (GameObject*)gameObj.Address;
             return true;
         }, "Target Scrip Shop");
+
+        _taskManager.EnqueueDelay(500); 
+        
         _taskManager.Enqueue(() =>
         {
             TargetSystem.Instance()->OpenObjectInteraction(TargetSystem.Instance()->Target);
@@ -65,7 +70,6 @@ public class ScripShopAutomationHandler
 
     public void PurchaseItems()
     {
-        _log.Debug(_configuration.ItemsToPurchase.Count.ToString());
         foreach (var scripItem in _configuration.ItemsToPurchase)
         {
             _taskManager.Enqueue(() =>
@@ -101,18 +105,12 @@ public class ScripShopAutomationHandler
                 _configuration.Save();
             } ,"Purchase Item");
         }
-        _taskManager.Enqueue((() => 
+        _taskManager.EnqueueDelay(500);
+        _taskManager.Enqueue((() =>
                                  {
-                                     if (CollectableAutomationHandler.Instance.HasCollectible)
-                                     {
-                                         _scripShopWindowHandler.CloseShop();
-                                         CollectableAutomationHandler.Instance.RestartAfterTrading();
-                                     }
-                                     else
-                                     { 
-                                         _scripShopWindowHandler.CloseShop();
-                                         Plugin.State = PluginState.Idle;
-                                     }
+                                     Plugin.State = PluginState.Idle;
+                                     _scripShopWindowHandler.CloseShop();
+                                        OnFinishedTrading?.Invoke();
                                  }));
     }
     private void ForceStop(string reason)
@@ -121,6 +119,7 @@ public class ScripShopAutomationHandler
         IsRunning = false;
         Plugin.State = PluginState.Idle;
         _log.Error("TheCollector has stopped unexpectedly.", reason);
+        OnError?.Invoke(reason);
     }
     public void OnTaskTimeout(TaskManagerTask task, ref long remainingTime)
     {

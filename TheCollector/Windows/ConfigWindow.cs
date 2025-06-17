@@ -12,6 +12,7 @@ using TheCollector.CollectableManager;
 using TheCollector.Data.Models;
 using TheCollector.Ipc;
 using TheCollector.ScripShopManager;
+using TheCollector.Utility;
 
 namespace TheCollector.Windows;
 
@@ -63,9 +64,9 @@ public class ConfigWindow : Window, IDisposable
             _targetManager.Target = null;
         }
 
-        if (ImGui.Button("Buy"))
+        if (ImGui.Button("Start"))
         {
-            ScripShopAutomationHandler.Instance.Start();
+            ServiceWrapper.Get<AutomationHandler>().Invoke();
         }
         
         

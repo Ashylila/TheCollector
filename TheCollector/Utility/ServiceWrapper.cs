@@ -27,6 +27,7 @@ public static class ServiceWrapper
         collection.AddSingleton(Svc.Framework);
         collection.AddSingleton(Svc.ClientState);
         collection.AddSingleton(Svc.PluginInterface);
+        collection.AddSingleton(Svc.Chat);
         
         collection.AddSingleton<TaskManager>();
         
@@ -37,6 +38,8 @@ public static class ServiceWrapper
         collection.AddSingleton<CollectableAutomationHandler>();
         collection.AddSingleton<ScripShopAutomationHandler>();
         collection.AddSingleton<ScripShopWindowHandler>();
+        
+        collection.AddSingleton<AutomationHandler>();
 
         collection.AddSingleton<GatherbuddyReborn_IPCSubscriber>();
 

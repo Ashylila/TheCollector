@@ -41,14 +41,13 @@ public class CollectableAutomationHandler
     private readonly IClientState _clientState;
     private readonly GatherbuddyReborn_IPCSubscriber _gatherbuddyService;
     private List<CollectableShopItem> _collectableShopItems = new();
-    
+    public event Action<String>? OnError;
+    public event Action<bool>? OnScripsCapped;
     
     private TaskManagerConfiguration _config = new  TaskManagerConfiguration()
     {
         ExecuteDefaultConfigurationEvents = false,
         ShowDebug = true,
-
-        
     };
 
     public bool IsRunning = false;
@@ -75,12 +74,6 @@ public class CollectableAutomationHandler
         Instance = this;
         
         LoadItems();
-        Init();
-    }
-    public void Init()
-    {
-        _gatherbuddyService.OnAutoGatherStatusChanged += Invoke;
-        _log.Debug("TheCollector loaded and ready to collect.");
     }
     public void Start()
     { 
@@ -95,34 +88,28 @@ public class CollectableAutomationHandler
         _currentCollectables = GetCollectablesInInventory();
         _taskManager.Enqueue(()=>PlayerHelper.CanAct);
         _taskManager.Enqueue(()=>TeleportToCollectableShop(), nameof(TeleportToCollectableShop));
-        _taskManager.EnqueueDelay(10000);
+        _taskManager.EnqueueDelay(5000);
         _taskManager.Enqueue(()=>PlayerHelper.CanAct);
         _taskManager.Enqueue(()=>VNavmesh_IPCSubscriber.Nav_IsReady());
         _taskManager.Enqueue(()=>MoveToCollectableShop(), nameof(MoveToCollectableShop));
         _taskManager.Enqueue(()=>TradeEachCollectable(), nameof(TradeEachCollectable));
     }
-
-    public void Invoke(bool disabled) // enabled
-    {
-        _log.Debug("ibeencalled");
-        if (_configuration.CollectOnAutogatherDisabled && !disabled)
-        {
-            _log.Debug("Gatherbuddy disabled, starting to collect");
-            Start();
-        }
-    }
+    
     
     private unsafe void MoveToCollectableShop()
     {
         Plugin.State = PluginState.MovingToCollectableVendor;
         var loc = _configuration.PreferredCollectableShop.Location;
-        _log.Debug($"vnav moveto {loc.X} {loc.Y.ToString().Replace(",", ".")} {loc.Z}");
         VNavmesh_IPCSubscriber.Path_MoveTo([loc], false);
         var tasks = new[]
         {
             new TaskManagerTask(() =>
             {
-                if (PlayerHelper.GetDistanceToPlayer(_configuration.PreferredCollectableShop.Location) > 1) return false;
+                VNavmesh_IPCSubscriber.Path_MoveTo([loc], false);
+            }),
+            new TaskManagerTask(() =>
+            {
+                if (PlayerHelper.GetDistanceToPlayer(_configuration.PreferredCollectableShop.Location) > 0.4f) return false;
                 return true;
             }),
             new TaskManagerTask(() =>
@@ -170,13 +157,6 @@ public class CollectableAutomationHandler
         _taskManager.EnqueueMulti(tasks);
         _taskManager.EnqueueDelay(2000);
         _taskManager.Enqueue(()=>TradeEachCollectable(), nameof(TradeEachCollectable));
-    }
-    
-    private IGameObject FindNearbyGameObject(string name)
-    {
-        var target = _objectTable.FirstOrDefault(i => i.Name.TextValue == name);
-        if (target == null) return null;
-        return target;
     }
     
     private void TeleportToCollectableShop()
@@ -230,7 +210,7 @@ public class CollectableAutomationHandler
                     IsRunning = false;
                     Plugin.State = PluginState.Idle;
                     _taskManager.Abort();
-                    StartBuy();
+                    OnScripsCapped?.Invoke(true);
                 }
             });
             
@@ -251,13 +231,10 @@ public class CollectableAutomationHandler
             }
         });
     }
-
-    private void StartBuy()
-    {
-                ScripShopAutomationHandler.Instance.Start();
-    }
+    
     private void ForceStop(string reason)
     {
+        OnError?.Invoke(reason);
         _taskManager.Abort();
         IsRunning = false;
         Plugin.State = PluginState.Idle;
