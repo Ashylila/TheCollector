@@ -79,7 +79,6 @@ public class CollectableAutomationHandler
     }
     public void Start()
     { 
-        _log.Info(_dataManager.GetExcelSheet<TerritoryType>().FirstOrDefault(t => t.RowId == _clientState.TerritoryType).PlaceName.Value.Name.ExtractText() ?? "not found");
         IsRunning = true;
         _log.Debug(GetCollectablesInInventory().Count.ToString());
         if (GetCollectablesInInventory().Count == 0)
@@ -94,6 +93,7 @@ public class CollectableAutomationHandler
         _taskManager.Enqueue(()=>PlayerHelper.CanAct);
         _taskManager.Enqueue(()=>VNavmesh_IPCSubscriber.Nav_IsReady());
         _taskManager.Enqueue(()=>MoveToCollectableShop(), nameof(MoveToCollectableShop));
+        _taskManager.Enqueue(()=>OpenShop(), nameof(OpenShop));
         _taskManager.Enqueue(()=>TradeEachCollectable(), nameof(TradeEachCollectable));
     }
     
@@ -111,9 +111,20 @@ public class CollectableAutomationHandler
             }),
             new TaskManagerTask(() =>
             {
-                if (PlayerHelper.GetDistanceToPlayer(_configuration.PreferredCollectableShop.Location) > 0.4f) return false;
+                if (PlayerHelper.GetDistanceToPlayer(_configuration.PreferredCollectableShop.Location) > 0.4f)
+                    return false;
                 return true;
-            }),
+            })
+        };
+
+        _taskManager.EnqueueMulti(tasks);
+        _taskManager.EnqueueDelay(1000);
+    }
+
+    private unsafe void OpenShop()
+    {
+        var tasks = new []
+        {
             new TaskManagerTask(() =>
             {
                 var gameObj = _objectTable.FirstOrDefault(a => a.Name.TextValue.Contains(
@@ -129,21 +140,26 @@ public class CollectableAutomationHandler
                 TargetSystem.Instance()->OpenObjectInteraction(TargetSystem.Instance()->Target);
             }),
         };
-
         _taskManager.EnqueueMulti(tasks);
-        _taskManager.EnqueueDelay(2000);
+        _taskManager.EnqueueDelay(1000);
     }
     
     private void TeleportToCollectableShop()
     {
         Plugin.State = PluginState.Teleporting;
-        _log.Info(_dataManager.GetExcelSheet<TerritoryType>().FirstOrNull(t => t.RowId == _clientState.TerritoryType).Value.Name.ExtractText() ?? "not found");
-        if (_dataManager.GetExcelSheet<TerritoryType>().FirstOrDefault(t => t.RowId == _clientState.TerritoryType).Name.ExtractText() == _configuration.PreferredCollectableShop.Name) return;
+        if (_dataManager.GetExcelSheet<TerritoryType>().FirstOrDefault(t => t.RowId == _clientState.TerritoryType).PlaceName.Value.Name.ExtractText() == _configuration.PreferredCollectableShop.Name) return;
         _taskManager.InsertDelay(5000);
         if (TeleportHelper.TryFindAetheryteByName(_configuration.PreferredCollectableShop.Name, out var aetheryte,
                 out var name))
         {
             TeleportHelper.Teleport(aetheryte.AetheryteId, aetheryte.SubIndex);
+            _taskManager.Insert(() =>
+            {
+                if (_dataManager.GetExcelSheet<TerritoryType>()
+                                .FirstOrDefault(t => t.RowId == _clientState.TerritoryType).PlaceName.Value.Name
+                                .ExtractText() == _configuration.PreferredCollectableShop.Name) return true;
+                return false;
+            });
         }
         else
         {

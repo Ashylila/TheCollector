@@ -11,6 +11,7 @@ using ECommons.DalamudServices;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using TheCollector.CollectableManager;
 using TheCollector.Data;
+using TheCollector.Ipc;
 using TheCollector.Utility;
 using TheCollector.Windows;
 
@@ -68,9 +69,7 @@ public sealed class Plugin : IDalamudPlugin
     public void Start()
     {
         Svc.Log.Debug("Plugin Start called.");
-
         ServiceWrapper.Get<AutomationHandler>().Init();
-        
     }
     public void Dispose()
     {

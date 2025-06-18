@@ -33,6 +33,7 @@ public class AutomationHandler : IDisposable
     {
         _collectableAutomationHandler.OnScripsCapped += OnScripCapped;
         _collectableAutomationHandler.OnError += OnError;
+        _collectableAutomationHandler.OnFinishTrading += OnFinishedTrading;
         _scripShopAutomationHandler.OnError += OnError;
         _scripShopAutomationHandler.OnFinishedTrading += OnFinishedTrading;
         _gatherbuddyReborn_IPCSubscriber.OnAutoGatherStatusChanged += OnAutoGatherStatusChanged;
