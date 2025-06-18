@@ -69,7 +69,7 @@ public sealed class Plugin : IDalamudPlugin
     {
         Svc.Log.Debug("Plugin Start called.");
 
-        ServiceWrapper.Get<CollectableAutomationHandler>();
+        ServiceWrapper.Get<AutomationHandler>().Init();
         
     }
     public void Dispose()

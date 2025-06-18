@@ -14,6 +14,7 @@ public class AutomationHandler : IDisposable
     private readonly Configuration _config;
     private readonly ScripShopAutomationHandler _scripShopAutomationHandler;
     private readonly IChatGui _chatGui;
+    private readonly GatherbuddyReborn_IPCSubscriber _gatherbuddyReborn_IPCSubscriber;
     
     
     
@@ -21,16 +22,22 @@ public class AutomationHandler : IDisposable
         IPluginLog log,CollectableAutomationHandler collectableAutomationHandler, Configuration config, ScripShopAutomationHandler scripShopAutomationHandler, IChatGui chatGui, GatherbuddyReborn_IPCSubscriber gatherbuddyReborn_IPCSubscriber)
     {
         _log = log;
+        _gatherbuddyReborn_IPCSubscriber = gatherbuddyReborn_IPCSubscriber;
         _collectableAutomationHandler = collectableAutomationHandler;
-        _collectableAutomationHandler.OnScripsCapped += OnScripCapped;
-        _collectableAutomationHandler.OnError += OnError;
         _config = config;
         _scripShopAutomationHandler = scripShopAutomationHandler;
+        _chatGui = chatGui;
+    }
+
+    public void Init()
+    {
+        _collectableAutomationHandler.OnScripsCapped += OnScripCapped;
+        _collectableAutomationHandler.OnError += OnError;
         _scripShopAutomationHandler.OnError += OnError;
         _scripShopAutomationHandler.OnFinishedTrading += OnFinishedTrading;
-        _chatGui = chatGui;
-        gatherbuddyReborn_IPCSubscriber.OnAutoGatherStatusChanged += OnAutoGatherStatusChanged;
+        _gatherbuddyReborn_IPCSubscriber.OnAutoGatherStatusChanged += OnAutoGatherStatusChanged;
     }
+
     private void OnAutoGatherStatusChanged(bool enabled)
     {
         if (!enabled && _config.CollectOnAutogatherDisabled)
@@ -46,7 +53,11 @@ public class AutomationHandler : IDisposable
     {
         if (_collectableAutomationHandler.HasCollectible)
         {
-            _collectableAutomationHandler.RestartAfterTrading();
+            _collectableAutomationHandler.Start();
+        }
+        else if (_config.EnableAutogatherOnFinish)
+        {
+            _gatherbuddyReborn_IPCSubscriber.SetAutoGatherEnabled(true);
         }
         
     }
@@ -68,5 +79,6 @@ public class AutomationHandler : IDisposable
         _collectableAutomationHandler.OnError -= OnError;
         _scripShopAutomationHandler.OnError -= OnError;
         _scripShopAutomationHandler.OnFinishedTrading -= OnFinishedTrading;
+        _gatherbuddyReborn_IPCSubscriber.OnAutoGatherStatusChanged -= OnAutoGatherStatusChanged;
     }
 }

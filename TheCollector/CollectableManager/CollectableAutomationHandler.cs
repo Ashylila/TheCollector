@@ -44,6 +44,7 @@ public class CollectableAutomationHandler
     private List<CollectableShopItem> _collectableShopItems = new();
     public event Action<String>? OnError;
     public event Action<bool>? OnScripsCapped;
+    public event System.Action? OnFinishTrading;
     
     private TaskManagerConfiguration _config = new  TaskManagerConfiguration()
     {
@@ -78,6 +79,7 @@ public class CollectableAutomationHandler
     }
     public void Start()
     { 
+        _log.Info(_dataManager.GetExcelSheet<TerritoryType>().FirstOrDefault(t => t.RowId == _clientState.TerritoryType).PlaceName.Value.Name.ExtractText() ?? "not found");
         IsRunning = true;
         _log.Debug(GetCollectablesInInventory().Count.ToString());
         if (GetCollectablesInInventory().Count == 0)
@@ -89,7 +91,6 @@ public class CollectableAutomationHandler
         _currentCollectables = GetCollectablesInInventory();
         _taskManager.Enqueue(()=>PlayerHelper.CanAct);
         _taskManager.Enqueue(()=>TeleportToCollectableShop(), nameof(TeleportToCollectableShop));
-        _taskManager.EnqueueDelay(5000);
         _taskManager.Enqueue(()=>PlayerHelper.CanAct);
         _taskManager.Enqueue(()=>VNavmesh_IPCSubscriber.Nav_IsReady());
         _taskManager.Enqueue(()=>MoveToCollectableShop(), nameof(MoveToCollectableShop));
@@ -132,35 +133,13 @@ public class CollectableAutomationHandler
         _taskManager.EnqueueMulti(tasks);
         _taskManager.EnqueueDelay(2000);
     }
-
-    public unsafe void RestartAfterTrading()
-    {
-        var tasks = new[]
-        {
-            new TaskManagerTask(() =>
-            {
-                if (PlayerHelper.GetDistanceToPlayer(_configuration.PreferredCollectableShop.Location) > 1) return false;
-                return true;
-            }),
-            new TaskManagerTask(() =>
-            {
-                var gameObj = _objectTable.FirstOrDefault(a => a.Name.TextValue.Contains(
-                                                              "collectable", StringComparison.OrdinalIgnoreCase));
-                TargetSystem.Instance()->Target = (GameObject*)gameObj.Address;
-            }),
-            new TaskManagerTask(() =>
-            {
-                TargetSystem.Instance()->OpenObjectInteraction(TargetSystem.Instance()->Target);
-            }),
-        };
-        _taskManager.EnqueueMulti(tasks);
-        _taskManager.EnqueueDelay(2000);
-        _taskManager.Enqueue(()=>TradeEachCollectable(), nameof(TradeEachCollectable));
-    }
     
     private void TeleportToCollectableShop()
     {
         Plugin.State = PluginState.Teleporting;
+        _log.Info(_dataManager.GetExcelSheet<TerritoryType>().FirstOrNull(t => t.RowId == _clientState.TerritoryType).Value.Name.ExtractText() ?? "not found");
+        if (_dataManager.GetExcelSheet<TerritoryType>().FirstOrDefault(t => t.RowId == _clientState.TerritoryType).Name.ExtractText() == _configuration.PreferredCollectableShop.Name) return;
+        _taskManager.InsertDelay(5000);
         if (TeleportHelper.TryFindAetheryteByName(_configuration.PreferredCollectableShop.Name, out var aetheryte,
                 out var name))
         {
@@ -224,10 +203,7 @@ public class CollectableAutomationHandler
             _collectibleWindowHandler.CloseWindow();
             IsRunning = false;
             Plugin.State = PluginState.Idle;
-            if (_configuration.EnableAutogatherOnFinish)
-            {
-                _gatherbuddyService.SetAutoGatherEnabled(true);
-            }
+            OnFinishTrading?.Invoke();
         });
     }
     
