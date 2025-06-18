@@ -180,9 +180,12 @@ public class CollectableAutomationHandler
             }
             
             if (!IsRunning) return;
+            _taskManager.EnqueueDelay(300);
             if (currentItem != item.Name.ExtractText())
             {
                 currentItem = item.Name.ExtractText();
+                _log.Debug(value.Class.ToString());
+                _taskManager.Enqueue(() => _collectibleWindowHandler.SelectJob((uint)value.Class));
                 _taskManager.Enqueue(() => _collectibleWindowHandler.SelectJob((uint)value.Class));
                 _taskManager.EnqueueDelay(300);
                 _taskManager.Enqueue(() => _collectibleWindowHandler.SelectItem(item.Name.ExtractText()));
