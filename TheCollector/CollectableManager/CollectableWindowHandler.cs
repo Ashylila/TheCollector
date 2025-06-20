@@ -41,10 +41,15 @@ namespace TheCollector.CollectableManager;
             GenericHelpers.IsAddonReady(addon))
         {
             var turnIn = new TurninWindow(addon);
+            var index = turnIn.GetItemIndexOf(itemName);
+            if (turnIn.GetItemIndexOf(itemName) == -1)
+            {
+                CollectableAutomationHandler.Instance?.ForceStop("Error: Item not found in the current collectable tab.");
+            }
             var selectItem = stackalloc AtkValue[]
             {
                 new() { Type = ValueType.Int, Int = 12 },
-                new(){Type = ValueType.UInt, UInt = (uint)turnIn.GetItemIndexOf(itemName)}
+                new(){Type = ValueType.UInt, UInt = (uint)index}
             };
             addon->FireCallback(2, selectItem);
             PluginLog.Debug(turnIn.GetItemIndexOf(itemName).ToString());
