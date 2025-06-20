@@ -62,8 +62,8 @@ public class CollectableAutomationHandler
 
     public CollectableAutomationHandler( IPluginLog log, CollectableWindowHandler collectibleWindowHandler, IDataManager data, Configuration config, IObjectTable objectTable, ITargetManager targetManager, IFramework frameWork, IClientState clientState, GatherbuddyReborn_IPCSubscriber gatherbuddyService )
     {
-        _taskManager = new TaskManager(_config);
         _config.OnTaskTimeout += OnTaskTimeout;
+        _taskManager = new TaskManager(_config);
         _log = log;
         _collectibleWindowHandler = collectibleWindowHandler;
         _dataManager = data;
@@ -226,7 +226,7 @@ public class CollectableAutomationHandler
         });
     }
     
-    private void ForceStop(string reason)
+    public void ForceStop(string reason)
     {
         OnError?.Invoke(reason);
         _taskManager.Abort();
