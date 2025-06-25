@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Text.Json;
+using System.Threading.Tasks;
 using Dalamud.Interface.Utility;
 using Dalamud.Interface.Utility.Raii;
 using Dalamud.Interface.Windowing;
@@ -22,7 +24,7 @@ public class MainWindow : Window, IDisposable
     private Configuration configuration;
     private List<ScripShopItem> ShopItems;
     private ScripShopItem? SelectedScripItem = null;
-    private bool IsLoaded = false;
+    private bool IsLoading = false;
     
     public MainWindow(Plugin plugin, IDalamudPluginInterface pluginInterface)
         : base("The Collector##With a hidden ID", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse)
@@ -35,20 +37,27 @@ public class MainWindow : Window, IDisposable
         
         this.configuration = plugin.Configuration;
         this.pluginInterface = pluginInterface;
+        _ = LoadScripItemsAsync();
     }
     
 
-    public void LoadScripItems()
+    public async Task LoadScripItemsAsync()
     {
+        IsLoading = true;
         try
         {
             var path = Path.Combine(pluginInterface.AssemblyLocation.DirectoryName, "ScripShopItems.json");
-            var text = File.ReadAllText(path);
-            ShopItems = System.Text.Json.JsonSerializer.Deserialize<List<ScripShopItem>>(text) ?? new List<ScripShopItem>();
-        }catch(Exception ex)
+            var text = await File.ReadAllTextAsync(path);
+            ShopItems = JsonSerializer.Deserialize<List<ScripShopItem>>(text) ?? new();
+        }
+        catch (Exception ex)
         {
-            ShopItems = new List<ScripShopItem>();
-            Svc.Log.Error("failed to read file", ex);
+            ShopItems = new();
+            Svc.Log.Error("Failed to read file", ex);
+        }
+        finally
+        {
+            IsLoading = false;
         }
     }
     public void Dispose() { }
@@ -59,14 +68,12 @@ public class MainWindow : Window, IDisposable
 
     public override void Draw()
     {
-        if(!IsLoaded)
+        if (IsLoading)
         {
-            LoadScripItems();
-            Svc.Log.Debug($"Loaded {ShopItems.Count} shop items.");
-            IsLoaded = true;
+            ImGui.Text("Loading items...");
+            return;
         }
         ImGui.Text("Add Item...");
-
         
         ImGui.PushItemWidth(-ImGui.GetFrameHeightWithSpacing() * 2);
         if (ImGui.BeginCombo("##ItemCombo", SelectedScripItem?.Name ?? "Select"))
@@ -131,20 +138,37 @@ public class MainWindow : Window, IDisposable
             ImGui.SameLine();
             ImGui.Text(item.Item.Name);
             ImGui.SameLine();
-
+            ImGui.TextUnformatted($"{item.AmountPurchased}/");
+            ImGui.SameLine();
             int quantity = item.Quantity;
             ImGui.PushItemWidth(100);
             if (ImGui.InputInt($"##Quantity{i}", ref quantity))
             {
                 item.Quantity = quantity;
-                configuration.ItemsToPurchase[i] = item; // Write back the updated item
+                configuration.ItemsToPurchase[i] = item;
                 configuration.Save();
             }
             ImGui.PopItemWidth();
-            
+            ImGui.SameLine();
+            if (item.Quantity == item.AmountPurchased)
+            {
+                ImGui.TextColored(new Vector4(0.0f, 1.0f, 0.0f, 1.0f), "Completed");
+            }
+            ImGui.SameLine();
+            if (ImGui.Button("Refresh"))
+            {
+                ResetQuantity(item);
+                configuration.Save();
+            }
         }
         ImGui.EndChild();
     }
+
+    public static void ResetQuantity(ItemToPurchase item)
+    {
+        item.AmountPurchased = 0;
+    }
+
 
 }
 
