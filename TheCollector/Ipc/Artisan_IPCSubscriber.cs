@@ -12,25 +12,25 @@ public class Artisan_IPCSubscriber
         _disposalTokens = EzIPC.Init(this, "Artisan", SafeWrapper.IPCException);
     }
 
-    [EzIPC("Artisan.IsListRunning")]
+    [EzIPC("IsListRunning")]
     public readonly Func<bool> IsListRunning;
 
-    [EzIPC("Artisan.IsListPaused")]
+    [EzIPC("IsListPaused")]
     public  readonly Func<bool> IsListPaused;
 
-    [EzIPC("Artisan.GetStopRequest")]
+    [EzIPC("GetStopRequest")]
     public readonly Func<bool> GetStopRequest;
 
-    [EzIPC("Artisan.SetStopRequest")]
+    [EzIPC("SetStopRequest")]
     public readonly Action<bool> SetStopRequest;
 
-    [EzIPC("Artisan.SetListPause")]
+    [EzIPC("SetListPause")]
     public readonly Action<bool> SetListPause;
 
-    [EzIPC("Artisan.CraftItem")]
+    [EzIPC("CraftItem")]
     public readonly Action<ushort, int> CraftItem;
 
-    [EzIPC("Artisan.IsBusy")]
+    [EzIPC("IsBusy")]
     public readonly Func<bool> IsBusy;
 
     public bool IsEnabled => IPCSubscriber_Common.IsReady("Artisan");

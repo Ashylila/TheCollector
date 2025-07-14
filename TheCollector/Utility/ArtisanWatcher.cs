@@ -1,22 +1,25 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using Dalamud.Plugin.Services;
 using ECommons.DalamudServices;
 using ECommons.ExcelServices;
 using ECommons.GameHelpers;
-using FFXIVClientStructs.FFXIV.Component.GUI;
-using FFXIVClientStructs.Havok.Animation.Rig;
+using Lumina.Excel.Sheets;
 using TheCollector.Ipc;
+using Action = System.Action;
 
 namespace TheCollector.Utility;
 
 public class ArtisanWatcher : IDisposable
 {
     private readonly IFramework _framework;
+    private readonly Artisan_IPCSubscriber ArtisanIpc;
+    private readonly Stopwatch UpdateWatch = new();
     private bool _wasCrafting;
-    private Artisan_IPCSubscriber ArtisanIpc;
-    public Configuration _config;
-    private readonly TerritoryIntendedUseEnum[] _notInDutyTerritories = 
+    private readonly Configuration _configuration;
+
+    private readonly TerritoryIntendedUseEnum[] _notInDutyTerritories =
     {
         TerritoryIntendedUseEnum.City_Area,
         TerritoryIntendedUseEnum.Open_World,
@@ -28,25 +31,32 @@ public class ArtisanWatcher : IDisposable
     };
 
     public event Action? OnCraftingFinished;
+    
+    public int PollInterval { get; set; } = 250;
 
-    public ArtisanWatcher(IFramework framework, Artisan_IPCSubscriber artisanIpc, Configuration configuration)
+    public ArtisanWatcher(IFramework framework, Artisan_IPCSubscriber artisanIpc, Configuration config)
     {
         _framework = framework;
         ArtisanIpc = artisanIpc;
-        _config = configuration;
+        _configuration = config;
         Init();
     }
+
     private void Init()
     {
         _framework.Update += OnUpdate;
+        UpdateWatch.Start();
     }
     private void OnUpdate(IFramework framework)
     {
-        if (!_notInDutyTerritories.Contains(Player.TerritoryIntendedUse) || !_config.CollectOnFinishCraftingList) 
+        if (UpdateWatch.ElapsedMilliseconds < PollInterval)
             return;
-        bool isCrafting = false;
-        try { isCrafting = ArtisanIpc.IsListRunning(); } 
-        catch (Exception ex) { Svc.Log.Debug($"Artisan IPC call failed: {ex.Message}"); }
+
+        UpdateWatch.Restart();
+        if (!_notInDutyTerritories.Contains(Player.TerritoryIntendedUse) || !_configuration.CollectOnFinishCraftingList)
+            return;
+
+        bool isCrafting = ArtisanIpc.IsListRunning();
 
         if (_wasCrafting && !isCrafting)
         {

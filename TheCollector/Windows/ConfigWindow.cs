@@ -25,10 +25,9 @@ public class ConfigWindow : Window, IDisposable
     
     public ConfigWindow(Plugin plugin, IDataManager data, ITargetManager target, ScripShopAutomationHandler scripShop) : base("Configuration###With a constant ID")
     {
-        Flags = ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar |
-                ImGuiWindowFlags.NoScrollWithMouse;
+        Flags = ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse;
 
-        Size = new Vector2(400, 250);
+        Size = new Vector2(400, 305);
         SizeCondition = ImGuiCond.Always;
         
         _dataManager = data;
@@ -45,10 +44,33 @@ public class ConfigWindow : Window, IDisposable
 
     public override void Draw()
     {
+        DrawInstalledPlugins();
         DrawOptions();
-        DrawShopSelection();
     }
 
+    private void DrawInstalledPlugins()
+    {
+        ImGui.BeginChild("##InstalledPlugs", new Vector2(0, 105), true);
+        
+        ImGui.TextUnformatted("Installed required/optional Plugins:");
+        
+        ImGui.Spacing();
+        ImGui.PushStyleColor(ImGuiCol.Text, IPCSubscriber_Common.IsReady("vnavmesh") ? new Vector4(0,1,0,1) : new Vector4(1,0,0,1));
+        ImGui.TextUnformatted("vnavmesh(required)");
+        ImGui.PopStyleColor();
+        ImGui.Spacing();
+        
+        ImGui.PushStyleColor(ImGuiCol.Text, IPCSubscriber_Common.IsReady("GatherbuddyReborn") ? new Vector4(0,1,0,1) : new Vector4(1,0,0,1));
+        ImGui.TextUnformatted("GatherbuddyReborn(optional)");
+        ImGui.PopStyleColor();
+        ImGui.Spacing();
+        
+        ImGui.PushStyleColor(ImGuiCol.Text, IPCSubscriber_Common.IsReady("Artisan") ? new Vector4(0,1,0,1) : new Vector4(1,0,0,1));
+        ImGui.TextUnformatted("Artisan(optional)");
+        ImGui.PopStyleColor();
+        
+        ImGui.EndChild();
+    }
     private void DrawDebugStartButton()
     {
 
@@ -73,6 +95,8 @@ public class ConfigWindow : Window, IDisposable
 
     public void DrawOptions()
     {
+        ImGui.BeginChild("##Options", new Vector2(0, 157), true);
+        
         ImGui.TextUnformatted("Options:");
         var toggleOnAutogatherStop = Configuration.CollectOnAutogatherDisabled;
         if (ImGui.Checkbox("Collect on Autogather Stop", ref toggleOnAutogatherStop))
@@ -93,9 +117,6 @@ public class ConfigWindow : Window, IDisposable
             Configuration.CollectOnFinishCraftingList = toggleCollectOnFinishCraftingList;
             Configuration.Save();
         }
-    }
-    public void DrawShopSelection()
-    {
         ImGui.TextUnformatted("Select your preferred collectable shop:");
         ImGui.SameLine();
 
@@ -111,8 +132,8 @@ public class ConfigWindow : Window, IDisposable
         {
             currentShopName = "Select a shop...";
         }
-
-        if (ImGui.BeginCombo("Shop", currentShopName))
+        ImGui.Spacing();
+        if (ImGui.BeginCombo("##shopselection", currentShopName))
         {
             for (int i = 0; i < CollectableNpcLocations.CollectableShops.Count; i++)
             {
@@ -126,5 +147,7 @@ public class ConfigWindow : Window, IDisposable
 
             ImGui.EndCombo();
         }
+        ImGui.EndChild();
+        
     }
 }
