@@ -4,6 +4,7 @@ using Dalamud.Plugin.Services;
 using TheCollector.CollectableManager;
 using TheCollector.Ipc;
 using TheCollector.ScripShopManager;
+using TheCollector.Utility;
 
 namespace TheCollector;
 
@@ -15,11 +16,12 @@ public class AutomationHandler : IDisposable
     private readonly ScripShopAutomationHandler _scripShopAutomationHandler;
     private readonly IChatGui _chatGui;
     private readonly GatherbuddyReborn_IPCSubscriber _gatherbuddyReborn_IPCSubscriber;
+    private readonly ArtisanWatcher _artisanWatcher;
     
     
     
     public AutomationHandler(
-        IPluginLog log,CollectableAutomationHandler collectableAutomationHandler, Configuration config, ScripShopAutomationHandler scripShopAutomationHandler, IChatGui chatGui, GatherbuddyReborn_IPCSubscriber gatherbuddyReborn_IPCSubscriber)
+        IPluginLog log,CollectableAutomationHandler collectableAutomationHandler, Configuration config, ScripShopAutomationHandler scripShopAutomationHandler, IChatGui chatGui, GatherbuddyReborn_IPCSubscriber gatherbuddyReborn_IPCSubscriber, ArtisanWatcher artisanWatcher)
     {
         _log = log;
         _gatherbuddyReborn_IPCSubscriber = gatherbuddyReborn_IPCSubscriber;
@@ -27,6 +29,7 @@ public class AutomationHandler : IDisposable
         _config = config;
         _scripShopAutomationHandler = scripShopAutomationHandler;
         _chatGui = chatGui;
+        _artisanWatcher = artisanWatcher;
     }
 
     public void Init()
@@ -37,6 +40,7 @@ public class AutomationHandler : IDisposable
         _scripShopAutomationHandler.OnError += OnError;
         _scripShopAutomationHandler.OnFinishedTrading += OnFinishedTrading;
         _gatherbuddyReborn_IPCSubscriber.OnAutoGatherStatusChanged += OnAutoGatherStatusChanged;
+        _artisanWatcher.OnCraftingFinished += OnFinishedCraftingList;
     }
 
     private void OnAutoGatherStatusChanged(bool enabled)
@@ -49,6 +53,11 @@ public class AutomationHandler : IDisposable
     public void Invoke()
     {
         _collectableAutomationHandler.Start();
+    }
+
+    public void OnFinishedCraftingList()
+    {
+        
     }
     private void OnFinishedTrading()
     {

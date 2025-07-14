@@ -45,7 +45,6 @@ public class ConfigWindow : Window, IDisposable
 
     public override void Draw()
     {
-        DrawDebugStartButton();
         DrawOptions();
         DrawShopSelection();
     }
@@ -86,6 +85,12 @@ public class ConfigWindow : Window, IDisposable
         if (ImGui.Checkbox("Enable Autogather on Finish", ref toggleAutogatherOnFinish))
         {
             Configuration.EnableAutogatherOnFinish = toggleAutogatherOnFinish;
+            Configuration.Save();
+        }
+        var toggleCollectOnFinishCraftingList = Configuration.CollectOnFinishCraftingList;
+        if (ImGui.Checkbox("Collect on Finish Crafting an Artisan List", ref toggleCollectOnFinishCraftingList))
+        {
+            Configuration.CollectOnFinishCraftingList = toggleCollectOnFinishCraftingList;
             Configuration.Save();
         }
     }
