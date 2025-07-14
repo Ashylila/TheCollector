@@ -118,7 +118,7 @@ public class CollectableAutomationHandler
         };
 
         _taskManager.EnqueueMulti(tasks);
-        _taskManager.EnqueueDelay(1000);
+        _taskManager.EnqueueDelay(500);
     }
 
     private unsafe void OpenShop()
@@ -141,7 +141,7 @@ public class CollectableAutomationHandler
             }),
         };
         _taskManager.EnqueueMulti(tasks);
-        _taskManager.EnqueueDelay(1000);
+        _taskManager.EnqueueDelay(2000);
     }
     
     private void TeleportToCollectableShop()

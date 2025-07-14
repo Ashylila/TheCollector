@@ -1,6 +1,7 @@
 ﻿using System;
 using Dalamud.Game.ClientState.Objects;
 using Dalamud.Plugin.Services;
+using ECommons.DalamudServices;
 using TheCollector.CollectableManager;
 using TheCollector.Ipc;
 using TheCollector.ScripShopManager;
@@ -57,7 +58,8 @@ public class AutomationHandler : IDisposable
 
     public void OnFinishedCraftingList()
     {
-        
+        Svc.Log.Debug("Finished Crafting List, starting collectables automation");
+        Invoke();
     }
     private void OnFinishedTrading()
     {
