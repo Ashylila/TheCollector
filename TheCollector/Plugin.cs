@@ -69,11 +69,6 @@ public sealed class Plugin : IDalamudPlugin
     public void Start()
     {
         Svc.Log.Debug("Plugin Start called.");
-        if (!IPCSubscriber_Common.IsReady("vnavmesh"))
-        {
-            Svc.Chat.Print("vnavmesh is required for TheCollector to function properly. Please install it and restart this plugin.");
-            return;
-        }
         ServiceWrapper.Get<AutomationHandler>().Init();
     }
     public void Dispose()
