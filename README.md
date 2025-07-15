@@ -15,6 +15,7 @@
 - 🛠️ Works with **Artisan** and **GatherBuddyReborn**  
 - ♻️ Create full automation loops with **ArtisanBuddy**
 
+**Keep in mind that it's still pretty early in its development and bugs are to be expected**
 ---
 
 ## 📦 Installation
