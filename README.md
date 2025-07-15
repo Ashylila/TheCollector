@@ -1,6 +1,6 @@
 # TheCollector
 
-![Project Banner](https://girlcox.ashylila.moe/uploads/TheCollector-Banner-Cropped.png)
+![Project Banner](https://girlcox.ashylila.moe/uploads/TheCollector-Banner-SuperSlim.png)
 
 > ✨ *Automate collectable turn-ins and create perfect crafting/gathering loops with ease.* ✨
 
