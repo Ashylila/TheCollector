@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using Dalamud.Game.ClientState.Objects;
@@ -27,7 +28,7 @@ public class ConfigWindow : Window, IDisposable
     {
         Flags = ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse;
 
-        Size = new Vector2(400, 305);
+        Size = new Vector2(400, 350);
         SizeCondition = ImGuiCond.Always;
         
         _dataManager = data;
@@ -50,7 +51,7 @@ public class ConfigWindow : Window, IDisposable
 
     private void DrawInstalledPlugins()
     {
-        ImGui.BeginChild("##InstalledPlugs", new Vector2(0, 105), true);
+        ImGui.BeginChild("##InstalledPlugs", new Vector2(0, 130), true);
         
         ImGui.TextUnformatted("Installed required/optional Plugins:");
         
@@ -68,7 +69,11 @@ public class ConfigWindow : Window, IDisposable
         ImGui.PushStyleColor(ImGuiCol.Text, IPCSubscriber_Common.IsReady("Artisan") ? new Vector4(0,1,0,1) : new Vector4(1,0,0,1));
         ImGui.TextUnformatted("Artisan(optional)");
         ImGui.PopStyleColor();
+        ImGui.Spacing();
         
+        ImGui.PushStyleColor(ImGuiCol.Text, IPCSubscriber_Common.IsReady("ArtisanBuddy") ? new Vector4(0,1,0,1) : new Vector4(1,0,0,1));
+        ImGui.TextUnformatted("ArtisanBuddy(optional)");
+        ImGui.PopStyleColor();
         ImGui.EndChild();
     }
     private void DrawDebugStartButton()
@@ -148,6 +153,27 @@ public class ConfigWindow : Window, IDisposable
             ImGui.EndCombo();
         }
         ImGui.EndChild();
+        ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0.20f, 0.60f, 0.86f, 1.00f));        
+        ImGui.PushStyleColor(ImGuiCol.ButtonHovered, new Vector4(0.30f, 0.70f, 0.96f, 1.00f)); 
+        ImGui.PushStyleColor(ImGuiCol.ButtonActive, new Vector4(0.10f, 0.50f, 0.76f, 1.00f));  
+
+        float buttonWidth = ImGui.CalcTextSize("Support Me").X + ImGui.GetStyle().FramePadding.X * 2;
+        float windowWidth = ImGui.GetWindowContentRegionMax().X;
+        float cursorX = windowWidth - buttonWidth;
+
+        ImGui.SetCursorPosX(cursorX);
+        if (ImGui.Button("Support Me"))
+        {
+            System.Diagnostics.Process.Start(new ProcessStartInfo
+            {
+                FileName = "https://ko-fi.com/Ashylila",
+                UseShellExecute = true
+            });
+        }
+
+
+        ImGui.PopStyleColor(3);
+
         
     }
 }
