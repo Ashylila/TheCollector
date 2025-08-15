@@ -4,8 +4,8 @@
   "Punchline": "A short one-liner that shows up in /xlplugins.",
   "Description": "A description that shows up in /xlplugins. List any major slash-command(s).",
   "ApplicableVersion": "any", 
-    "AssemblyVersion": "0.1", 
-    "TestingAssemblyVersion": "0.1",
+    "AssemblyVersion": "0.2", 
+    "TestingAssemblyVersion": "0.2",
   "Tags": [
     "collectables",
       "automation"

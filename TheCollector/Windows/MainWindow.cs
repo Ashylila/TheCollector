@@ -5,12 +5,12 @@ using System.Linq;
 using System.Numerics;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Utility;
 using Dalamud.Interface.Utility.Raii;
 using Dalamud.Interface.Windowing;
 using Dalamud.Plugin;
 using ECommons.DalamudServices;
-using ImGuiNET;
 using Lumina.Excel.Sheets;
 using TheCollector.Data.Models;
 
@@ -88,7 +88,7 @@ public class MainWindow : Window, IDisposable
                 bool isSelected = item == SelectedScripItem;
                 var iconTexture = item.IconTexture;
 
-                ImGui.Image(iconTexture.GetWrapOrEmpty().ImGuiHandle, new Vector2(20, 20));
+                ImGui.Image(iconTexture.GetWrapOrEmpty().Handle, new Vector2(20, 20));
                 ImGui.SameLine();
                 if (ImGui.Selectable(item.Name, isSelected))
                 {
@@ -134,7 +134,7 @@ public class MainWindow : Window, IDisposable
             }
             ImGui.SameLine();
             var iconTexture = item.Item.IconTexture;
-            ImGui.Image(iconTexture.GetWrapOrEmpty().ImGuiHandle, new Vector2(20, 20));
+            ImGui.Image(iconTexture.GetWrapOrEmpty().Handle, new Vector2(20, 20));
             ImGui.SameLine();
             ImGui.Text(item.Item.Name);
             ImGui.SameLine();
