@@ -28,13 +28,14 @@ public sealed class Plugin : IDalamudPlugin
     
     private readonly CollectableWindowHandler _collectableWindowHandler;
 
-    private const string CommandName = "/pmycommand";
+    private const string CommandName = "/collector";
 
     public Configuration Configuration { get; init; }
 
     public readonly WindowSystem WindowSystem = new("TheCollector");
     private ConfigWindow ConfigWindow { get; init; }
     private MainWindow MainWindow { get; init; }
+    private readonly AutomationHandler _automationHandler;
 
     public static PluginState State { get; set; } = PluginState.Idle;
     public static event Action<bool> OnCollectorStatusChanged;
@@ -53,7 +54,7 @@ public sealed class Plugin : IDalamudPlugin
 
         CommandManager.AddHandler(CommandName, new CommandInfo(OnCommand)
         {
-            HelpMessage = "A useful message to display in /xlhelp"
+            HelpMessage = "Opens the main UI. \n/collector config - Opens up the config UI\n/collector collect - Starts turning in collectables."
         });
 
         PluginInterface.UiBuilder.Draw += DrawUI;
@@ -63,13 +64,14 @@ public sealed class Plugin : IDalamudPlugin
         PluginInterface.UiBuilder.OpenMainUi += ToggleMainUI;
         
         _collectableWindowHandler = new();
+        _automationHandler = ServiceWrapper.Get<AutomationHandler>();
         Start();
     }
 
     public void Start()
     {
         Svc.Log.Debug("Plugin Start called.");
-        ServiceWrapper.Get<AutomationHandler>().Init();
+        _automationHandler.Init();
     }
     public void Dispose()
     {
@@ -85,10 +87,24 @@ public sealed class Plugin : IDalamudPlugin
 
     private void OnCommand(string command, string args)
     {
-        // in response to the slash command, just toggle the display status of our main ui
-        ToggleConfigUI();
+        HandleCommand(args);
     }
 
+    private void HandleCommand(string args)
+    {
+        switch (args.ToLower())
+        {
+            case "collect":
+                ServiceWrapper.Get<AutomationHandler>().Invoke();
+                break;
+            case "config":
+                ToggleConfigUI();
+                break;
+            default:
+                ToggleMainUI();
+                break;
+        }
+    }
     private void DrawUI() => WindowSystem.Draw();
     public void ToggleConfigUI() => ConfigWindow.Toggle();
     public void ToggleMainUI() => MainWindow.Toggle();
