@@ -24,9 +24,9 @@ public class ConfigWindow : Window, IDisposable
     private readonly ITargetManager _targetManager;
     private readonly ScripShopAutomationHandler _scripShopHandler;
     
-    public ConfigWindow(Plugin plugin, IDataManager data, ITargetManager target, ScripShopAutomationHandler scripShop) : base("Configuration###With a constant ID")
+    public ConfigWindow(Plugin plugin, IDataManager data, ITargetManager target, ScripShopAutomationHandler scripShop) : base("Configuration###CollectorConfig")
     {
-        Flags = ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse;
+        Flags = ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse;
 
         Size = new Vector2(400, 350);
         SizeCondition = ImGuiCond.Always;
@@ -45,6 +45,7 @@ public class ConfigWindow : Window, IDisposable
 
     public override void Draw()
     {
+        DrawDebugStartButton();
         DrawInstalledPlugins();
         DrawOptions();
     }
@@ -92,7 +93,7 @@ public class ConfigWindow : Window, IDisposable
 
         if (ImGui.Button("Start"))
         {
-            ServiceWrapper.Get<AutomationHandler>().Invoke();
+            ServiceWrapper.Get<AutomationHandler>().OnFinishedCraftingList();
         }
         
         

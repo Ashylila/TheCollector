@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Dalamud.Game.ClientState.Objects;
 using Dalamud.Plugin.Services;
 using ECommons.DalamudServices;
@@ -18,11 +19,12 @@ public class AutomationHandler : IDisposable
     private readonly IChatGui _chatGui;
     private readonly GatherbuddyReborn_IPCSubscriber _gatherbuddyReborn_IPCSubscriber;
     private readonly ArtisanWatcher _artisanWatcher;
+    private readonly IFramework _framework;
     
     
     
     public AutomationHandler(
-        IPluginLog log,CollectableAutomationHandler collectableAutomationHandler, Configuration config, ScripShopAutomationHandler scripShopAutomationHandler, IChatGui chatGui, GatherbuddyReborn_IPCSubscriber gatherbuddyReborn_IPCSubscriber, ArtisanWatcher artisanWatcher)
+        IPluginLog log,CollectableAutomationHandler collectableAutomationHandler, Configuration config, ScripShopAutomationHandler scripShopAutomationHandler, IChatGui chatGui, GatherbuddyReborn_IPCSubscriber gatherbuddyReborn_IPCSubscriber, ArtisanWatcher artisanWatcher, IFramework framework)
     {
         _log = log;
         _gatherbuddyReborn_IPCSubscriber = gatherbuddyReborn_IPCSubscriber;
@@ -31,6 +33,7 @@ public class AutomationHandler : IDisposable
         _scripShopAutomationHandler = scripShopAutomationHandler;
         _chatGui = chatGui;
         _artisanWatcher = artisanWatcher;
+        _framework = framework;
     }
 
     public void Init()
@@ -59,7 +62,11 @@ public class AutomationHandler : IDisposable
     public void OnFinishedCraftingList()
     {
         Svc.Log.Debug("Finished Crafting List, starting collectables automation");
-        Invoke();
+        _framework.RunOnTick((async () => 
+                                 {
+                                     await Task.Delay(1000);
+                                     Invoke();
+                                 }));
     }
     private void OnFinishedTrading()
     {

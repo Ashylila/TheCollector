@@ -27,7 +27,7 @@ public class MainWindow : Window, IDisposable
     private bool IsLoading = false;
     
     public MainWindow(Plugin plugin, IDalamudPluginInterface pluginInterface)
-        : base("The Collector##With a hidden ID", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse)
+        : base("The Collector##CollectorMain", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse)
     {
         SizeConstraints = new WindowSizeConstraints
         {
