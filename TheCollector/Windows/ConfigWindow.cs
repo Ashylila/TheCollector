@@ -45,7 +45,6 @@ public class ConfigWindow : Window, IDisposable
 
     public override void Draw()
     {
-        DrawDebugStartButton();
         DrawInstalledPlugins();
         DrawOptions();
     }
