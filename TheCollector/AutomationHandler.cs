@@ -70,6 +70,10 @@ public class AutomationHandler : IDisposable
     }
     private void OnFinishedTrading()
     {
+        if (_config.BuyAfterEachCollect)
+        {
+            _scripShopAutomationHandler.Start();
+        }
         if (_collectableAutomationHandler.HasCollectible)
         {
             _collectableAutomationHandler.Start();
@@ -94,7 +98,6 @@ public class AutomationHandler : IDisposable
     }
     public void Dispose()
     {
-        _collectableAutomationHandler.OnScripsCapped -= OnScripCapped;
         _collectableAutomationHandler.OnError -= OnError;
         _scripShopAutomationHandler.OnError -= OnError;
         _scripShopAutomationHandler.OnFinishedTrading -= OnFinishedTrading;

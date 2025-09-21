@@ -28,7 +28,7 @@ public class ConfigWindow : Window, IDisposable
     {
         Flags = ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse;
 
-        Size = new Vector2(400, 350);
+        Size = new Vector2(400, 377);
         SizeCondition = ImGuiCond.Always;
         
         _dataManager = data;
@@ -47,6 +47,7 @@ public class ConfigWindow : Window, IDisposable
     {
         DrawInstalledPlugins();
         DrawOptions();
+        DrawSupportButton();
     }
 
     private void DrawInstalledPlugins()
@@ -98,9 +99,32 @@ public class ConfigWindow : Window, IDisposable
         
     }
 
+    public void DrawSupportButton()
+    {
+        ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0.20f, 0.60f, 0.86f, 1.00f));        
+        ImGui.PushStyleColor(ImGuiCol.ButtonHovered, new Vector4(0.30f, 0.70f, 0.96f, 1.00f)); 
+        ImGui.PushStyleColor(ImGuiCol.ButtonActive, new Vector4(0.10f, 0.50f, 0.76f, 1.00f));  
+
+        float buttonWidth = ImGui.CalcTextSize("Support Me").X + ImGui.GetStyle().FramePadding.X * 2;
+        float windowWidth = ImGui.GetWindowContentRegionMax().X;
+        float cursorX = windowWidth - buttonWidth;
+
+        ImGui.SetCursorPosX(cursorX);
+        if (ImGui.Button("Support Me"))
+        {
+            System.Diagnostics.Process.Start(new ProcessStartInfo
+            {
+                FileName = "https://ko-fi.com/Ashylila",
+                UseShellExecute = true
+            });
+        }
+
+
+        ImGui.PopStyleColor(3);
+    }
     public void DrawOptions()
     {
-        ImGui.BeginChild("##Options", new Vector2(0, 157), true);
+        ImGui.BeginChild("##Options", new Vector2(0, 182), true);
         
         ImGui.TextUnformatted("Options:");
         var toggleOnAutogatherStop = Configuration.CollectOnAutogatherDisabled;
@@ -120,6 +144,12 @@ public class ConfigWindow : Window, IDisposable
         if (ImGui.Checkbox("Collect on Finish Crafting an Artisan List", ref toggleCollectOnFinishCraftingList))
         {
             Configuration.CollectOnFinishCraftingList = toggleCollectOnFinishCraftingList;
+            Configuration.Save();
+        }
+        var buyAfterEachCollect = Configuration.BuyAfterEachCollect;
+        if (ImGui.Checkbox("Buy items after each trade instead of on capping scrips", ref buyAfterEachCollect))
+        {
+            Configuration.BuyAfterEachCollect = buyAfterEachCollect;
             Configuration.Save();
         }
         ImGui.TextUnformatted("Select your preferred collectable shop:");
@@ -153,27 +183,6 @@ public class ConfigWindow : Window, IDisposable
             ImGui.EndCombo();
         }
         ImGui.EndChild();
-        ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0.20f, 0.60f, 0.86f, 1.00f));        
-        ImGui.PushStyleColor(ImGuiCol.ButtonHovered, new Vector4(0.30f, 0.70f, 0.96f, 1.00f)); 
-        ImGui.PushStyleColor(ImGuiCol.ButtonActive, new Vector4(0.10f, 0.50f, 0.76f, 1.00f));  
-
-        float buttonWidth = ImGui.CalcTextSize("Support Me").X + ImGui.GetStyle().FramePadding.X * 2;
-        float windowWidth = ImGui.GetWindowContentRegionMax().X;
-        float cursorX = windowWidth - buttonWidth;
-
-        ImGui.SetCursorPosX(cursorX);
-        if (ImGui.Button("Support Me"))
-        {
-            System.Diagnostics.Process.Start(new ProcessStartInfo
-            {
-                FileName = "https://ko-fi.com/Ashylila",
-                UseShellExecute = true
-            });
-        }
-
-
-        ImGui.PopStyleColor(3);
-
         
     }
 }

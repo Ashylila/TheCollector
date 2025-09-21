@@ -89,6 +89,8 @@ public class ScripShopAutomationHandler
             }, "Select SubPage");
             _taskManager.EnqueueDelay(100);
             int quantity = 0;
+            if(scripItem.Item.ItemCost > _scripShopWindowHandler.ScripCount())
+                continue;
             _taskManager.Enqueue(() =>
             {
                 quantity = scripItem.Quantity - scripItem.AmountPurchased;
@@ -123,7 +125,7 @@ public class ScripShopAutomationHandler
         _taskManager.Abort();
         IsRunning = false;
         Plugin.State = PluginState.Idle;
-        _log.Error("TheCollector has stopped unexpectedly.", reason);
+        _log.Error(new Exception(reason),"TheCollector has stopped unexpectedly.");
         OnError?.Invoke(reason);
     }
     public void OnTaskTimeout(TaskManagerTask task, ref long remainingTime)
