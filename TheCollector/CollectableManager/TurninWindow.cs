@@ -8,6 +8,7 @@ using FFXIVClientStructs.FFXIV.Component.GUI;
 using FFXIVClientStructs.Interop;
 using FFXIVClientStructs.STD;
 using TheCollector.CollectableManager;
+using TheCollector.Utility;
 
 namespace TheCollector.CollectableManager;
 
@@ -18,6 +19,7 @@ public unsafe class TurninWindow
     private readonly int _itemCount;
     private readonly AtkUnitBase* _addon;
     private AtkComponentTreeList* _treeList;
+    private readonly PlogonLog _log = new();
     public record TurninEntry(int Index, string Label);
 
     public Dictionary<LevelRange, List<TurninEntry>> ItemsByLevelRange = new();
@@ -36,7 +38,7 @@ public unsafe class TurninWindow
         var trimmedLabels = _labels.Where(l => l.Contains("Rarefied", StringComparison.OrdinalIgnoreCase)).ToArray();
         for (int i = 0; i < trimmedLabels.Length; i++)
         {
-            PluginLog.Debug($"GetItemIndexOf({label})");
+            _log.Debug($"GetItemIndexOf({label})");
             var l = trimmedLabels[i];
             if (l.Contains(label, StringComparison.OrdinalIgnoreCase))
             {

@@ -9,7 +9,7 @@ namespace TheCollector.Utility;
 
 public static class TeleportHelper
 {
-    private static IPluginLog Logger = ServiceWrapper.Get<IPluginLog>();
+    private static PlogonLog Logger = new();
 
     public static unsafe bool TryFindAetheryteByName(string name, out TeleportInfo info, out string aetherName)
     {

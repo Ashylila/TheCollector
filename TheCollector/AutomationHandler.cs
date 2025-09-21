@@ -12,7 +12,7 @@ namespace TheCollector;
 
 public class AutomationHandler : IDisposable
 {
-    private readonly IPluginLog _log;
+    private readonly PlogonLog _log;
     private readonly CollectableAutomationHandler _collectableAutomationHandler;
     private readonly Configuration _config;
     private readonly ScripShopAutomationHandler _scripShopAutomationHandler;
@@ -24,7 +24,7 @@ public class AutomationHandler : IDisposable
     
     
     public AutomationHandler(
-        IPluginLog log,CollectableAutomationHandler collectableAutomationHandler, Configuration config, ScripShopAutomationHandler scripShopAutomationHandler, IChatGui chatGui, GatherbuddyReborn_IPCSubscriber gatherbuddyReborn_IPCSubscriber, ArtisanWatcher artisanWatcher, IFramework framework)
+        PlogonLog log,CollectableAutomationHandler collectableAutomationHandler, Configuration config, ScripShopAutomationHandler scripShopAutomationHandler, IChatGui chatGui, GatherbuddyReborn_IPCSubscriber gatherbuddyReborn_IPCSubscriber, ArtisanWatcher artisanWatcher, IFramework framework)
     {
         _log = log;
         _gatherbuddyReborn_IPCSubscriber = gatherbuddyReborn_IPCSubscriber;

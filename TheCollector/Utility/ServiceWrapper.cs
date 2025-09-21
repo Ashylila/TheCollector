@@ -44,6 +44,8 @@ public static class ServiceWrapper
         collection.AddSingleton<GatherbuddyReborn_IPCSubscriber>();
         collection.AddSingleton<Artisan_IPCSubscriber>();
         collection.AddSingleton<ArtisanWatcher>();
+        
+        collection.AddSingleton<PlogonLog>();
 
         collection.AddSingleton<MainWindow>();
         collection.AddSingleton<ConfigWindow>();

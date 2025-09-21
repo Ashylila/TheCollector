@@ -45,6 +45,7 @@ public class ConfigWindow : Window, IDisposable
 
     public override void Draw()
     {
+        DrawDebugStartButton();
         DrawInstalledPlugins();
         DrawOptions();
     }
@@ -87,7 +88,7 @@ public class ConfigWindow : Window, IDisposable
 
         if (ImGui.Button("Unstuck"))
         {
-            _targetManager.Target = null;
+            var rd = new CollectableWindowHandler().OrangeScripCount();
         }
 
         if (ImGui.Button("Start"))

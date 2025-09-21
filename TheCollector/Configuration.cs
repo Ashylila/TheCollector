@@ -2,6 +2,7 @@
 using Dalamud.Plugin;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using ECommons.DalamudServices;
 using TheCollector.Data.Models;
 
@@ -21,4 +22,5 @@ public class Configuration : IPluginConfiguration
     {
         Svc.PluginInterface.SavePluginConfig(this);
     }
+    
 }

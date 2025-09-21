@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Text.RegularExpressions;
 using Dalamud.Game.Inventory;
 using Dalamud.Memory;
 using Dalamud.Utility;
@@ -10,6 +12,7 @@ using ECommons.Logging;
 using ECommons.UIHelpers.AddonMasterImplementations;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using Lumina.Data.Parsing.Uld;
+using TheCollector.Utility;
 using ValueType = FFXIVClientStructs.FFXIV.Component.GUI.ValueType;
 
 
@@ -19,7 +22,7 @@ namespace TheCollector.CollectableManager;
  {
      public unsafe bool IsReady => GenericHelpers.TryGetAddonByName<AtkUnitBase>("CollectablesShop", out var addon) &&
                                    GenericHelpers.IsAddonReady(addon);
-
+     private readonly PlogonLog _log = new();
      public unsafe void SelectJob(uint id)
      {
          if (GenericHelpers.TryGetAddonByName<AtkUnitBase>("CollectablesShop", out var addon) &&
@@ -52,7 +55,7 @@ namespace TheCollector.CollectableManager;
                 new(){Type = ValueType.UInt, UInt = (uint)index}
             };
             addon->FireCallback(2, selectItem);
-            PluginLog.Debug(turnIn.GetItemIndexOf(itemName).ToString());
+            _log.Debug(turnIn.GetItemIndexOf(itemName).ToString());
         }
     }
     
@@ -79,63 +82,120 @@ namespace TheCollector.CollectableManager;
     }
     public unsafe int PurpleScripCount()
     {
-        if (GenericHelpers.TryGetAddonByName<AtkUnitBase>("CollectablesShop", out var addon) &&
-            GenericHelpers.IsAddonReady(addon))
+        try
         {
+            if (!GenericHelpers.TryGetAddonByName<AtkUnitBase>("CollectablesShop", out var addon) ||
+                !GenericHelpers.IsAddonReady(addon))
+                return -1;
+
             for (int i = 0; i < addon->UldManager.NodeListCount; i++)
             {
                 var node = addon->UldManager.NodeList[i];
-                if (node->Type == NodeType.Res && node->NodeId == 14)
-                {
-                    var child = node->ChildNode;
-                    if (child->NodeId == 16)
-                    {
-                        var componentNode = child->GetAsAtkComponentNode();
-                        return int.Parse(componentNode->Component->GetTextNodeById(4)->GetAsAtkTextNode()->NodeText.StringPtr
-                                             .ExtractText().Split('/')[0].Replace(",", ""));
+                if (node == null || node->Type != NodeType.Res || node->NodeId != 14) continue;
 
-                    }
-                    else
-                    {
-                        child = child->NextSiblingNode;
-                        var componentNode = child->GetAsAtkComponentNode();
-                        return int.Parse(componentNode->Component->GetTextNodeById(4)->GetAsAtkTextNode()->NodeText.StringPtr
-                                             .ExtractText().Split('/')[0].Replace(",", ""));
-                    }
-                }
+                var child = node->ChildNode;
+                if (child == null) return -1;
+
+                if (child->NodeId != 16) child = child->NextSiblingNode;
+                if (child == null) return -1;
+
+                var comp = child->GetAsAtkComponentNode();
+                if (comp == null || comp->Component == null) return -1;
+
+                var textNode = comp->Component->GetTextNodeById(4)->GetAsAtkTextNode();
+                if (textNode == null || textNode->NodeText.StringPtr.Value == null) return -1;
+
+                var raw = textNode->NodeText.StringPtr.ExtractText();
+                var left = raw?.Split('/')?[0];
+                if (string.IsNullOrEmpty(left)) return -1;
+
+                left = Regex.Replace(left, @"[^\d]", "");
+                if (left.Length == 0) return -1;
+                _log.Debug(left);
+                if (int.TryParse(left, out var val)) return val;
+                return -1;
+            }
+
+            return -1;
+        }
+        catch (Exception ex)
+        {
+            _log.Error(ex, "Error getting purple scrip count");
+            return -1;
+        }
+    }
+
+    public unsafe int OrangeScripCount()
+{
+    try
+    {
+        if (!GenericHelpers.TryGetAddonByName<AtkUnitBase>("CollectablesShop", out var addon) ||
+            !GenericHelpers.IsAddonReady(addon))
+            return -1;
+
+        for (int i = 0; i < addon->UldManager.NodeListCount; i++)
+        {
+            var node = addon->UldManager.NodeList[i];
+            if (node == null || node->Type != NodeType.Res || node->NodeId != 14) continue;
+
+            var child = node->ChildNode;
+            if (child == null) return -1;
+
+            if (child->NodeId == 15)
+            {
+                var comp = child->GetAsAtkComponentNode();
+                if (comp == null || comp->Component == null) return -1;
+
+                var tn = comp->Component->GetTextNodeById(4);
+                if (tn == null) return -1;
+
+                var txt = tn->GetAsAtkTextNode();
+                if (txt == null || txt->NodeText.StringPtr.Value == null) return -1;
+
+                var raw = txt->NodeText.StringPtr.ExtractText();
+                var left = raw?.Split('/')?[0];
+                if (string.IsNullOrWhiteSpace(left)) return -1;
+
+                left = Regex.Replace(left, @"[^\d]", "");
+                if (left.Length == 0) return -1;
+
+                _log.Debug(left);
+                if (int.TryParse(left, out var val)) return val;
+                return -1;
+            }
+            else
+            {
+                var prev = child->PrevSiblingNode;
+                if (prev == null) return -1;
+
+                var comp = prev->GetAsAtkComponentNode();
+                if (comp == null || comp->Component == null) return -1;
+
+                var tn = comp->Component->GetTextNodeById(4);
+                if (tn == null) return -1;
+
+                var txt = tn->GetAsAtkTextNode();
+                if (txt == null || txt->NodeText.StringPtr.Value == null) return -1;
+
+                var raw = txt->NodeText.StringPtr.ExtractText();
+                var left = raw?.Split('/')?[0];
+                if (string.IsNullOrWhiteSpace(left)) return -1;
+
+                left = Regex.Replace(left, @"[^\d]", "");
+                if (left.Length == 0) return -1;
+
+                _log.Debug(left);
+                if (int.TryParse(left, out var val)) return val;
+                return -1;
             }
         }
+
         return -1;
     }
-    public unsafe int OrangeScripCount()
+    catch (Exception ex)
     {
-        if (GenericHelpers.TryGetAddonByName<AtkUnitBase>("CollectablesShop", out var addon) &&
-            GenericHelpers.IsAddonReady(addon))
-        {
-            for (int i = 0; i < addon->UldManager.NodeListCount; i++)
-            {
-                var node = addon->UldManager.NodeList[i];
-                
-                if (node->Type == NodeType.Res && node->NodeId == 14)
-                {
-                    var child = node->ChildNode;
-                    if (child->NodeId == 15)
-                    {
-                        var componentNode = child->GetAsAtkComponentNode();
-                        return int.Parse(componentNode->Component->GetTextNodeById(4)->GetAsAtkTextNode()->NodeText.StringPtr
-                                             .ExtractText().Split('/')[0]);
-
-                    }
-                    else
-                    {
-                        var nextChild = child->PrevSiblingNode;
-                        var componentNode = nextChild->GetAsAtkComponentNode();
-                        return int.Parse(componentNode->Component->GetTextNodeById(4)->GetAsAtkTextNode()->NodeText.StringPtr
-                                             .ExtractText().Split('/')[0].Replace(",", ""));
-                    }
-                }
-            }
-        }
+        _log.Error(ex, "Error getting orange scrip count");
         return -1;
     }
 }
+ }

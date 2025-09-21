@@ -8,13 +8,14 @@ using FFXIVClientStructs.FFXIV.Client.Game.Control;
 using FFXIVClientStructs.FFXIV.Client.Game.Object;
 using TheCollector.CollectableManager;
 using TheCollector.Data;
+using TheCollector.Utility;
 
 namespace TheCollector.ScripShopManager;
 
 public class ScripShopAutomationHandler
 {
     private readonly TaskManager _taskManager;
-    private readonly IPluginLog _log;
+    private readonly PlogonLog _log;
     private readonly ITargetManager _targetManager;
     private readonly IFramework _framework;
     private readonly IClientState _clientState;
@@ -32,7 +33,7 @@ public class ScripShopAutomationHandler
     internal static ScripShopAutomationHandler? Instance { get; private set; }
     public event Action? OnFinishedTrading;
     public event Action<string>? OnError;
-    public ScripShopAutomationHandler(IPluginLog log, ITargetManager targetManager, IFramework framework, IClientState clientState, Configuration configuration, IObjectTable objectTable, ScripShopWindowHandler handler)
+    public ScripShopAutomationHandler(PlogonLog log, ITargetManager targetManager, IFramework framework, IClientState clientState, Configuration configuration, IObjectTable objectTable, ScripShopWindowHandler handler)
     {
         _config.OnTaskTimeout += OnTaskTimeout;
         _taskManager = new TaskManager(_config);

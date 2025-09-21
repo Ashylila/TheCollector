@@ -32,7 +32,7 @@ public class CollectableAutomationHandler
     #pragma warning disable
     
     private readonly TaskManager _taskManager;
-    private readonly IPluginLog _log;
+    private readonly PlogonLog _log;
     private readonly CollectableWindowHandler _collectibleWindowHandler;
     private readonly IDataManager _dataManager;
     private readonly Configuration _configuration;
@@ -60,7 +60,7 @@ public class CollectableAutomationHandler
     
     internal static CollectableAutomationHandler? Instance { get; private set; }
 
-    public CollectableAutomationHandler( IPluginLog log, CollectableWindowHandler collectibleWindowHandler, IDataManager data, Configuration config, IObjectTable objectTable, ITargetManager targetManager, IFramework frameWork, IClientState clientState, GatherbuddyReborn_IPCSubscriber gatherbuddyService )
+    public CollectableAutomationHandler( PlogonLog log, CollectableWindowHandler collectibleWindowHandler, IDataManager data, Configuration config, IObjectTable objectTable, ITargetManager targetManager, IFramework frameWork, IClientState clientState, GatherbuddyReborn_IPCSubscriber gatherbuddyService )
     {
         _config.OnTaskTimeout += OnTaskTimeout;
         _taskManager = new TaskManager(_config);
@@ -211,7 +211,7 @@ public class CollectableAutomationHandler
                 }
             });
             
-            _taskManager.Enqueue(()=>_log.Debug($"Collecting {value.ToString()}"));
+            _taskManager.Enqueue(()=>_log.Debug($"Collecting {value.Name}"));
             _taskManager.Enqueue(() => _collectibleWindowHandler.SubmitItem());
             _taskManager.EnqueueDelay(300);
         }

@@ -36,6 +36,7 @@ public sealed class Plugin : IDalamudPlugin
     private ConfigWindow ConfigWindow { get; init; }
     private MainWindow MainWindow { get; init; }
     private readonly AutomationHandler _automationHandler;
+    private readonly PlogonLog _log;
 
     public static PluginState State { get; set; } = PluginState.Idle;
     public static event Action<bool> OnCollectorStatusChanged;
@@ -65,12 +66,13 @@ public sealed class Plugin : IDalamudPlugin
         
         _collectableWindowHandler = new();
         _automationHandler = ServiceWrapper.Get<AutomationHandler>();
+        _log = ServiceWrapper.Get<PlogonLog>();
         Start();
     }
 
     public void Start()
     {
-        Svc.Log.Debug("Plugin Start called.");
+        _log.Debug("Start called");
         _automationHandler.Init();
     }
     public void Dispose()
