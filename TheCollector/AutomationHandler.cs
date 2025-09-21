@@ -64,7 +64,7 @@ public class AutomationHandler : IDisposable
         Svc.Log.Debug("Finished Crafting List, starting collectables automation");
         _framework.RunOnTick((async () => 
                                  {
-                                     await Task.Delay(1000);
+                                     await Task.Delay(5000);
                                      Invoke();
                                  }));
     }
