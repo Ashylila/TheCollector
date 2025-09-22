@@ -232,7 +232,7 @@ public class CollectableAutomationHandler
         _taskManager.Abort();
         IsRunning = false;
         Plugin.State = PluginState.Idle;
-        _log.Error("TheCollector has stopped unexpectedly.", reason);
+        _log.Error(new Exception("TheCollector has stopped unexpectedly."), reason);
     }
     public void OnTaskTimeout(TaskManagerTask task, ref long remainingTime)
     {
