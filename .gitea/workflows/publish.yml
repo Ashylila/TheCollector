@@ -1,0 +1,59 @@
+﻿name: Publish
+on:
+    push:
+        tags: ['*.*']
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+        
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  submodules: recursive
+
+            - name: Resolve tag
+              run: echo "TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+
+            - uses: actions/setup-dotnet@v4
+              with:
+                  dotnet-version: '9.0.x'
+
+            - name: Download Dalamud Latest
+              run: |
+                  mkdir -p "$RUNNER_TEMP/dalamud-dev"
+                  curl -L https://goatcorp.github.io/dalamud-distrib/latest.zip -o "$RUNNER_TEMP/latest.zip"
+                  unzip -o "$RUNNER_TEMP/latest.zip" -d "$RUNNER_TEMP/dalamud-dev"
+                  echo "DALAMUD_HOME=$RUNNER_TEMP/dalamud-dev" >> $GITHUB_ENV
+
+            - name: Restore
+              run: dotnet restore TheCollector/TheCollector.csproj
+
+            - name: Build
+              run: |
+                  mkdir -p build
+                  dotnet build --no-restore -c Release TheCollector/TheCollector.csproj \
+                    -p:AssemblyVersion=${{ env.TAG }} \
+                    -p:FileVersion=${{ env.TAG }} \
+                    -p:PackageVersion=${{ env.TAG }} \
+                    -p:InformationalVersion=${{ env.TAG }} \
+                    --output ./build
+
+            - name: Zip
+              run: cd build && zip -r TheCollector.zip .
+
+            - name: Publish Release (Gitea)
+              uses: https://gitea.com/actions/release-action@v1
+              with:
+                  files: build/TheCollector.zip
+                  tag: ${{ env.TAG }}
+                  name: ${{ env.TAG }}
+                  allowUpdates: true
+                  draft: false
+                  prerelease: false
+              env:
+                  GITEA_SERVER_URL: ${{ gitea.server_url }}
+                  GITEA_TOKEN: ${{ secrets.REPO_TOKEN }}
+                  GITEA_REPOSITORY: ${{ gitea.repository }}
