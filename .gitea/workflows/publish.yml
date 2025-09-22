@@ -45,15 +45,16 @@ jobs:
               run: cd build && zip -r TheCollector.zip .
 
             - name: Publish Release (Gitea)
-              uses: https://gitea.com/actions/release-action@v1
-              with:
-                  files: build/TheCollector.zip
-                  tag: ${{ env.TAG }}
-                  name: ${{ env.TAG }}
-                  allowUpdates: true
-                  draft: false
-                  prerelease: false
+              uses: akkuman/gitea-release-action@v1
               env:
-                  GITEA_SERVER_URL: ${{ gitea.server_url }}
-                  GITEA_TOKEN: ${{ secrets.REPO_TOKEN }}
-                  GITEA_REPOSITORY: ${{ gitea.repository }}
+                NODE_OPTIONS: "--experimental-fetch"   
+              with:
+                server_url: ${{ gitea.server_url }}    
+                repository: ${{ gitea.repository }}    
+                tag_name: ${{ env.tag }}               
+                name: ${{ env.tag }}
+                files: build/TheCollector.zip
+                draft: false
+                prerelease: false
+                token: ${{ secrets.REPO_TOKEN }}       
+
