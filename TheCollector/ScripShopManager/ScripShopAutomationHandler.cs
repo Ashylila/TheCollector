@@ -89,8 +89,6 @@ public class ScripShopAutomationHandler
             }, "Select SubPage");
             _taskManager.EnqueueDelay(100);
             int quantity = 0;
-            if(scripItem.Item.ItemCost > _scripShopWindowHandler.ScripCount())
-                continue;
             _taskManager.Enqueue(() =>
             {
                 quantity = scripItem.Quantity - scripItem.AmountPurchased;
@@ -107,9 +105,12 @@ public class ScripShopAutomationHandler
             _taskManager.EnqueueDelay(100);
             _taskManager.Enqueue(()=>
             {
-                _scripShopWindowHandler.PurchaseItem();
-                scripItem.AmountPurchased += quantity;
-                _configuration.Save();
+                if (quantity > 0)
+                {
+                    _scripShopWindowHandler.PurchaseItem();
+                    scripItem.AmountPurchased += quantity;
+                    _configuration.Save();
+                }
             } ,"Purchase Item");
         }
         _taskManager.EnqueueDelay(500);
