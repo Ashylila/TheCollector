@@ -28,7 +28,7 @@ public class ConfigWindow : Window, IDisposable
     {
         Flags = ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse;
 
-        Size = new Vector2(400, 377);
+        Size = new Vector2(400, 405);
         SizeCondition = ImGuiCond.Always;
         
         _dataManager = data;
@@ -124,7 +124,7 @@ public class ConfigWindow : Window, IDisposable
     }
     public void DrawOptions()
     {
-        ImGui.BeginChild("##Options", new Vector2(0, 182), true);
+        ImGui.BeginChild("##Options", new Vector2(0, 210), true);
         
         ImGui.TextUnformatted("Options:");
         var toggleOnAutogatherStop = Configuration.CollectOnAutogatherDisabled;
@@ -150,6 +150,12 @@ public class ConfigWindow : Window, IDisposable
         if (ImGui.Checkbox("Buy items after each trade instead of on capping scrips", ref buyAfterEachCollect))
         {
             Configuration.BuyAfterEachCollect = buyAfterEachCollect;
+            Configuration.Save();
+        }
+        var resetEachQuantityAfterCompletingList = Configuration.ResetEachQuantityAfterCompletingList;
+        if (ImGui.Checkbox("Reset each quantity after completing the list", ref resetEachQuantityAfterCompletingList))
+        {
+            Configuration.ResetEachQuantityAfterCompletingList = resetEachQuantityAfterCompletingList;
             Configuration.Save();
         }
         ImGui.TextUnformatted("Select your preferred collectable shop:");

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Dalamud.Game.ClientState.Objects;
 using Dalamud.Plugin.Services;
@@ -78,6 +80,8 @@ public class AutomationHandler : IDisposable
     }
     private void OnFinishedTrading()
     {
+        if (_config.ResetEachQuantityAfterCompletingList)
+            ResetIfAllComplete(_config.ItemsToPurchase);
         if (_collectableAutomationHandler.HasCollectible)
         {
             _collectableAutomationHandler.Start();
@@ -100,6 +104,21 @@ public class AutomationHandler : IDisposable
             _scripShopAutomationHandler.Start();
         }
     }
+    bool ResetIfAllComplete(IList<ItemToPurchase> items)
+    {
+        if (items == null || items.Count == 0) return false;
+
+        for (int i = 0; i < items.Count; i++)
+            if (items[i].AmountPurchased < items[i].Quantity) return false;
+
+        for (int i = 0; i < items.Count; i++)
+            items[i].AmountPurchased = 0;
+        _config.Save();
+        _log.Debug("Reset all quantities since the list is complete.");
+        return true;
+    }
+
+
     public void Dispose()
     {
         _collectableAutomationHandler.OnError -= OnError;

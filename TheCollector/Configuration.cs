@@ -18,6 +18,7 @@ public class Configuration : IPluginConfiguration
     public bool EnableAutogatherOnFinish { get; set; } = false;
     public bool CollectOnFinishCraftingList { get; set; } = false;
     public bool BuyAfterEachCollect { get; set; } = false;
+    public bool ResetEachQuantityAfterCompletingList { get; set; } = false;
     
     public void Save()
     {

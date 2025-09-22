@@ -197,7 +197,7 @@ public class CollectableAutomationHandler
             }
             _taskManager.Enqueue(() =>
             {
-                if ( 200 >(4000 -(value.ScripType == 0
+                if ( 200 >(4000 -(value.ScripType == ScripType.Purple
                                       ? _collectibleWindowHandler.PurpleScripCount()
                                       : _collectibleWindowHandler.OrangeScripCount())))
                 {
