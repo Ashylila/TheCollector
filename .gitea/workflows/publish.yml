@@ -1,60 +1,69 @@
 ﻿name: Publish
+
 on:
-    push:
-        tags: ['*.*']
+  push:
+    tags:
+      - '*.*'
+      - '*.*.*'
 
 jobs:
-    build:
-        runs-on: ubuntu-latest
-        permissions:
-            contents: write
-        
-        steps:
-            - uses: actions/checkout@v4
-              with:
-                  submodules: recursive
+  build:
+    runs-on: ubuntu-latest
 
-            - name: Resolve tag
-              run: echo "TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+    container:
+      image: ghcr.io/catthehacker/ubuntu:act-22.04
 
-            - uses: actions/setup-dotnet@v4
-              with:
-                  dotnet-version: '9.0.x'
+    permissions:
+      contents: write
 
-            - name: Download Dalamud Latest
-              run: |
-                  mkdir -p "$RUNNER_TEMP/dalamud-dev"
-                  curl -L https://goatcorp.github.io/dalamud-distrib/latest.zip -o "$RUNNER_TEMP/latest.zip"
-                  unzip -o "$RUNNER_TEMP/latest.zip" -d "$RUNNER_TEMP/dalamud-dev"
-                  echo "DALAMUD_HOME=$RUNNER_TEMP/dalamud-dev" >> $GITHUB_ENV
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
-            - name: Restore
-              run: dotnet restore TheCollector/TheCollector.csproj
+      - name: Resolve tag
+        run: echo "TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
 
-            - name: Build
-              run: |
-                  mkdir -p build
-                  dotnet build --no-restore -c Release TheCollector/TheCollector.csproj \
-                    -p:AssemblyVersion=${{ env.TAG }} \
-                    -p:FileVersion=${{ env.TAG }} \
-                    -p:PackageVersion=${{ env.TAG }} \
-                    -p:InformationalVersion=${{ env.TAG }} \
-                    --output ./build
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
 
-            - name: Zip
-              run: cd build && zip -r TheCollector.zip .
+      - name: Ensure tools
+        run: sudo apt-get update && sudo apt-get install -y zip unzip curl
 
-            - name: Publish Release (Gitea)
-              uses: akkuman/gitea-release-action@v1
-              env:
-                NODE_OPTIONS: "--experimental-fetch"   
-              with:
-                server_url: ${{ gitea.server_url }}    
-                repository: ${{ gitea.repository }}    
-                tag_name: ${{ env.tag }}               
-                name: ${{ env.tag }}
-                files: build/TheCollector.zip
-                draft: false
-                prerelease: false
-                token: ${{ secrets.REPO_TOKEN }}       
+      - name: Download Dalamud Latest
+        run: |
+          mkdir -p "$RUNNER_TEMP/dalamud-dev"
+          curl -L https://goatcorp.github.io/dalamud-distrib/latest.zip -o "$RUNNER_TEMP/latest.zip"
+          unzip -o "$RUNNER_TEMP/latest.zip" -d "$RUNNER_TEMP/dalamud-dev"
+          echo "DALAMUD_HOME=$RUNNER_TEMP/dalamud-dev" >> $GITHUB_ENV
 
+      - name: Restore
+        run: dotnet restore TheCollector/TheCollector.csproj
+
+      - name: Build
+        run: |
+          mkdir -p build
+          dotnet build --no-restore -c Release TheCollector/TheCollector.csproj \
+            -p:AssemblyVersion="${{ env.TAG }}" \
+            -p:FileVersion="${{ env.TAG }}" \
+            -p:PackageVersion="${{ env.TAG }}" \
+            -p:InformationalVersion="${{ env.TAG }}" \
+            --output ./build
+
+      - name: Zip artifact
+        run: cd build && zip -r TheCollector.zip .
+
+      - name: Publish Release (Gitea)
+        uses: akkuman/gitea-release-action@v1
+        with:
+          server_url: ${{ gitea.server_url }}     
+          repository: ${{ gitea.repository }}     
+          tag_name: ${{ env.TAG }}                
+          name: ${{ env.TAG }}
+          files: build/TheCollector.zip
+          draft: false
+          prerelease: false
+          token: ${{ secrets.REPO_TOKEN }}        
