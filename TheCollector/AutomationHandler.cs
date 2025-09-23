@@ -77,6 +77,9 @@ public class AutomationHandler : IDisposable
         {
             _scripShopAutomationHandler.Start();
         }
+        if (_config.EnableAutogatherOnFinish){
+            _gatherbuddyReborn_IPCSubscriber.SetAutoGatherEnabled(true); 
+        }
     }
     private void OnFinishedTrading()
     {
