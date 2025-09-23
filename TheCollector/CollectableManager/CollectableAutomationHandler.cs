@@ -49,7 +49,7 @@ public class CollectableAutomationHandler
     private TaskManagerConfiguration _config = new  TaskManagerConfiguration()
     {
         ExecuteDefaultConfigurationEvents = false,
-        ShowDebug = true,
+        ShowDebug = false,
     };
 
     public bool IsRunning = false;

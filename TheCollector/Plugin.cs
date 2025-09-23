@@ -9,6 +9,7 @@ using Dalamud.Plugin.Services;
 using ECommons;
 using ECommons.DalamudServices;
 using FFXIVClientStructs.FFXIV.Client.Game;
+using OtterGui.Services;
 using TheCollector.CollectableManager;
 using TheCollector.Data;
 using TheCollector.Ipc;
@@ -35,6 +36,7 @@ public sealed class Plugin : IDalamudPlugin
     public readonly WindowSystem WindowSystem = new("TheCollector");
     private ConfigWindow ConfigWindow { get; init; }
     private MainWindow MainWindow { get; init; }
+    private ChangelogUi ChangelogUi { get; init; }
     private readonly AutomationHandler _automationHandler;
     private readonly PlogonLog _log;
 
@@ -44,14 +46,16 @@ public sealed class Plugin : IDalamudPlugin
     {
         Configuration = PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
         ECommonsMain.Init(PluginInterface, this, Module.DalamudReflector);
-        
         ServiceWrapper.Init(this);
 
         ConfigWindow = ServiceWrapper.Get<ConfigWindow>();
         MainWindow = ServiceWrapper.Get<MainWindow>();
+        ChangelogUi = ServiceWrapper.Get<ChangelogUi>();
 
         WindowSystem.AddWindow(ConfigWindow);
         WindowSystem.AddWindow(MainWindow);
+        WindowSystem.AddWindow(ChangelogUi.Changelog);
+
 
         CommandManager.AddHandler(CommandName, new CommandInfo(OnCommand)
         {

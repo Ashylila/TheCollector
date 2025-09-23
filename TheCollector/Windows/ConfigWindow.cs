@@ -127,6 +127,9 @@ public class ConfigWindow : Window, IDisposable
         ImGui.BeginChild("##Options", new Vector2(0, 210), true);
         
         ImGui.TextUnformatted("Options:");
+        
+        ImGui.BeginDisabled(!IPCSubscriber_Common.IsReady("GatherbuddyReborn"));
+        
         var toggleOnAutogatherStop = Configuration.CollectOnAutogatherDisabled;
         if (ImGui.Checkbox("Collect on Autogather Stop", ref toggleOnAutogatherStop))
         {
@@ -140,12 +143,20 @@ public class ConfigWindow : Window, IDisposable
             Configuration.EnableAutogatherOnFinish = toggleAutogatherOnFinish;
             Configuration.Save();
         }
+        
+        ImGui.EndDisabled();
+        
+        ImGui.BeginDisabled(!IPCSubscriber_Common.IsReady("Artisan"));
+        
         var toggleCollectOnFinishCraftingList = Configuration.CollectOnFinishCraftingList;
         if (ImGui.Checkbox("Collect on Finish Crafting an Artisan List", ref toggleCollectOnFinishCraftingList))
         {
             Configuration.CollectOnFinishCraftingList = toggleCollectOnFinishCraftingList;
             Configuration.Save();
         }
+        
+        ImGui.EndDisabled();
+        
         var buyAfterEachCollect = Configuration.BuyAfterEachCollect;
         if (ImGui.Checkbox("Buy items after each trade instead of on capping scrips", ref buyAfterEachCollect))
         {
@@ -171,19 +182,23 @@ public class ConfigWindow : Window, IDisposable
         }
         else
         {
-            currentShopName = "Select a shop...";
+            currentShopName = CollectableNpcLocations.CollectableShops.FirstOrDefault(n => n.Name == "Eulmore")?.Name ?? "Select a shop";
+            
         }
         ImGui.Spacing();
         if (ImGui.BeginCombo("##shopselection", currentShopName))
         {
             for (int i = 0; i < CollectableNpcLocations.CollectableShops.Count; i++)
             {
+                ImGui.BeginDisabled(CollectableNpcLocations.CollectableShops[i].Name.Contains("Solution Nine", StringComparison.OrdinalIgnoreCase));
                 
                 if (ImGui.Selectable(CollectableNpcLocations.CollectableShops[i].Name))
                 {
                     Configuration.PreferredCollectableShop = CollectableNpcLocations.CollectableShops[i];
                     Configuration.Save();
                 }
+                
+                ImGui.EndDisabled();
             }
 
             ImGui.EndCombo();

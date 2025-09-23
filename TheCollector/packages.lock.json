@@ -23,6 +23,11 @@
           "Microsoft.Extensions.DependencyInjection.Abstractions": "9.0.4"
         }
       },
+      "JetBrains.Annotations": {
+        "type": "Transitive",
+        "resolved": "2024.3.0",
+        "contentHash": "ox5pkeLQXjvJdyAB4b2sBYAlqZGLh3PjSnP1bQNVx72ONuTJ9+34/+Rq91Fc0dG29XG9RgZur9+NcP4riihTug=="
+      },
       "Microsoft.Extensions.DependencyInjection.Abstractions": {
         "type": "Transitive",
         "resolved": "9.0.4",
@@ -30,6 +35,13 @@
       },
       "ecommons": {
         "type": "Project"
+      },
+      "ottergui": {
+        "type": "Project",
+        "dependencies": {
+          "JetBrains.Annotations": "[2024.3.0, )",
+          "Microsoft.Extensions.DependencyInjection": "[9.0.2, )"
+        }
       }
     }
   }

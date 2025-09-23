@@ -49,7 +49,7 @@ public static class ServiceWrapper
 
         collection.AddSingleton<MainWindow>();
         collection.AddSingleton<ConfigWindow>();
-        
+        collection.AddSingleton<ChangelogUi>();
         ServiceProvider = collection.BuildServiceProvider();
     }
 

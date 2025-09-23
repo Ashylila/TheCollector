@@ -24,7 +24,7 @@ public class ScripShopAutomationHandler
     private TaskManagerConfiguration _config = new  TaskManagerConfiguration()
     {
         ExecuteDefaultConfigurationEvents = false,
-        ShowDebug = true,
+        ShowDebug = false,
         
     };
     private readonly ScripShopWindowHandler _scripShopWindowHandler;
@@ -95,6 +95,11 @@ public class ScripShopAutomationHandler
                 if ((quantity * scripItem.Item.ItemCost) > _scripShopWindowHandler.ScripCount())
                 {
                     quantity = _scripShopWindowHandler.ScripCount() / (int)scripItem.Item.ItemCost;
+                }
+
+                if (quantity > 99)
+                {
+                    quantity = 99;
                 }
             }, "GetQuantity");
 

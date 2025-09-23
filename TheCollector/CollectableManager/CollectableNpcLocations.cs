@@ -10,7 +10,7 @@ public static class CollectableNpcLocations
     {
         new CollectableShop()
         {
-            Name = "Solution Nine",
+            Name = "Solution Nine (doesnt work currently)",
             Location = new Vector3(-162f, 0.92f, -33)
         },
         new CollectableShop()
