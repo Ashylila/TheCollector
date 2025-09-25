@@ -127,7 +127,7 @@ public class ConfigWindow : Window, IDisposable
         ImGui.BeginChild("##Options", new Vector2(0, 210), true);
         
         ImGui.TextUnformatted("Options:");
-        
+        ImGui.BeginDisabled(!IPCSubscriber_Common.IsReady("vnavmesh"));
         ImGui.BeginDisabled(!IPCSubscriber_Common.IsReady("GatherbuddyReborn"));
         
         var toggleOnAutogatherStop = Configuration.CollectOnAutogatherDisabled;
@@ -192,6 +192,7 @@ public class ConfigWindow : Window, IDisposable
 
             ImGui.EndCombo();
         }
+        ImGui.EndDisabled();
         ImGui.EndChild();
         
     }

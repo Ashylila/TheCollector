@@ -49,6 +49,7 @@ public class ScripShopAutomationHandler
 
     public unsafe void Start()
     {
+        IsRunning = true;
         Plugin.State = PluginState.SpendingScrip;
         _taskManager.Enqueue(() =>
         {
@@ -122,13 +123,15 @@ public class ScripShopAutomationHandler
         _taskManager.Enqueue((() =>
                                  {
                                      Plugin.State = PluginState.Idle;
+                                        IsRunning = false;
                                      _scripShopWindowHandler.CloseShop();
                                         OnFinishedTrading?.Invoke();
                                  }));
     }
-    private void ForceStop(string reason)
+    public void ForceStop(string reason)
     {
         _taskManager.Abort();
+        _scripShopWindowHandler.CloseShop();
         IsRunning = false;
         Plugin.State = PluginState.Idle;
         _log.Error(new Exception(reason),"TheCollector has stopped unexpectedly.");

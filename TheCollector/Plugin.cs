@@ -30,7 +30,7 @@ public sealed class Plugin : IDalamudPlugin
     private readonly CollectableWindowHandler _collectableWindowHandler;
 
     private const string CommandName = "/collector";
-    public const string InternalName = "The Collector";
+    public const string InternalName = "TheCollector";
     public Configuration Configuration { get; init; }
 
     public readonly WindowSystem WindowSystem = new("TheCollector");
@@ -104,10 +104,13 @@ public sealed class Plugin : IDalamudPlugin
         switch (args.ToLower())
         {
             case "collect":
-                ServiceWrapper.Get<AutomationHandler>().Invoke();
+                _automationHandler.Invoke();
                 break;
             case "config":
                 ToggleConfigUI();
+                break;
+            case "stop":
+                _automationHandler.ForceStop("Manually stopped by user");
                 break;
             default:
                 ToggleMainUI();

@@ -71,6 +71,19 @@ public class AutomationHandler : IDisposable
                                  }));
     }
 
+    public void ForceStop(string reason)
+    {
+        if (_collectableAutomationHandler.IsRunning)
+        {
+            _collectableAutomationHandler.ForceStop(reason);
+        }
+
+        if (_scripShopAutomationHandler.IsRunning)
+        {
+            _scripShopAutomationHandler.ForceStop(reason);
+        }
+    }
+
     private void OnFinishedCollecting()
     {
         if (_config.BuyAfterEachCollect)

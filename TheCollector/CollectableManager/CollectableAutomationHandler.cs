@@ -228,6 +228,7 @@ public class CollectableAutomationHandler
     
     public void ForceStop(string reason)
     {
+        _collectibleWindowHandler.CloseWindow();
         OnError?.Invoke(reason);
         _taskManager.Abort();
         IsRunning = false;
