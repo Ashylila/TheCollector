@@ -30,7 +30,7 @@ public sealed class Plugin : IDalamudPlugin
     private readonly CollectableWindowHandler _collectableWindowHandler;
 
     private const string CommandName = "/collector";
-
+    public const string InternalName = "The Collector";
     public Configuration Configuration { get; init; }
 
     public readonly WindowSystem WindowSystem = new("TheCollector");
@@ -47,7 +47,9 @@ public sealed class Plugin : IDalamudPlugin
         Configuration = PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
         ECommonsMain.Init(PluginInterface, this, Module.DalamudReflector);
         ServiceWrapper.Init(this);
-
+        
+        ServiceWrapper.Get<IpcProvider>().Init();
+        
         ConfigWindow = ServiceWrapper.Get<ConfigWindow>();
         MainWindow = ServiceWrapper.Get<MainWindow>();
         ChangelogUi = ServiceWrapper.Get<ChangelogUi>();
@@ -81,6 +83,7 @@ public sealed class Plugin : IDalamudPlugin
     }
     public void Dispose()
     {
+        ECommonsMain.Dispose();
         if(ServiceWrapper.ServiceProvider is IDisposable disposable)
         {
             disposable.Dispose();

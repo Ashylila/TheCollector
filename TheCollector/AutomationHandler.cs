@@ -53,7 +53,7 @@ public class AutomationHandler : IDisposable
     {
         if (!enabled && _config.CollectOnAutogatherDisabled)
         {
-            _collectableAutomationHandler.Start();
+            Invoke();;
         }
     }
     public void Invoke()

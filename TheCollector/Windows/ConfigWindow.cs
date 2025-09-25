@@ -171,20 +171,9 @@ public class ConfigWindow : Window, IDisposable
         }
         ImGui.TextUnformatted("Select your preferred collectable shop:");
         ImGui.SameLine();
-
         
-        int selectedIndex = CollectableNpcLocations.CollectableShops.IndexOf(Configuration.PreferredCollectableShop);
+        string currentShopName = Configuration.PreferredCollectableShop.Name;
 
-        string currentShopName;
-        if (selectedIndex != -1)
-        {
-            currentShopName = Configuration.PreferredCollectableShop.Name;
-        }
-        else
-        {
-            currentShopName = CollectableNpcLocations.CollectableShops.FirstOrDefault(n => n.Name == "Eulmore")?.Name ?? "Select a shop";
-            
-        }
         ImGui.Spacing();
         if (ImGui.BeginCombo("##shopselection", currentShopName))
         {
@@ -194,7 +183,7 @@ public class ConfigWindow : Window, IDisposable
                 
                 if (ImGui.Selectable(CollectableNpcLocations.CollectableShops[i].Name))
                 {
-                    Configuration.PreferredCollectableShop = CollectableNpcLocations.CollectableShops[i];
+                    Configuration.PreferredCollectableShopName = CollectableNpcLocations.CollectableShops[i].Name;
                     Configuration.Save();
                 }
                 
