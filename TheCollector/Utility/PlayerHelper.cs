@@ -4,6 +4,7 @@ using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Game.ClientState.Objects.Types;
 using ECommons;
 using ECommons.DalamudServices;
+using ECommons.ExcelServices;
 using ECommons.GameHelpers;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
@@ -43,7 +44,27 @@ public static class PlayerHelper
             return true;
         }
     }
-    
+
+    public static bool IsInDuty
+    {
+        get
+        {
+            if (Svc.ClientState.LocalPlayer == null)
+                return false;
+            if (Player.TerritoryIntendedUse.EqualsAny(TerritoryIntendedUseEnum.City_Area,
+                                                      TerritoryIntendedUseEnum.Open_World,
+                                                      TerritoryIntendedUseEnum.Inn,
+                                                      TerritoryIntendedUseEnum.Barracks,
+                                                      TerritoryIntendedUseEnum.Gold_Saucer,
+                                                      TerritoryIntendedUseEnum.Island_Sanctuary,
+                                                      TerritoryIntendedUseEnum.Housing_Instances
+                ))
+                return false;
+            return true;
+
+    }
+    }
+
 
     internal static bool IsValid => Svc.Condition.Any()
                                     && !Svc.Condition[ConditionFlag.BetweenAreas]

@@ -22,6 +22,7 @@ public class Configuration : IPluginConfiguration
     public bool CollectOnFinishCraftingList { get; set; } = false;
     public bool BuyAfterEachCollect { get; set; } = false;
     public bool ResetEachQuantityAfterCompletingList { get; set; } = false;
+    public bool CollectOnFinishedFishing { get; set; } = false;
     public int LastSeenVersion { get; set; } = ChangelogUi.LastChangelogVersion;
     public ChangeLogDisplayType ChangeLogDisplayType { get; set; } = ChangeLogDisplayType.New;
     public string PreferredCollectableShopName {private get; set; } = "";

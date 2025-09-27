@@ -1,13 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Linq;
 using Dalamud.Plugin.Services;
-using ECommons.DalamudServices;
-using ECommons.ExcelServices;
-using ECommons.GameHelpers;
-using Lumina.Excel.Sheets;
+using TheCollector.Data;
 using TheCollector.Ipc;
-using Action = System.Action;
 
 namespace TheCollector.Utility;
 
@@ -18,19 +13,8 @@ public class ArtisanWatcher : IDisposable
     private readonly Stopwatch UpdateWatch = new();
     private bool _wasCrafting;
     private readonly Configuration _configuration;
-
-    private readonly TerritoryIntendedUseEnum[] _notInDutyTerritories =
-    {
-        TerritoryIntendedUseEnum.City_Area,
-        TerritoryIntendedUseEnum.Open_World,
-        TerritoryIntendedUseEnum.Inn,
-        TerritoryIntendedUseEnum.Barracks,
-        TerritoryIntendedUseEnum.Gold_Saucer,
-        TerritoryIntendedUseEnum.Island_Sanctuary,
-        TerritoryIntendedUseEnum.Housing_Instances
-    };
-
-    public event Action? OnCraftingFinished;
+    
+    public event Action<WatchType>? OnCraftingFinished;
     
     public int PollInterval { get; set; } = 250;
 
@@ -53,14 +37,14 @@ public class ArtisanWatcher : IDisposable
             return;
 
         UpdateWatch.Restart();
-        if (!_notInDutyTerritories.Contains(Player.TerritoryIntendedUse) || !_configuration.CollectOnFinishCraftingList)
+        if (PlayerHelper.IsInDuty)
             return;
 
         bool isCrafting = ArtisanIpc.IsListRunning();
 
         if (_wasCrafting && !isCrafting)
         {
-            OnCraftingFinished?.Invoke();
+            OnCraftingFinished?.Invoke(WatchType.Crafting);
         }
 
         _wasCrafting = isCrafting;

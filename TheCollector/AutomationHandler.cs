@@ -6,6 +6,7 @@ using Dalamud.Game.ClientState.Objects;
 using Dalamud.Plugin.Services;
 using ECommons.DalamudServices;
 using TheCollector.CollectableManager;
+using TheCollector.Data;
 using TheCollector.Ipc;
 using TheCollector.ScripShopManager;
 using TheCollector.Utility;
@@ -22,12 +23,13 @@ public class AutomationHandler : IDisposable
     private readonly GatherbuddyReborn_IPCSubscriber _gatherbuddyReborn_IPCSubscriber;
     private readonly ArtisanWatcher _artisanWatcher;
     private readonly IFramework _framework;
+    private readonly FishingWatcher _fishingWatcher;
     public bool IsRunning => _collectableAutomationHandler.IsRunning || _scripShopAutomationHandler.IsRunning;
     
     
     
     public AutomationHandler(
-        PlogonLog log,CollectableAutomationHandler collectableAutomationHandler, Configuration config, ScripShopAutomationHandler scripShopAutomationHandler, IChatGui chatGui, GatherbuddyReborn_IPCSubscriber gatherbuddyReborn_IPCSubscriber, ArtisanWatcher artisanWatcher, IFramework framework)
+        PlogonLog log,CollectableAutomationHandler collectableAutomationHandler, Configuration config, ScripShopAutomationHandler scripShopAutomationHandler, IChatGui chatGui, GatherbuddyReborn_IPCSubscriber gatherbuddyReborn_IPCSubscriber, ArtisanWatcher artisanWatcher, IFramework framework, FishingWatcher fishingWatcher)
     {
         _log = log;
         _gatherbuddyReborn_IPCSubscriber = gatherbuddyReborn_IPCSubscriber;
@@ -37,6 +39,7 @@ public class AutomationHandler : IDisposable
         _chatGui = chatGui;
         _artisanWatcher = artisanWatcher;
         _framework = framework;
+        _fishingWatcher = fishingWatcher;
     }
 
     public void Init()
@@ -47,14 +50,15 @@ public class AutomationHandler : IDisposable
         _scripShopAutomationHandler.OnError += OnError;
         _scripShopAutomationHandler.OnFinishedTrading += OnFinishedTrading;
         _gatherbuddyReborn_IPCSubscriber.OnAutoGatherStatusChanged += OnAutoGatherStatusChanged;
-        _artisanWatcher.OnCraftingFinished += OnFinishedCraftingList;
+        _artisanWatcher.OnCraftingFinished += OnFinishedWatching;
+        _fishingWatcher.OnFishingFinished += OnFinishedWatching;
     }
 
     private void OnAutoGatherStatusChanged(bool enabled)
     {
         if (!enabled && _config.CollectOnAutogatherDisabled)
         {
-            Invoke();;
+            Invoke();
         }
     }
     public void Invoke()
@@ -62,16 +66,19 @@ public class AutomationHandler : IDisposable
         _collectableAutomationHandler.Start();
     }
 
-    public void OnFinishedCraftingList()
+    public void OnFinishedWatching(WatchType watchType)
     {
-        if (!_config.CollectOnFinishCraftingList)
-            return;
-        Svc.Log.Debug("Finished Crafting List, starting collectables automation");
-        _framework.RunOnTick((async () => 
-                                 {
-                                     await Task.Delay(5000);
-                                     Invoke();
-                                 }));
+        switch (watchType)
+        {
+            case WatchType.Crafting:
+                if(_config.CollectOnFinishCraftingList) Invoke();
+                break;
+            case WatchType.Fishing:
+                if(_config.CollectOnFinishedFishing) Invoke();
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(watchType), watchType, null);
+        }
     }
 
     public void ForceStop(string reason)

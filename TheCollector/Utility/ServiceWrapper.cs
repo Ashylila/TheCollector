@@ -28,6 +28,7 @@ public static class ServiceWrapper
         collection.AddSingleton(Svc.ClientState);
         collection.AddSingleton(Svc.PluginInterface);
         collection.AddSingleton(Svc.Chat);
+        collection.AddSingleton(Svc.Condition);
         
         collection.AddSingleton<TaskManager>();
         
@@ -45,6 +46,7 @@ public static class ServiceWrapper
         collection.AddSingleton<Artisan_IPCSubscriber>();
         collection.AddSingleton<IpcProvider>();
         collection.AddSingleton<ArtisanWatcher>();
+        collection.AddSingleton<FishingWatcher>();
         
         collection.AddSingleton<PlogonLog>();
 

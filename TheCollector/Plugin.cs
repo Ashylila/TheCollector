@@ -13,6 +13,7 @@ using OtterGui.Services;
 using TheCollector.CollectableManager;
 using TheCollector.Data;
 using TheCollector.Ipc;
+using TheCollector.ScripShopManager;
 using TheCollector.Utility;
 using TheCollector.Windows;
 
