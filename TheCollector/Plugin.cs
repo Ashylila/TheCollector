@@ -37,6 +37,7 @@ public sealed class Plugin : IDalamudPlugin
     private ConfigWindow ConfigWindow { get; init; }
     private MainWindow MainWindow { get; init; }
     private ChangelogUi ChangelogUi { get; init; }
+    private StopUi StopUi { get; init; }
     private readonly AutomationHandler _automationHandler;
     private readonly PlogonLog _log;
 
@@ -53,10 +54,12 @@ public sealed class Plugin : IDalamudPlugin
         ConfigWindow = ServiceWrapper.Get<ConfigWindow>();
         MainWindow = ServiceWrapper.Get<MainWindow>();
         ChangelogUi = ServiceWrapper.Get<ChangelogUi>();
+        StopUi = ServiceWrapper.Get<StopUi>();
 
         WindowSystem.AddWindow(ConfigWindow);
         WindowSystem.AddWindow(MainWindow);
         WindowSystem.AddWindow(ChangelogUi.Changelog);
+        WindowSystem.AddWindow(StopUi);
 
 
         CommandManager.AddHandler(CommandName, new CommandInfo(OnCommand)
@@ -74,11 +77,11 @@ public sealed class Plugin : IDalamudPlugin
         _automationHandler = ServiceWrapper.Get<AutomationHandler>();
         _log = ServiceWrapper.Get<PlogonLog>();
         Start();
+        
     }
 
     public void Start()
     {
-        _log.Debug("Start called");
         _automationHandler.Init();
     }
     public void Dispose()

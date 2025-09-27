@@ -48,6 +48,7 @@ namespace TheCollector.CollectableManager;
             if (turnIn.GetItemIndexOf(itemName) == -1)
             {
                 CollectableAutomationHandler.Instance?.ForceStop("Error: Item not found in the current collectable tab.");
+                return;
             }
             var selectItem = stackalloc AtkValue[]
             {

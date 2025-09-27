@@ -6,8 +6,6 @@ using System.Numerics;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Dalamud.Bindings.ImGui;
-using Dalamud.Interface.Utility;
-using Dalamud.Interface.Utility.Raii;
 using Dalamud.Interface.Windowing;
 using Dalamud.Plugin;
 using ECommons.DalamudServices;
@@ -20,7 +18,6 @@ public class MainWindow : Window, IDisposable
 {
     private readonly IDalamudPluginInterface pluginInterface;
     private string comboFilter = "";
-    private string GoatImagePath;
     private Configuration configuration;
     private List<ScripShopItem> ShopItems;
     private ScripShopItem? SelectedScripItem = null;

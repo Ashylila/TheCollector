@@ -22,6 +22,7 @@ public class AutomationHandler : IDisposable
     private readonly GatherbuddyReborn_IPCSubscriber _gatherbuddyReborn_IPCSubscriber;
     private readonly ArtisanWatcher _artisanWatcher;
     private readonly IFramework _framework;
+    public bool IsRunning => _collectableAutomationHandler.IsRunning || _scripShopAutomationHandler.IsRunning;
     
     
     
@@ -63,6 +64,8 @@ public class AutomationHandler : IDisposable
 
     public void OnFinishedCraftingList()
     {
+        if (!_config.CollectOnFinishCraftingList)
+            return;
         Svc.Log.Debug("Finished Crafting List, starting collectables automation");
         _framework.RunOnTick((async () => 
                                  {

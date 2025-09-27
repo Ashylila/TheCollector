@@ -25,10 +25,10 @@ public class IpcProvider : IDisposable
     [EzIPC]
     public string GetStateText() =>
         Plugin.State.ToString();
-    
+
     [EzIPC]
     public bool IsRunning() =>
-        Plugin.State != PluginState.Idle;
+        _automationHandler.IsRunning;
 
     public void Dispose()
     {
