@@ -95,4 +95,14 @@ public sealed class FrameRunner
         _running = false;
         _onFinished(ok && !_cancel);
     }
+    public static Step Delay(string name, TimeSpan duration)
+    {
+        DateTime until = default;
+        return new FrameRunner.Step(
+            name,
+            () => DateTime.UtcNow >= until ? StepStatus.Succeeded : StepStatus.Continue,
+            duration + TimeSpan.FromSeconds(2),
+            () => until = DateTime.UtcNow + duration
+        );
+    }
 }

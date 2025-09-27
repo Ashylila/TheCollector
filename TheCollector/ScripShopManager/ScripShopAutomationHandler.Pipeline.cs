@@ -43,6 +43,7 @@ public partial class ScripShopAutomationHandler
                 TimeSpan.FromSeconds(1),
                 () => _uiLoadWaitUntil = DateTime.UtcNow + TimeSpan.FromMilliseconds(500)
             ),
+            FrameRunner.Delay("PostTargetDelay", TimeSpan.FromMilliseconds(500)),
             new FrameRunner.Step(
                 "OpenScripShop",
                 () => StepStatus.Succeeded,
@@ -65,12 +66,7 @@ public partial class ScripShopAutomationHandler
                 TimeSpan.FromSeconds(5)
             ),
             
-            new FrameRunner.Step(
-                "UiLoadBuffer",
-                () => DateTime.UtcNow >= _uiLoadWaitUntil ? StepStatus.Succeeded : StepStatus.Continue,
-                TimeSpan.FromSeconds(5),
-                () => _uiLoadWaitUntil = DateTime.UtcNow + _uiLoadDelay
-            ),
+            FrameRunner.Delay("WaitForUI", _uiLoadDelay),
 
             new FrameRunner.Step(
                 "BuyConfigured",
@@ -78,6 +74,7 @@ public partial class ScripShopAutomationHandler
                 TimeSpan.FromSeconds(90),
                 PrimeBuy
             ),
+            FrameRunner.Delay("PostBuyDelay", TimeSpan.FromMilliseconds(600)),
             new FrameRunner.Step(
                 "CloseScripShop",
                 () => { _scripShopWindowHandler.CloseShop(); return StepStatus.Succeeded; },

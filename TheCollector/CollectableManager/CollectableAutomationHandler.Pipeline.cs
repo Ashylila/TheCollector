@@ -52,11 +52,7 @@ public partial class CollectableAutomationHandler
                 () => PlayerHelper.IsInDuty ? StepStatus.Failed : StepStatus.Succeeded,
                 TimeSpan.FromSeconds(1)
             ),
-            new FrameRunner.Step(
-                "Initial delay",
-                () => DateTime.UtcNow >= _uiLoadWaitUntil ? StepStatus.Succeeded : StepStatus.Continue,
-                TimeSpan.FromSeconds(5),
-                () => _uiLoadWaitUntil = DateTime.UtcNow + TimeSpan.FromSeconds(1)),
+            FrameRunner.Delay("InitialDelay", TimeSpan.FromSeconds(1)),
 
             new FrameRunner.Step(
                 "TeleportToPreferredShop",
@@ -100,12 +96,7 @@ public partial class CollectableAutomationHandler
                 TimeSpan.FromSeconds(5)
             ),
             
-            new FrameRunner.Step(
-                "UiLoadBuffer",
-                () => DateTime.UtcNow >= _uiLoadWaitUntil ? StepStatus.Succeeded : StepStatus.Continue,
-                TimeSpan.FromSeconds(5),
-                () => _uiLoadWaitUntil = DateTime.UtcNow + _uiLoadDelay
-            ),
+            FrameRunner.Delay("UiBuffer", _uiLoadDelay),
 
             new FrameRunner.Step(
                 "TurnInAllCollectables",
@@ -113,20 +104,15 @@ public partial class CollectableAutomationHandler
                 TimeSpan.FromSeconds(90),
                 PrimeTurnIn
             ),
+            FrameRunner.Delay("PostTurnInBuffer", TimeSpan.FromSeconds(1)),
             new FrameRunner.Step(
                 "CloseCollectablesShop",
                 () =>
                 {
-                    if(DateTime.UtcNow >= _uiLoadWaitUntil)
-                    {
-                        _collectibleWindowHandler.CloseWindow();
-                        return StepStatus.Succeeded;
-                    }
-                    return StepStatus.Continue;
-                    
+                    _collectibleWindowHandler.CloseWindow();
+                    return StepStatus.Succeeded;
                 },
-                TimeSpan.FromSeconds(5),
-                () => _uiLoadWaitUntil = DateTime.UtcNow + _uiInteractDelay
+                TimeSpan.FromSeconds(5)
             ),
         };
 
