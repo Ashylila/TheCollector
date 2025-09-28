@@ -26,7 +26,14 @@ public partial class ScripShopAutomationHandler
 
         _runner ??= new FrameRunner(_framework,
             n => _log.Debug(n),
-            (n,s,e) => _log.Debug($"{n} -> {s}{(e is null ? "" : $" ({e})")}"),
+            (string name, StepStatus status, string? error) =>
+            {
+                _log.Debug($"{name} -> {status}{(error is null ? "" : $" ({error})")}");
+                if (StepStatus.Failed == status)
+                {
+                    _runner.Cancel(error);
+                }
+            },
             e => OnError?.Invoke(e),
             ok =>
             {
@@ -37,6 +44,7 @@ public partial class ScripShopAutomationHandler
 
         var steps = new []
         {
+            FrameRunner.Delay("InitialDelay", TimeSpan.FromSeconds(1)),
             new FrameRunner.Step(
                 "TargetShop",
                 () => TargetShop(),
@@ -185,10 +193,10 @@ private StepStatus MakeBuyTick()
 
     return StepStatus.Continue;
 }
-    private bool attemptedTarget = false;
 
     public unsafe StepStatus TargetShop()
     {
+        var attemptedTarget = false;
         if (!PlayerHelper.CanAct) return StepStatus.Continue;
         
         if (!attemptedTarget)
@@ -205,11 +213,15 @@ private StepStatus MakeBuyTick()
             attemptedTarget = true;
             return StepStatus.Continue;
         }
-        
+
         if (DateTime.UtcNow >= _uiLoadWaitUntil)
+        {
+            attemptedTarget = false;
             return StepStatus.Succeeded;
+        }
 
         return StepStatus.Continue;
     }
+    
 
 }

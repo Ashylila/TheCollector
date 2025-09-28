@@ -46,7 +46,7 @@ public class AutomationHandler : IDisposable
     {
         _collectableAutomationHandler.OnScripsCapped += OnScripCapped;
         _collectableAutomationHandler.OnError += OnError;
-        _collectableAutomationHandler.OnFinishTrading += OnFinishedCollecting;
+        _collectableAutomationHandler.OnFinishCollecting += OnFinishedCollecting;
         _scripShopAutomationHandler.OnError += OnError;
         _scripShopAutomationHandler.OnFinishedTrading += OnFinishedTrading;
         _gatherbuddyReborn_IPCSubscriber.OnAutoGatherStatusChanged += OnAutoGatherStatusChanged;
@@ -99,9 +99,11 @@ public class AutomationHandler : IDisposable
         if (_config.BuyAfterEachCollect)
         {
             _scripShopAutomationHandler.Start();
+            return;
         }
         if (_config.EnableAutogatherOnFinish){
-            _gatherbuddyReborn_IPCSubscriber.SetAutoGatherEnabled(true); 
+            _gatherbuddyReborn_IPCSubscriber.SetAutoGatherEnabled(true);
+            return;
         }
     }
     private void OnFinishedTrading()
@@ -112,6 +114,7 @@ public class AutomationHandler : IDisposable
         {
             _collectableAutomationHandler.Start();
         }
+        
         else if (_config.EnableAutogatherOnFinish)
         {
             _gatherbuddyReborn_IPCSubscriber.SetAutoGatherEnabled(true);

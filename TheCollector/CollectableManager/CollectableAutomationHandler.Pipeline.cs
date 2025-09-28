@@ -18,7 +18,7 @@ public partial class CollectableAutomationHandler
     private FrameRunner? _runner;
     
     private readonly TimeSpan _uiLoadDelay = TimeSpan.FromSeconds(2);
-    private readonly TimeSpan _uiInteractDelay = TimeSpan.FromMilliseconds(300);
+    private readonly TimeSpan _uiInteractDelay = TimeSpan.FromMilliseconds(500);
     private DateTime _uiLoadWaitUntil;
     private DateTime _cooldownUntil;
     private string? _currentItemName;
@@ -30,15 +30,21 @@ public partial class CollectableAutomationHandler
         if (IsRunning) return;
         IsRunning = true;
         Plugin.State = PluginState.MovingToCollectableVendor;
-
         _runner ??= new FrameRunner(_framework,
             n => _log.Debug(n),
-            (n, s, e) => _log.Debug($"{n} -> {s}{(e is null ? "" : $" ({e})")}"),
+            (string name, StepStatus status, string? error) =>
+            {
+                _log.Debug($"{name} -> {status}{(error is null ? "" : $" ({error})")}");
+                if (StepStatus.Failed == status)
+                {
+                    _runner.Cancel(error);
+                }
+            },
             e => OnError?.Invoke(e),
             ok =>
             {
                 IsRunning = false;
-                if (ok) OnFinishTrading?.Invoke();
+                if (ok) OnFinishCollecting?.Invoke();
                 Plugin.State = PluginState.Idle;
             });
 
@@ -52,7 +58,7 @@ public partial class CollectableAutomationHandler
                 () => PlayerHelper.IsInDuty ? StepStatus.Failed : StepStatus.Succeeded,
                 TimeSpan.FromSeconds(1)
             ),
-            FrameRunner.Delay("InitialDelay", TimeSpan.FromSeconds(1)),
+            FrameRunner.Delay("InitialDelay", TimeSpan.FromSeconds(2)),
 
             new FrameRunner.Step(
                 "TeleportToPreferredShop",
@@ -110,10 +116,12 @@ public partial class CollectableAutomationHandler
                 () =>
                 {
                     _collectibleWindowHandler.CloseWindow();
+                    _targetManager.Target = null;
                     return StepStatus.Succeeded;
                 },
                 TimeSpan.FromSeconds(5)
             ),
+            FrameRunner.Delay("FinalDelay", TimeSpan.FromSeconds(1)),
         };
 
         _runner.Start(steps);

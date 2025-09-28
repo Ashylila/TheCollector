@@ -15,10 +15,17 @@ public class ChangelogUi : IUiService
         _log = log;
         _config = config;
         Changelog = new Changelog("TheCollector Changelog", ConfigData , Save );
-        Changelog.ForceOpen = true;
         Add0_28(Changelog);
+        Add0_29(Changelog);
     }
 
+    public static void Add0_29(Changelog log) =>
+        log.NextVersion("Version 0.29")
+           .RegisterHighlight("Refactored the whole automation handling")
+           .RegisterHighlight("Added /collector stop command to stop automation as well as a window with a stop button that appears when automation is running")
+           .RegisterHighlight("Added new config option to start collecting once you finish fishing")
+           .RegisterEntry("Exposed a few functions via EzIPC");
+    
     private static void Add0_28(Changelog log)=>
         log.NextVersion("Version 0.28")
            .RegisterHighlight("Added changelog window!")

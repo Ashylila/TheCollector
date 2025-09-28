@@ -57,6 +57,7 @@ public partial class ScripShopAutomationHandler
     {
         VNavmesh_IPCSubscriber.Path_Stop();
         _scripShopWindowHandler.CloseShop();
+        StopPipeline();
         IsRunning = false;
         Plugin.State = PluginState.Idle;
         _log.Error(new Exception(reason), "TheCollector has stopped unexpectedly.");

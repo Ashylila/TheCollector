@@ -31,7 +31,7 @@ public partial class CollectableAutomationHandler
 
     public event Action<string>? OnError;
     public event Action<bool>? OnScripsCapped;
-    public event System.Action? OnFinishTrading;
+    public event System.Action? OnFinishCollecting;
 
     public bool IsRunning = false;
 
@@ -90,6 +90,7 @@ public partial class CollectableAutomationHandler
     public void ForceStop(string reason)
     {
         _collectibleWindowHandler.CloseWindow();
+        StopPipeline();
         VNavmesh_IPCSubscriber.Path_Stop();
         OnError?.Invoke(reason);
         IsRunning = false;
