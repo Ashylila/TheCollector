@@ -17,8 +17,14 @@ public class ChangelogUi : IUiService
         Changelog = new Changelog("TheCollector Changelog", ConfigData , Save );
         Add0_28(Changelog);
         Add0_29(Changelog);
+        Add0_30(Changelog);
     }
 
+    public static void Add0_30(Changelog log) =>
+        log.NextVersion("Version 0.30")
+           .RegisterHighlight("Added new scripshopitem Levinchrome Aethersand!")
+           .RegisterEntry("Fixed scripshopautomation breaking. Sorry!");
+    
     public static void Add0_29(Changelog log) =>
         log.NextVersion("Version 0.29")
            .RegisterHighlight("Refactored the whole automation handling")

@@ -48,10 +48,9 @@ public partial class ScripShopAutomationHandler
             new FrameRunner.Step(
                 "TargetShop",
                 () => TargetShop(),
-                TimeSpan.FromSeconds(1),
-                () => _uiLoadWaitUntil = DateTime.UtcNow + TimeSpan.FromMilliseconds(500)
+                TimeSpan.FromSeconds(5)
             ),
-            FrameRunner.Delay("PostTargetDelay", TimeSpan.FromMilliseconds(500)),
+            FrameRunner.Delay("PostTargetDelay", TimeSpan.FromSeconds(1)),
             new FrameRunner.Step(
                 "OpenScripShop",
                 () => StepStatus.Succeeded,
@@ -65,13 +64,13 @@ public partial class ScripShopAutomationHandler
                 {
                     unsafe
                     {
-                        if (ECommons.GenericHelpers.TryGetAddonByName<FFXIVClientStructs.FFXIV.Component.GUI.AtkUnitBase>("CollectablesShop", out var a) &&
+                        if (ECommons.GenericHelpers.TryGetAddonByName<FFXIVClientStructs.FFXIV.Component.GUI.AtkUnitBase>("InclusionShop", out var a) &&
                             ECommons.GenericHelpers.IsAddonReady(a))
                             return StepStatus.Succeeded;
                     }
                     return StepStatus.Continue;
                 },
-                TimeSpan.FromSeconds(5)
+                TimeSpan.FromSeconds(10)
             ),
             
             FrameRunner.Delay("WaitForUI", _uiLoadDelay),
@@ -197,7 +196,6 @@ private StepStatus MakeBuyTick()
     public unsafe StepStatus TargetShop()
     {
         var attemptedTarget = false;
-        if (!PlayerHelper.CanAct) return StepStatus.Continue;
         
         if (!attemptedTarget)
         {
@@ -211,16 +209,10 @@ private StepStatus MakeBuyTick()
             TargetSystem.Instance()->OpenObjectInteraction(TargetSystem.Instance()->Target);
 
             attemptedTarget = true;
-            return StepStatus.Continue;
         }
+        
 
-        if (DateTime.UtcNow >= _uiLoadWaitUntil)
-        {
-            attemptedTarget = false;
-            return StepStatus.Succeeded;
-        }
-
-        return StepStatus.Continue;
+        return StepStatus.Succeeded;
     }
     
 

@@ -6920,8 +6920,16 @@
         "ScripType": 1
     },
     {
-        "Name": "Sungilt Aethersand",
+        "Name": "Levinchrome Aethersand",
         "Index": 2,
+        "ItemCost": 300,
+        "Page": 4,
+        "SubPage": 8,
+        "ScripType": 1
+    },
+    {
+        "Name": "Sungilt Aethersand",
+        "Index": 3,
         "ItemCost": 100,
         "Page": 4,
         "SubPage": 8,
@@ -6929,14 +6937,6 @@
     },
     {
         "Name": "Mythloam Aethersand",
-        "Index": 3,
-        "ItemCost": 200,
-        "Page": 4,
-        "SubPage": 8,
-        "ScripType": 1
-    },
-    {
-        "Name": "Mythroot Aethersand",
         "Index": 4,
         "ItemCost": 200,
         "Page": 4,
@@ -6944,7 +6944,7 @@
         "ScripType": 1
     },
     {
-        "Name": "Mythbrine Aethersand",
+        "Name": "Mythroot Aethersand",
         "Index": 5,
         "ItemCost": 200,
         "Page": 4,
@@ -6952,8 +6952,16 @@
         "ScripType": 1
     },
     {
-        "Name": "Mount Token",
+        "Name": "Mythbrine Aethersand",
         "Index": 6,
+        "ItemCost": 200,
+        "Page": 4,
+        "SubPage": 8,
+        "ScripType": 1
+    },
+    {
+        "Name": "Mount Token",
+        "Index": 7,
         "ItemCost": 1000,
         "Page": 4,
         "SubPage": 8,
@@ -6961,7 +6969,7 @@
     },
     {
         "Name": "Botanist's Wall Frames",
-        "Index": 7,
+        "Index": 8,
         "ItemCost": 500,
         "Page": 4,
         "SubPage": 8,

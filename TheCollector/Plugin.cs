@@ -116,6 +116,9 @@ public sealed class Plugin : IDalamudPlugin
             case "stop":
                 _automationHandler.ForceStop("Manually stopped by user");
                 break;
+            case "buy":
+                ScripShopAutomationHandler.Instance.StartPipeline();
+                break;
             default:
                 ToggleMainUI();
                 break;
