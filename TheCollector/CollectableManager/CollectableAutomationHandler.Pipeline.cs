@@ -72,7 +72,17 @@ public partial class CollectableAutomationHandler
                 () => PlayerHelper.CanAct ? StepStatus.Succeeded : StepStatus.Continue,
                 TimeSpan.FromSeconds(20)
             ),
-
+            new FrameRunner.Step(
+                "LifestreamCheck",
+                () => LifestreamCheck(),
+                TimeSpan.FromSeconds(1)
+            ),
+            new FrameRunner.Step(
+                "WaitForLifestream",
+                () => WaitForLifestream(),
+                TimeSpan.FromSeconds(30)
+            ),
+            FrameRunner.Delay("PostLifestreamBuffer", TimeSpan.FromSeconds(2)),
             new FrameRunner.Step(
                 "MoveToPreferredShop",
                 () => MakeMoveTick(target),
@@ -166,7 +176,7 @@ public partial class CollectableAutomationHandler
         if ((DateTime.UtcNow - _lastMove).TotalMilliseconds >= 200)
         {
             if (!VNavmesh_IPCSubscriber.Path_IsRunning())
-                VNavmesh_IPCSubscriber.Path_MoveTo([destination], false);
+                VNavmesh_IPCSubscriber.SimpleMove_PathfindAndMoveTo(destination, false);
             _lastMove = DateTime.UtcNow;
         }
 
@@ -179,6 +189,33 @@ public partial class CollectableAutomationHandler
         return StepStatus.Continue;
     }
 
+    private bool IsNearShop(Vector3 destination)
+    {
+        if (PlayerHelper.GetDistanceToPlayer(destination) <= 0.4f)
+        {
+            return true;
+        }
+
+        return false;
+    }
+    private StepStatus LifestreamCheck()
+    {
+        if (IsNearShop(_configuration.PreferredCollectableShop.Location))return StepStatus.Succeeded;
+        if (_configuration.PreferredCollectableShop.IsLifestreamRequired)
+        {
+            _lifestreamIpc.ExecuteCommand(_configuration.PreferredCollectableShop.LifestreamCommand);
+        }
+        return StepStatus.Succeeded;
+    }
+    private StepStatus WaitForLifestream()
+    {
+        if (_configuration.PreferredCollectableShop.IsLifestreamRequired)
+        {
+            if (_lifestreamIpc.IsBusy())
+                return StepStatus.Continue;
+        }
+        return StepStatus.Succeeded;
+    }
     private (string name, int left, int jobIndex)[] _turnInQueue = Array.Empty<(string, int, int)>();
     private DateTime _lastTurnIn;
     private int _turnInPhase;

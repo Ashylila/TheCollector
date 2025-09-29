@@ -10,8 +10,12 @@ public static class CollectableNpcLocations
     {
         new CollectableShop()
         {
-            Name = "Solution Nine (doesnt work currently)",
-            Location = new Vector3(-162f, 0.92f, -33)
+            Name = "Solution Nine",
+            Location = new Vector3(-162.17f, 0.9219f, -30.458f),
+            ScripShopLocation = new Vector3(-161.84605f, 0.921f, -42.06536f),
+            IsLifestreamRequired = true,
+            LifestreamCommand = "Nexus Arcade"
+            
         },
         new CollectableShop()
         {

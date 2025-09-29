@@ -27,6 +27,7 @@ public partial class CollectableAutomationHandler
     private readonly IFramework _framework;
     private readonly IClientState _clientState;
     private readonly GatherbuddyReborn_IPCSubscriber _gatherbuddyService;
+    private readonly Lifestream_IPCSubscriber _lifestreamIpc;
     private List<CollectableShopItem> _collectableShopItems = new();
 
     public event Action<string>? OnError;
@@ -46,7 +47,8 @@ public partial class CollectableAutomationHandler
         ITargetManager targetManager,
         IFramework frameWork,
         IClientState clientState,
-        GatherbuddyReborn_IPCSubscriber gatherbuddyService)
+        GatherbuddyReborn_IPCSubscriber gatherbuddyService,
+        Lifestream_IPCSubscriber lifestreamIpc)
     {
         _log = log;
         _collectibleWindowHandler = collectibleWindowHandler;
@@ -57,6 +59,7 @@ public partial class CollectableAutomationHandler
         _framework = frameWork;
         _clientState = clientState;
         _gatherbuddyService = gatherbuddyService;
+        _lifestreamIpc = lifestreamIpc;
         Instance = this;
         LoadItems();
     }

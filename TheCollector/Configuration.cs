@@ -25,9 +25,7 @@ public class Configuration : IPluginConfiguration
     public bool CollectOnFinishedFishing { get; set; } = false;
     public int LastSeenVersion { get; set; } = ChangelogUi.LastChangelogVersion;
     public ChangeLogDisplayType ChangeLogDisplayType { get; set; } = ChangeLogDisplayType.New;
-    public string PreferredCollectableShopName {private get; set; } = "";
-    [JsonIgnore]
-    public CollectableShop PreferredCollectableShop  => CollectableNpcLocations.CollectableShops.FirstOrDefault(s => s.Name == PreferredCollectableShopName, CollectableNpcLocations.CollectableShops[1]);
+    public CollectableShop PreferredCollectableShop { get; set; } = new ();
     
     public void Save()
     {

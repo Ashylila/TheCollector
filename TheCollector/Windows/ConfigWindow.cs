@@ -97,6 +97,14 @@ public class ConfigWindow : Window, IDisposable
                                      : new Vector4(1, 0, 0, 1));
             ImGui.TextUnformatted("ArtisanBuddy(optional)");
             ImGui.PopStyleColor();
+            ImGui.Spacing();
+            ImGui.PushStyleColor(ImGuiCol.Text,
+                                 IPCSubscriber_Common.IsReady("Lifestream")
+                                     ? new Vector4(0, 1, 0, 1)
+                                     : new Vector4(1, 0, 0, 1));
+            ImGui.TextUnformatted("Lifestream(optional)");
+            ImGui.PopStyleColor();
+            ImGui.Spacing();
         });
     }
 
@@ -184,20 +192,18 @@ public class ConfigWindow : Window, IDisposable
             ImGui.TextUnformatted("Select your preferred collectable shop:");
             ImGui.SameLine();
 
-            string currentShopName = Configuration.PreferredCollectableShop.Name;
+            string currentShopName = Configuration.PreferredCollectableShop.Name ?? "Select a shop";
 
             ImGui.Spacing();
             if (ImGui.BeginCombo("##shopselection", currentShopName))
             {
                 for (int i = 0; i < CollectableNpcLocations.CollectableShops.Count; i++)
                 {
-                    ImGui.BeginDisabled(CollectableNpcLocations.CollectableShops[i].Name
-                                                               .Contains("Solution Nine",
-                                                                         StringComparison.OrdinalIgnoreCase));
-
-                    if (ImGui.Selectable(CollectableNpcLocations.CollectableShops[i].Name))
+                    ImGui.BeginDisabled(CollectableNpcLocations.CollectableShops[i].Disabled || (CollectableNpcLocations.CollectableShops[i].IsLifestreamRequired && !IPCSubscriber_Common.IsReady("Lifestream")));
+                    var shop = CollectableNpcLocations.CollectableShops[i];
+                    if (ImGui.Selectable(shop.IsLifestreamRequired ? (shop.Name + " (Lifestream required)") : shop.Name))
                     {
-                        Configuration.PreferredCollectableShopName = CollectableNpcLocations.CollectableShops[i].Name;
+                        Configuration.PreferredCollectableShop = CollectableNpcLocations.CollectableShops[i];
                         Configuration.Save();
                     }
 
@@ -206,8 +212,8 @@ public class ConfigWindow : Window, IDisposable
 
                 ImGui.EndCombo();
             }
-
             ImGui.EndDisabled();
+            ImGui.Spacing();
         });
     }
     private void Panel(string id, System.Action body)
