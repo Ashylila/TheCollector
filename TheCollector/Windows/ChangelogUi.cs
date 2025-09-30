@@ -18,8 +18,13 @@ public class ChangelogUi : IUiService
         Add0_28(Changelog);
         Add0_29(Changelog);
         Add0_30(Changelog);
+        Add0_31(Changelog);
     }
 
+    public static void Add0_31(Changelog log) =>
+        log.NextVersion("Version 0.31")
+           .RegisterHighlight("Added Lifestream integration and with that new CollectableShop locations Solution Nine and Gridania")
+           .RegisterEntry("Further improved automation");
     public static void Add0_30(Changelog log) =>
         log.NextVersion("Version 0.30")
            .RegisterHighlight("Added new scripshopitem Levinchrome Aethersand!")

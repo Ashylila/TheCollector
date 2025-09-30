@@ -84,6 +84,11 @@ public partial class CollectableAutomationHandler
             ),
             FrameRunner.Delay("PostLifestreamBuffer", TimeSpan.FromSeconds(2)),
             new FrameRunner.Step(
+                "CanActCheck",
+                (() => PlayerHelper.CanAct ? StepStatus.Succeeded : StepStatus.Continue ),
+                TimeSpan.FromSeconds(10)
+                ),
+            new FrameRunner.Step(
                 "MoveToPreferredShop",
                 () => MakeMoveTick(target),
                 TimeSpan.FromSeconds(60),
@@ -163,7 +168,6 @@ public partial class CollectableAutomationHandler
         var currentName = _dataManager.GetExcelSheet<TerritoryType>()
             .FirstOrDefault(t => t.RowId == _clientState.TerritoryType)
             .PlaceName.Value.Name.ExtractText();
-
         if (string.Equals(currentName, shopName, StringComparison.OrdinalIgnoreCase))
             return StepStatus.Succeeded;
 

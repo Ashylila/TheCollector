@@ -21,6 +21,13 @@ public static class CollectableNpcLocations
         {
             Name = "Eulmore",
             Location = new Vector3(16.94f, 82.05f, -19.177f)
+        },
+        new CollectableShop()
+        {
+            Name = "New Gridania",
+            Location = new Vector3(143.62454f, 13.74769f, -105.33799f),
+            IsLifestreamRequired = true,
+            LifestreamCommand = "Leatherworkers"
         }
     };
     public static Vector3 CollectableNpcLocationVectors(int territoryId)
