@@ -28,7 +28,6 @@ public partial class CollectableAutomationHandler
     private readonly IClientState _clientState;
     private readonly GatherbuddyReborn_IPCSubscriber _gatherbuddyService;
     private readonly Lifestream_IPCSubscriber _lifestreamIpc;
-    private List<CollectableShopItem> _collectableShopItems = new();
 
     public event Action<string>? OnError;
     public event Action<bool>? OnScripsCapped;
@@ -61,7 +60,6 @@ public partial class CollectableAutomationHandler
         _gatherbuddyService = gatherbuddyService;
         _lifestreamIpc = lifestreamIpc;
         Instance = this;
-        LoadItems();
     }
 
     public bool HasCollectible => ItemHelper.GetCurrentInventoryItems().Any(i => i.IsCollectable);
@@ -76,6 +74,7 @@ public partial class CollectableAutomationHandler
             return;
         }
         StartPipeline();
+        
     }
 
     private unsafe void OpenShop()
@@ -107,21 +106,5 @@ public partial class CollectableAutomationHandler
             .Where(i => i.IsCollectable)
             .OrderBy(i => i.Name.ExtractText())
             .ToList();
-    }
-    private void LoadItems()
-    {
-        var fileName = "CollectableShopItems.json";
-        var path = Svc.PluginInterface.AssemblyLocation.DirectoryName;
-        var fullPath = Path.Combine(path, fileName);
-        try
-        {
-            var text = File.ReadAllText(fullPath);
-            _collectableShopItems = JsonSerializer.Deserialize<List<CollectableShopItem>>(text) ?? new List<CollectableShopItem>();
-            _log.Debug($"Loaded {_collectableShopItems.Count} items");
-        }
-        catch (Exception e)
-        {
-            _log.Error(e.Message);
-        }
     }
 }

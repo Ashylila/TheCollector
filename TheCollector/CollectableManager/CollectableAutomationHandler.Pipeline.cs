@@ -1,4 +1,6 @@
-﻿using ECommons.DalamudServices;
+﻿using System.Threading.Tasks;
+using ECommons.DalamudServices;
+using ECommons.ExcelServices;
 using Lumina.Excel.Sheets;
 using TheCollector.Data;
 using TheCollector.Ipc;
@@ -56,7 +58,8 @@ public partial class CollectableAutomationHandler
             new FrameRunner.Step(
                 "EnsureNotInDuty",
                 () => PlayerHelper.IsInDuty ? StepStatus.Failed : StepStatus.Succeeded,
-                TimeSpan.FromSeconds(1)
+                TimeSpan.FromSeconds(1),
+                (() => PrimeTurnIn())
             ),
             FrameRunner.Delay("InitialDelay", TimeSpan.FromSeconds(2)),
 
@@ -116,14 +119,12 @@ public partial class CollectableAutomationHandler
                 },
                 TimeSpan.FromSeconds(5)
             ),
-            
             FrameRunner.Delay("UiBuffer", _uiLoadDelay),
 
             new FrameRunner.Step(
                 "TurnInAllCollectables",
                 () => MakeTurnInTick(),
-                TimeSpan.FromSeconds(90),
-                PrimeTurnIn
+                TimeSpan.FromSeconds(150)
             ),
             FrameRunner.Delay("PostTurnInBuffer", TimeSpan.FromSeconds(1)),
             new FrameRunner.Step(
@@ -231,14 +232,16 @@ public partial class CollectableAutomationHandler
             .GroupBy(i => i.Name)
             .Select(g => (g.Key.ExtractText(), g.Count(), int.MinValue))
             .ToArray();
+        
 
         for (var i = 0; i < _turnInQueue.Length; i++)
         {
             var item = _turnInQueue[i];
-            if (_collectableShopItems.TryGetFirst(c => c.Name.Contains(item.name, StringComparison.OrdinalIgnoreCase),
-                                                  out var value))
+            var jobId = ItemJobResolver.GetJobIdForItem(item.name, _dataManager);
+            _log.Debug($"found id{jobId.ToString()} for item {item.name.ToString()}");
+            if (jobId != -1)
             {
-                item.jobIndex = (int)value.Class; 
+                item.jobIndex = jobId; 
                 _turnInQueue[i] = item;
             }
         }
@@ -248,16 +251,15 @@ public partial class CollectableAutomationHandler
         _turnInPhase = 0;
         _currentItemName = null;
         _currentJobIndex = int.MinValue;
-
     }
-
+    
     private StepStatus MakeTurnInTick()
     {
         if (_turnInQueue.Length == 0) return StepStatus.Succeeded;
         if (DateTime.UtcNow < _cooldownUntil) return StepStatus.Continue;
 
         var h = _turnInQueue[0];
-        
+        _log.Debug($"found id{h.jobIndex.ToString()} for item {h.name.ToString()}");
         if (_turnInPhase < 2)
         {
             if (h.jobIndex != int.MinValue && _currentJobIndex != h.jobIndex)

@@ -2,20 +2,13 @@
 <Project Sdk="Dalamud.NET.Sdk/13.0.0">
   <PropertyGroup>
     <Version>0.0.0.1</Version>
-    <Description>A sample plugin.</Description>
+    <Description>TheCollector</Description>
     <PackageProjectUrl>https://github.com/Ashylila/TheCollector</PackageProjectUrl>
     <PackageLicenseExpression>AGPL-3.0-or-later</PackageLicenseExpression>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
     <ItemGroup>
         <Content Include="..\Data\ScripShopItems.json">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-            <Visible>false</Visible>
-        </Content>
-    </ItemGroup>
-    <ItemGroup>
-        <Content Include="..\Data\CollectableShopItems.json">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
             <Visible>false</Visible>

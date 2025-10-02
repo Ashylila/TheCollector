@@ -117,8 +117,8 @@ public partial class ScripShopAutomationHandler
 
     public void StopPipeline() => _runner?.Cancel("Canceled");
 
-    private (int page, int subPage, int index, int remaining, int cost)[] _buyQueue =
-        Array.Empty<(int, int, int, int, int)>();
+    private (int page, int subPage, int index, int remaining, int cost, string name)[] _buyQueue =
+        Array.Empty<(int, int, int, int, int, string)>();
 
     private DateTime _lastBuy;
     private int _currentPurchaseAmount;
@@ -132,7 +132,8 @@ public partial class ScripShopAutomationHandler
                                                    subPage: i.Item.SubPage,
                                                    index: i.Item.Index,
                                                    remaining: (i.Quantity - i.AmountPurchased),
-                                                   cost: (int)i.Item.ItemCost
+                                                   cost: (int)i.Item.ItemCost,
+                                                   name: i.Name
                                                ))
                                   .Where(t => t.remaining > 0)
                                   .ToArray();
@@ -194,7 +195,7 @@ public partial class ScripShopAutomationHandler
                 h.remaining -= _currentPurchaseAmount;
                 _currentPurchaseAmount = 0;
 
-                var cfgItem = _configuration.ItemsToPurchase.FirstOrDefault(x => x.Item.Index == h.index);
+                var cfgItem = _configuration.ItemsToPurchase.FirstOrDefault(x => x.Name == h.name);
                 if (cfgItem != null)
                 {
                     cfgItem.AmountPurchased += Math.Max(0, _currentPurchaseAmount);

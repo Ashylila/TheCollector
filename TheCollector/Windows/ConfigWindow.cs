@@ -8,6 +8,7 @@ using Dalamud.Game.ClientState.Objects;
 using Dalamud.Interface.Windowing;
 using Dalamud.Plugin.Services;
 using ECommons.DalamudServices;
+using ECommons.Logging;
 using Lumina.Excel.Sheets;
 using TheCollector.CollectableManager;
 using TheCollector.Data.Models;
@@ -23,8 +24,9 @@ public class ConfigWindow : Window, IDisposable
     private Configuration Configuration;
     private readonly ITargetManager _targetManager;
     private readonly ScripShopAutomationHandler _scripShopHandler;
+    private readonly CollectableAutomationHandler _collectableHandler;
     
-    public ConfigWindow(Plugin plugin, IDataManager data, ITargetManager target, ScripShopAutomationHandler scripShop)
+    public ConfigWindow(Plugin plugin, IDataManager data, ITargetManager target, ScripShopAutomationHandler scripShop, CollectableAutomationHandler collectableAutomationHandler)
         : base("Configuration###CollectorConfig")
     {
         Flags = ImGuiWindowFlags.NoCollapse
@@ -44,6 +46,7 @@ public class ConfigWindow : Window, IDisposable
         Configuration  = plugin.Configuration;
         _targetManager = target;
         _scripShopHandler = scripShop;
+        _collectableHandler = collectableAutomationHandler;
     }
 
 
@@ -59,7 +62,7 @@ public class ConfigWindow : Window, IDisposable
         DrawOptions();
         DrawSupportButton();
     }
-
+    
     private void DrawInstalledPlugins()
     {
         Panel("InstalledPlgs", () =>
@@ -253,6 +256,5 @@ public class ConfigWindow : Window, IDisposable
         
         ImGui.Dummy(new Vector2(0, style.ItemSpacing.Y));
     }
-
-
+    
 }
