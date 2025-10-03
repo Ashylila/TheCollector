@@ -110,12 +110,8 @@ public class AutomationHandler : IDisposable
     {
         if (_config.ResetEachQuantityAfterCompletingList)
             ResetIfAllComplete(_config.ItemsToPurchase);
-        if (_collectableAutomationHandler.HasCollectible)
-        {
-            _collectableAutomationHandler.Start();
-        }
         
-        else if (_config.EnableAutogatherOnFinish)
+        if (_config.EnableAutogatherOnFinish)
         {
             _gatherbuddyReborn_IPCSubscriber.SetAutoGatherEnabled(true);
         }

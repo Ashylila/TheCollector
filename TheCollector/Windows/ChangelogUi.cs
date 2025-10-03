@@ -19,8 +19,14 @@ public class ChangelogUi : IUiService
         Add0_29(Changelog);
         Add0_30(Changelog);
         Add0_31(Changelog);
+        Add0_32(Changelog);
     }
 
+    public static void Add0_32(Changelog log) =>
+        log.NextVersion("Version 0.32")
+           .RegisterEntry(
+               "Increased timeout on turning in collectables, which should enable full inventory turn-ins now")
+           .RegisterEntry("Fixed bought items not adding up anymore");
     public static void Add0_31(Changelog log) =>
         log.NextVersion("Version 0.31")
            .RegisterHighlight("Added Lifestream integration and with that new CollectableShop locations Solution Nine and Gridania")

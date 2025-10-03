@@ -193,7 +193,6 @@ public partial class ScripShopAutomationHandler
                 _buyPhase = 0;
 
                 h.remaining -= _currentPurchaseAmount;
-                _currentPurchaseAmount = 0;
 
                 var cfgItem = _configuration.ItemsToPurchase.FirstOrDefault(x => x.Name == h.name);
                 if (cfgItem != null)
@@ -201,7 +200,7 @@ public partial class ScripShopAutomationHandler
                     cfgItem.AmountPurchased += Math.Max(0, _currentPurchaseAmount);
                     _configuration.Save();
                 }
-
+                _currentPurchaseAmount = 0;
                 if (h.remaining <= 0)
                     _buyQueue = _buyQueue.Skip(1).ToArray();
                 else
