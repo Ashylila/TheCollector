@@ -84,7 +84,6 @@ public sealed class Plugin : IDalamudPlugin
     public void Start()
     {
         _automationHandler.Init();
-        _log.Debug(ItemJobResolver.GetJobIdForItem("Rarefied Ash Soil", Svc.Data).ToString());
     }
     public void Dispose()
     {

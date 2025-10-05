@@ -20,8 +20,13 @@ public class ChangelogUi : IUiService
         Add0_30(Changelog);
         Add0_31(Changelog);
         Add0_32(Changelog);
+        Add0_33(Changelog);
     }
 
+    public static void Add0_33(Changelog log) =>
+        log.NextVersion("Version 0.33")
+           .RegisterEntry(
+               "Filtered 'Gazelle Leather' out of the list of collectables in your inventory since Luminas IsCollectable flag returns true for it for some reason???");
     public static void Add0_32(Changelog log) =>
         log.NextVersion("Version 0.32")
            .RegisterEntry(

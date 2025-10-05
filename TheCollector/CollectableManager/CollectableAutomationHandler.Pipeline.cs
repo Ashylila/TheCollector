@@ -196,7 +196,7 @@ public partial class CollectableAutomationHandler
 
     private bool IsNearShop(Vector3 destination)
     {
-        if (PlayerHelper.GetDistanceToPlayer(destination) <= 0.4f)
+        if (PlayerHelper.GetDistanceToPlayer(destination) <= 0.4f) //TODO: things
         {
             return true;
         }
@@ -228,7 +228,7 @@ public partial class CollectableAutomationHandler
     private void PrimeTurnIn()
     {
         _turnInQueue = ItemHelper.GetLuminaItemsFromInventory()
-            .Where(i => i.IsCollectable)
+            .Where(i => i.IsCollectable && i.Name != "Gazelle Leather") //filtering out Gazelle Leather since IsCollectable for some reason returns true for it???
             .GroupBy(i => i.Name)
             .Select(g => (g.Key.ExtractText(), g.Count(), int.MinValue))
             .ToArray();
@@ -238,7 +238,6 @@ public partial class CollectableAutomationHandler
         {
             var item = _turnInQueue[i];
             var jobId = ItemJobResolver.GetJobIdForItem(item.name, _dataManager);
-            _log.Debug($"found id{jobId.ToString()} for item {item.name.ToString()}");
             if (jobId != -1)
             {
                 item.jobIndex = jobId; 
