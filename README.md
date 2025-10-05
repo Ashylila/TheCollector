@@ -16,6 +16,8 @@ It integrates with **GatherBuddyReborn** and **Artisan**, and when combined with
 - 🛠️Integrates with Artisan & GatherBuddyReborn
 - ♻️Loop automation with ArtisanBuddy — gather, craft, and turn-in seamlessly  
 
+⚠️ If you haven’t unlocked the required Splendors tab for your current level (e.g. Lv. 80+ Purple Scrips), the plugin may select the wrong item. Talk to the appropriate Splendors vendor to unlock it first.
+
 >⚠️ **Note**: TheCollector is still early in development — bugs may occur.
 
 ---
