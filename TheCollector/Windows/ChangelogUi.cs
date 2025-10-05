@@ -21,8 +21,14 @@ public class ChangelogUi : IUiService
         Add0_31(Changelog);
         Add0_32(Changelog);
         Add0_33(Changelog);
+        Add0_34(Changelog);
     }
 
+    public static void Add0_34(Changelog log) =>
+        log.NextVersion("Version 0.34")
+           .RegisterHighlight(
+               "!!!IMPORTANT!!! If your crafter or gatherer is high enough level but you haven’t unlocked the corresponding Scrip Exchange tab (e.g. “Purple Scrip Exchange – Lv. 80 Materials/Bait/Tokens”), the plugin may purchase the wrong item.\nUnlock the relevant Splendors vendor tabs before setting higher-level items.")
+           .RegisterEntry("Fixed collectable sorting in your inventory completely now");
     public static void Add0_33(Changelog log) =>
         log.NextVersion("Version 0.33")
            .RegisterEntry(

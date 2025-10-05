@@ -228,7 +228,7 @@ public partial class CollectableAutomationHandler
     private void PrimeTurnIn()
     {
         _turnInQueue = ItemHelper.GetLuminaItemsFromInventory()
-            .Where(i => i.IsCollectable && i.Name != "Gazelle Leather") //filtering out Gazelle Leather since IsCollectable for some reason returns true for it???
+            .Where(i => i.Name.ExtractText().Contains("Rarefied", StringComparison.OrdinalIgnoreCase) || FishingCollectables.Contains(i.Name.ExtractText())) 
             .GroupBy(i => i.Name)
             .Select(g => (g.Key.ExtractText(), g.Count(), int.MinValue))
             .ToArray();

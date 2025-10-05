@@ -39,15 +39,22 @@ public static class ItemJobResolver
 
 
         // Gatherable
+        var fishSheet = data.GetExcelSheet<FishParameter>();
+        if (fishSheet?.Any(f => f.Item.RowId == itemId) == true)
+            return 10; // Fisher
+        var spearSheet = data.GetExcelSheet<SpearfishingItem>();
+        if (spearSheet?.Any(f => f.Item.RowId == itemId) == true)
+            return 10; // Fisher
+        
         var giSheet  = data.GetExcelSheet<GatheringItem>();
         var gpbSheet = data.GetExcelSheet<GatheringPointBase>();
         if (giSheet == null || gpbSheet == null)
             return -1;
-        
+
         var gi = giSheet.FirstOrDefault(g => g.Item.RowId == itemId);
 
-        var gatherId = gi.RowId; 
-        
+        var gatherId = gi.RowId;
+
         foreach (var b in gpbSheet)
         {
             for (int i = 0; i < b.Item.Count; i++)
@@ -56,7 +63,7 @@ public static class ItemJobResolver
                     return MapTypeToJob(b);
             }
         }
-        
+
         var gipSheet = data.GetSubrowExcelSheet<GatheringItemPoint>();
         if (gipSheet != null)
         {
