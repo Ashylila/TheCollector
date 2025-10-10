@@ -30,11 +30,12 @@ public partial class ScripShopAutomationHandler
                                     n => _log.Debug(n),
                                     (string name, StepStatus status, string? error) =>
                                     {
-                                        _log.Debug($"{name} -> {status}{(error is null ? "" : $" ({error})")}");
                                         if (StepStatus.Failed == status)
                                         {
                                             _runner.Cancel(error);
+                                            Plugin.State = PluginState.Idle;
                                         }
+                                        _log.Debug($"{name} -> {status}{(error is null ? "" : $" ({error})")}");
                                     },
                                     e => OnError?.Invoke(e),
                                     ok =>
@@ -50,7 +51,8 @@ public partial class ScripShopAutomationHandler
             new FrameRunner.Step(
                 "MoveToShop",
                 () => MakeMoveTick(),
-                TimeSpan.FromSeconds(20)
+                TimeSpan.FromSeconds(20),
+                (() => Plugin.State = PluginState.SpendingScrip)
             ),
             new FrameRunner.Step(
                 "TargetShop",

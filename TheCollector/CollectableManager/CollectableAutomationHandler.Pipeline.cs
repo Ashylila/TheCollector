@@ -23,7 +23,7 @@ public partial class CollectableAutomationHandler
     private readonly TimeSpan _uiInteractDelay = TimeSpan.FromMilliseconds(500);
     private DateTime _uiLoadWaitUntil;
     private DateTime _cooldownUntil;
-    private string? _currentItemName;
+    public string? CurrentItemName { get; private set; }
     private int _currentJobIndex = int.MinValue;
 
 
@@ -36,11 +36,12 @@ public partial class CollectableAutomationHandler
             n => _log.Debug(n),
             (string name, StepStatus status, string? error) =>
             {
-                _log.Debug($"{name} -> {status}{(error is null ? "" : $" ({error})")}");
                 if (StepStatus.Failed == status)
                 {
                     _runner.Cancel(error);
+                    Plugin.State = PluginState.Idle;
                 }
+                _log.Debug($"{name} -> {status}{(error is null ? "" : $" ({error})")}");
             },
             e => OnError?.Invoke(e),
             ok =>
@@ -148,6 +149,7 @@ public partial class CollectableAutomationHandler
     private bool _teleportAttempted;
     private StepStatus MakeTeleportTick(string shopName)
     {
+        Plugin.State = PluginState.Teleporting;
         if (_dataManager.GetExcelSheet<TerritoryType>()
                 .FirstOrDefault(t => t.RowId == _clientState.TerritoryType)
                 .PlaceName.Value.Name.ExtractText() == _configuration.PreferredCollectableShop.Name)
@@ -170,7 +172,10 @@ public partial class CollectableAutomationHandler
             .FirstOrDefault(t => t.RowId == _clientState.TerritoryType)
             .PlaceName.Value.Name.ExtractText();
         if (string.Equals(currentName, shopName, StringComparison.OrdinalIgnoreCase))
+        {
+            Plugin.State = PluginState.Idle;
             return StepStatus.Succeeded;
+        }
 
         return StepStatus.Continue;
     }
@@ -183,11 +188,13 @@ public partial class CollectableAutomationHandler
             if (!VNavmesh_IPCSubscriber.Path_IsRunning())
                 VNavmesh_IPCSubscriber.SimpleMove_PathfindAndMoveTo(destination, false);
             _lastMove = DateTime.UtcNow;
+            Plugin.State = PluginState.MovingToCollectableVendor;
         }
 
         if (PlayerHelper.GetDistanceToPlayer(destination) <= 0.4f)
         {
             VNavmesh_IPCSubscriber.Path_Stop();
+            Plugin.State = PluginState.Idle;
             return StepStatus.Succeeded;
         }
 
@@ -221,43 +228,48 @@ public partial class CollectableAutomationHandler
         }
         return StepStatus.Succeeded;
     }
-    private (string name, int left, int jobIndex)[] _turnInQueue = Array.Empty<(string, int, int)>();
+    public (string name, int left, int jobIndex)[] TurnInQueue { get; private set; }
     private DateTime _lastTurnIn;
     private int _turnInPhase;
 
     private void PrimeTurnIn()
     {
-        _turnInQueue = ItemHelper.GetLuminaItemsFromInventory()
+        TurnInQueue = ItemHelper.GetLuminaItemsFromInventory()
             .Where(i => i.Name.ExtractText().Contains("Rarefied", StringComparison.OrdinalIgnoreCase) || FishingCollectables.Contains(i.Name.ExtractText())) 
             .GroupBy(i => i.Name)
             .Select(g => (g.Key.ExtractText(), g.Count(), int.MinValue))
             .ToArray();
         
 
-        for (var i = 0; i < _turnInQueue.Length; i++)
+        for (var i = 0; i < TurnInQueue.Length; i++)
         {
-            var item = _turnInQueue[i];
+            var item = TurnInQueue[i];
             var jobId = ItemJobResolver.GetJobIdForItem(item.name, _dataManager);
             if (jobId != -1)
             {
                 item.jobIndex = jobId; 
-                _turnInQueue[i] = item;
+                TurnInQueue[i] = item;
             }
         }
 
         _lastTurnIn = DateTime.MinValue;
         _cooldownUntil = DateTime.MinValue;
         _turnInPhase = 0;
-        _currentItemName = null;
+        CurrentItemName = null;
         _currentJobIndex = int.MinValue;
     }
     
     private StepStatus MakeTurnInTick()
     {
-        if (_turnInQueue.Length == 0) return StepStatus.Succeeded;
+        Plugin.State = PluginState.ExchangingItems;
+        if (TurnInQueue.Length == 0)
+        {
+            Plugin.State = PluginState.Idle;
+            return StepStatus.Succeeded;
+        };
         if (DateTime.UtcNow < _cooldownUntil) return StepStatus.Continue;
 
-        var h = _turnInQueue[0];
+        var h = TurnInQueue[0];
         _log.Debug($"found id{h.jobIndex.ToString()} for item {h.name.ToString()}");
         if (_turnInPhase < 2)
         {
@@ -270,10 +282,10 @@ public partial class CollectableAutomationHandler
                 return StepStatus.Continue;
             }
             
-            if (!string.Equals(_currentItemName, h.name, StringComparison.Ordinal))
+            if (!string.Equals(CurrentItemName, h.name, StringComparison.Ordinal))
             {
                 _collectibleWindowHandler.SelectItem(h.name);
-                _currentItemName = h.name;
+                CurrentItemName = h.name;
                 _cooldownUntil = DateTime.UtcNow + _uiInteractDelay;
                 _turnInPhase = 2;
                 return StepStatus.Continue;
@@ -292,12 +304,12 @@ public partial class CollectableAutomationHandler
         h.left--;
         if (h.left <= 0)
         {
-            _turnInQueue = _turnInQueue.Skip(1).ToArray();
-            _currentItemName = null;
+            TurnInQueue = TurnInQueue.Skip(1).ToArray();
+            CurrentItemName = null;
         }
         else
         {
-            _turnInQueue[0] = h;
+            TurnInQueue[0] = h;
         }
 
         return StepStatus.Continue;
