@@ -4,6 +4,7 @@ using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Windowing;
 using TheCollector.CollectableManager;
 using TheCollector.Data;
+using TheCollector.Utility;
 
 namespace TheCollector.Windows;
 
@@ -49,7 +50,7 @@ public class StopUi : Window, IDisposable
 
     public override void Draw()
     {
-        Panel("StatusInfo", DrawStatusInfo);
+        ImGuiHelper.Panel("StatusInfo", DrawStatusInfo);
         DrawStopButton();
     }
 
@@ -79,18 +80,16 @@ public class StopUi : Window, IDisposable
                     for (int i = 0; i < _collectableHandler.TurnInQueue.Length; i++)
                     {
                         var item = _collectableHandler.TurnInQueue[i];
-                        bool pushedColor = false;
                         if (_collectableHandler.CurrentItemName is not null && _collectableHandler.CurrentItemName == item.name)
                         {
-                            ImGui.TextUnformatted("Current item: ");
-                            ImGui.SameLine();
                             ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(0f, 1f, 0f, 1f)); //green
-                            pushedColor = true;
+                            ImGui.TextUnformatted("Current item: ");
+                            ImGui.PopStyleColor();
+                            ImGui.SameLine();
+
                         }
 
                         ImGui.TextUnformatted($"{item.name} : {item.left}");
-                        if(pushedColor)
-                            ImGui.PopStyleColor();
                     }
                 }
                 break;
@@ -99,43 +98,10 @@ public class StopUi : Window, IDisposable
                 break;
         }
     }
-    private void Panel(string id, Action body)
+
+
+    public void Dispose()
     {
-        var style = ImGui.GetStyle();
-        var pad   = style.FramePadding;
-        
-        var startScreen = ImGui.GetCursorScreenPos();
-        var availW      = ImGui.GetContentRegionAvail().X;
-
-        ImGui.PushID(id);
-        
-        var dl = ImGui.GetWindowDrawList();
-        dl.ChannelsSplit(2);      
-        dl.ChannelsSetCurrent(1); 
-
-        ImGui.BeginGroup();
-        body();                       
-        ImGui.EndGroup();
-
-        var endY = ImGui.GetItemRectMax().Y; 
-        
-        var bgMin = new Vector2(startScreen.X - pad.X, startScreen.Y - pad.Y);
-        var bgMax = new Vector2(startScreen.X + availW + pad.X, endY + pad.Y);
-        
-        dl.ChannelsSetCurrent(0);
-        var bgCol  = ImGui.GetColorU32(ImGuiCol.ChildBg);
-        var brdCol = ImGui.GetColorU32(ImGuiCol.Border);
-        var round  = style.FrameRounding;
-
-        dl.AddRectFilled(bgMin, bgMax, bgCol, round);
-        dl.AddRect(bgMin, bgMax, brdCol, round);
-
-        dl.ChannelsMerge();
-
-        ImGui.PopID();
-        
-        ImGui.Dummy(new Vector2(0, style.ItemSpacing.Y));
+        _automation.Dispose();
     }
-
-    public void Dispose() { }
 }

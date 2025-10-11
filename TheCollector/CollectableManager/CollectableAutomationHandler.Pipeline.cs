@@ -311,7 +311,6 @@ public partial class CollectableAutomationHandler
         {
             TurnInQueue[0] = h;
         }
-
         return StepStatus.Continue;
     }
 

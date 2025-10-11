@@ -11,6 +11,7 @@ using Dalamud.Plugin;
 using ECommons.DalamudServices;
 using Lumina.Excel.Sheets;
 using TheCollector.Data.Models;
+using TheCollector.Utility;
 
 namespace TheCollector.Windows;
 
@@ -24,11 +25,11 @@ public class MainWindow : Window, IDisposable
     private bool IsLoading = false;
     
     public MainWindow(Plugin plugin, IDalamudPluginInterface pluginInterface)
-        : base("The Collector##CollectorMain", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse)
+        : base("The Collector##CollectorMain", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse | ImGuiWindowFlags.AlwaysAutoResize)
     {
         SizeConstraints = new WindowSizeConstraints
         {
-            MinimumSize = new Vector2(150, 100),
+            MinimumSize = new Vector2(150, 0),
             MaximumSize = new Vector2(float.MaxValue, float.MaxValue)
         };
         
@@ -60,7 +61,6 @@ public class MainWindow : Window, IDisposable
     public void Dispose() { }
     public override void PreDraw()
     {
-        ImGui.SetNextWindowSize(new Vector2(150, 100), ImGuiCond.FirstUseEver);
     }
 
     public override void Draw()
@@ -118,47 +118,54 @@ public class MainWindow : Window, IDisposable
 
         
         ImGui.Text("Items to purchase:");
-        ImGui.BeginChild("##ItemList", new Vector2(0, -ImGui.GetFrameHeightWithSpacing()), true);
-
-        for (int i = 0; i < configuration.ItemsToPurchase.Count; i++)
+        ImGui.Spacing();
+        
+        ImGuiHelper.Panel("ItemsToPurchase", () =>
         {
-            var item = configuration.ItemsToPurchase[i];
-            if (ImGui.Button($"-##Remove{i}"))
+            for (int i = 0; i < configuration.ItemsToPurchase.Count; i++)
             {
-                configuration.ItemsToPurchase.RemoveAt(i);
-                configuration.Save();
-                i--;
+                var item = configuration.ItemsToPurchase[i];
+                if (ImGui.Button($"-##Remove{i}"))
+                {
+                    configuration.ItemsToPurchase.RemoveAt(i);
+                    configuration.Save();
+                    i--;
+                }
+                ImGui.SameLine();
+                var iconTexture = item.Item.IconTexture;
+                ImGui.Image(iconTexture.GetWrapOrEmpty().Handle, new Vector2(20, 20));
+                ImGui.SameLine();
+                ImGui.Text(item.Item.Name);
+                ImGui.SameLine();
+                ImGui.TextUnformatted($"{item.AmountPurchased}/");
+                ImGui.SameLine();
+                int quantity = item.Quantity;
+                ImGui.PushItemWidth(35);
+                if (ImGui.InputInt($"##Quantity{i}", ref quantity))
+                {
+                    item.Quantity = quantity;
+                    configuration.ItemsToPurchase[i] = item;
+                    configuration.Save();
+                }
+                ImGui.PopItemWidth();
+                ImGui.SameLine();
+                if (item.Quantity == item.AmountPurchased)
+                {
+                    ImGui.TextColored(new Vector4(0.0f, 1.0f, 0.0f, 1.0f), "Completed");
+                }
+                ImGui.SameLine();
+                float buttonWidth = ImGui.CalcTextSize("Refresh").X + ImGui.GetStyle().FramePadding.X * 2; 
+                float windowWidth = ImGui.GetWindowContentRegionMax().X;
+                float cursorX = windowWidth - buttonWidth;
+                ImGui.SetCursorPosX(cursorX);
+                if (ImGui.Button("Refresh"))
+                {
+                    ResetQuantity(item);
+                    configuration.Save();
+                }
             }
-            ImGui.SameLine();
-            var iconTexture = item.Item.IconTexture;
-            ImGui.Image(iconTexture.GetWrapOrEmpty().Handle, new Vector2(20, 20));
-            ImGui.SameLine();
-            ImGui.Text(item.Item.Name);
-            ImGui.SameLine();
-            ImGui.TextUnformatted($"{item.AmountPurchased}/");
-            ImGui.SameLine();
-            int quantity = item.Quantity;
-            ImGui.PushItemWidth(100);
-            if (ImGui.InputInt($"##Quantity{i}", ref quantity))
-            {
-                item.Quantity = quantity;
-                configuration.ItemsToPurchase[i] = item;
-                configuration.Save();
-            }
-            ImGui.PopItemWidth();
-            ImGui.SameLine();
-            if (item.Quantity == item.AmountPurchased)
-            {
-                ImGui.TextColored(new Vector4(0.0f, 1.0f, 0.0f, 1.0f), "Completed");
-            }
-            ImGui.SameLine();
-            if (ImGui.Button("Refresh"))
-            {
-                ResetQuantity(item);
-                configuration.Save();
-            }
-        }
-        ImGui.EndChild();
+        });
+        
     }
 
     public static void ResetQuantity(ItemToPurchase item)

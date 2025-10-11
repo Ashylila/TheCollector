@@ -5,6 +5,7 @@ using System.Linq;
 using System.Numerics;
 using Dalamud.Bindings.ImGui;
 using Dalamud.Game.ClientState.Objects;
+using Dalamud.Interface.Utility;
 using Dalamud.Interface.Windowing;
 using Dalamud.Plugin.Services;
 using ECommons.DalamudServices;
@@ -65,7 +66,7 @@ public class ConfigWindow : Window, IDisposable
     
     private void DrawInstalledPlugins()
     {
-        Panel("InstalledPlgs", () =>
+        ImGuiHelper.Panel("InstalledPlgs", () =>
         {
             ImGui.TextUnformatted("Installed required/optional Plugins:");
 
@@ -124,7 +125,7 @@ public class ConfigWindow : Window, IDisposable
         ImGui.SetCursorPosX(cursorX);
         if (ImGui.Button("Support Me"))
         {
-            System.Diagnostics.Process.Start(new ProcessStartInfo
+            Process.Start(new ProcessStartInfo
             {
                 FileName = "https://ko-fi.com/Ashylila",
                 UseShellExecute = true
@@ -137,7 +138,7 @@ public class ConfigWindow : Window, IDisposable
     public void DrawOptions()
     {
 
-        Panel("Options", () =>
+        ImGuiHelper.Panel("Options", () =>
         {
             ImGui.TextUnformatted("Options:");
             ImGui.BeginDisabled(!IPCSubscriber_Common.IsReady("vnavmesh"));
@@ -218,43 +219,6 @@ public class ConfigWindow : Window, IDisposable
             ImGui.EndDisabled();
             ImGui.Spacing();
         });
-    }
-    private void Panel(string id, System.Action body)
-    {
-        var style = ImGui.GetStyle();
-        var pad   = style.FramePadding;
-        
-        var startScreen = ImGui.GetCursorScreenPos();
-        var availW      = ImGui.GetContentRegionAvail().X;
-
-        ImGui.PushID(id);
-        
-        var dl = ImGui.GetWindowDrawList();
-        dl.ChannelsSplit(2);      
-        dl.ChannelsSetCurrent(1); 
-
-        ImGui.BeginGroup();
-        body();                       
-        ImGui.EndGroup();
-
-        var endY = ImGui.GetItemRectMax().Y; 
-        
-        var bgMin = new Vector2(startScreen.X - pad.X, startScreen.Y - pad.Y);
-        var bgMax = new Vector2(startScreen.X + availW + pad.X, endY + pad.Y);
-        
-        dl.ChannelsSetCurrent(0);
-        var bgCol  = ImGui.GetColorU32(ImGuiCol.ChildBg);
-        var brdCol = ImGui.GetColorU32(ImGuiCol.Border);
-        var round  = style.FrameRounding;
-
-        dl.AddRectFilled(bgMin, bgMax, bgCol, round);
-        dl.AddRect(bgMin, bgMax, brdCol, round);
-
-        dl.ChannelsMerge();
-
-        ImGui.PopID();
-        
-        ImGui.Dummy(new Vector2(0, style.ItemSpacing.Y));
     }
     
 }
