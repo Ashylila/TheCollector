@@ -4452,7 +4452,7 @@
         "Index": 0,
         "ItemCost": 15,
         "Page": 1,
-        "SubPage": 10,
+        "SubPage": 11,
         "ScripType": 1
     },
     {
@@ -4460,7 +4460,7 @@
         "Index": 1,
         "ItemCost": 15,
         "Page": 1,
-        "SubPage": 10,
+        "SubPage": 11,
         "ScripType": 1
     },
     {
@@ -4468,7 +4468,7 @@
         "Index": 2,
         "ItemCost": 15,
         "Page": 1,
-        "SubPage": 10,
+        "SubPage": 11,
         "ScripType": 1
     },
     {
@@ -4476,7 +4476,7 @@
         "Index": 3,
         "ItemCost": 15,
         "Page": 1,
-        "SubPage": 10,
+        "SubPage": 11,
         "ScripType": 1
     },
     {
@@ -4484,7 +4484,7 @@
         "Index": 4,
         "ItemCost": 15,
         "Page": 1,
-        "SubPage": 10,
+        "SubPage": 11,
         "ScripType": 1
     },
     {
@@ -4492,7 +4492,7 @@
         "Index": 5,
         "ItemCost": 125,
         "Page": 1,
-        "SubPage": 10,
+        "SubPage": 11,
         "ScripType": 1
     },
     {
@@ -4500,7 +4500,7 @@
         "Index": 6,
         "ItemCost": 10,
         "Page": 1,
-        "SubPage": 10,
+        "SubPage": 11,
         "ScripType": 1
     },
     {
@@ -4508,7 +4508,7 @@
         "Index": 7,
         "ItemCost": 10,
         "Page": 1,
-        "SubPage": 10,
+        "SubPage": 11,
         "ScripType": 1
     },
     {
@@ -4516,7 +4516,7 @@
         "Index": 8,
         "ItemCost": 10,
         "Page": 1,
-        "SubPage": 10,
+        "SubPage": 11,
         "ScripType": 1
     },
     {
@@ -4524,7 +4524,7 @@
         "Index": 9,
         "ItemCost": 10,
         "Page": 1,
-        "SubPage": 10,
+        "SubPage": 11,
         "ScripType": 1
     },
     {
@@ -4532,7 +4532,7 @@
         "Index": 10,
         "ItemCost": 10,
         "Page": 1,
-        "SubPage": 10,
+        "SubPage": 11,
         "ScripType": 1
     },
     {
@@ -4540,7 +4540,7 @@
         "Index": 11,
         "ItemCost": 1000,
         "Page": 1,
-        "SubPage": 10,
+        "SubPage": 11,
         "ScripType": 1
     },
     {
@@ -4548,7 +4548,7 @@
         "Index": 12,
         "ItemCost": 500,
         "Page": 1,
-        "SubPage": 10,
+        "SubPage": 11,
         "ScripType": 1
     },
     {
@@ -7190,5 +7190,13 @@
         "Page": 5,
         "SubPage": 2,
         "ScripType": 1
+    },
+    {
+        "Name": "Mason's Abrasive",
+        "Index": 0,
+        "ItemCost": 500,
+        "Page": 1,
+        "SubPage": 10,
+        "ScripType": 0
     }
 ]

@@ -127,18 +127,21 @@ public partial class ScripShopAutomationHandler
 
     private void PrimeBuy()
     {
-        _buyQueue = _configuration.ItemsToPurchase
-                                  .Where(i => i.Quantity > 0)
-                                  .Select(i => (
-                                                   page: i.Item.Page,
-                                                   subPage: i.Item.SubPage,
-                                                   index: i.Item.Index,
-                                                   remaining: (i.Quantity - i.AmountPurchased),
-                                                   cost: (int)i.Item.ItemCost,
-                                                   name: i.Name
-                                               ))
-                                  .Where(t => t.remaining > 0)
-                                  .ToArray();
+        _buyQueue =
+            (from i in _configuration.ItemsToPurchase
+             join s in Plugin.ShopItems on i.Name equals s.Name
+             let remaining = i.Quantity - i.AmountPurchased
+             where i.Quantity > 0 && remaining > 0
+             select (
+                        page: s.Page,
+                        subPage: s.SubPage,
+                        index: s.Index,
+                        remaining: remaining,
+                        cost: (int)s.ItemCost,
+                        name: i.Name
+                    ))
+            .ToArray();
+
 
         _lastBuy = DateTime.MinValue;
         _cooldownUntil = DateTime.MinValue;
@@ -159,6 +162,7 @@ public partial class ScripShopAutomationHandler
                 _scripShopWindowHandler.SelectPage(h.page);
                 _cooldownUntil = DateTime.UtcNow + _uiInteractDelay;
                 _buyPhase = 1;
+                _log.Verbose(h.page + h.name + h.index + h.subPage);
                 return StepStatus.Continue;
 
             case 1:

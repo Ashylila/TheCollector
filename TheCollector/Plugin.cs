@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using Dalamud.Game.Command;
 using Dalamud.IoC;
 using Dalamud.Plugin;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Dalamud.Interface.Windowing;
 using Dalamud.Plugin.Services;
@@ -14,6 +16,7 @@ using Lumina.Excel.Sheets;
 using OtterGui.Services;
 using TheCollector.CollectableManager;
 using TheCollector.Data;
+using TheCollector.Data.Models;
 using TheCollector.Ipc;
 using TheCollector.ScripShopManager;
 using TheCollector.Utility;
@@ -29,7 +32,8 @@ public sealed class Plugin : IDalamudPlugin
     [PluginService]
     internal static ICommandManager CommandManager { get; private set; } = null!;
     
-    
+    public static List<ScripShopItem> ShopItems;
+    public static bool IsLoading = false;
     private readonly CollectableWindowHandler _collectableWindowHandler;
 
     private const string CommandName = "/collector";
@@ -86,6 +90,7 @@ public sealed class Plugin : IDalamudPlugin
     public void Start()
     {
         _automationHandler.Init();
+        _ = LoadScripItemsAsync();
     }
     public void Dispose()
     {
@@ -124,6 +129,26 @@ public sealed class Plugin : IDalamudPlugin
             default:
                 ToggleMainUI();
                 break;
+        }
+    }
+    public async Task LoadScripItemsAsync()
+    {
+        IsLoading = true;
+        try
+        {
+            var path = Path.Combine(PluginInterface.AssemblyLocation.DirectoryName, "ScripShopItems.json");
+            var text = await File.ReadAllTextAsync(path);
+            ShopItems = JsonSerializer.Deserialize<List<ScripShopItem>>(text) ?? new();
+        }
+        catch (Exception ex)
+        {
+            ShopItems = new();
+            Svc.Log.Error("Failed to read file", ex);
+        }
+        finally
+        {
+            IsLoading = false;
+            _log.Debug($"Loaded {ShopItems.Count} items from {Path.Combine(PluginInterface.AssemblyLocation.DirectoryName, "ScripShopItems.json")}.");
         }
     }
     private void DrawUI() => WindowSystem.Draw();

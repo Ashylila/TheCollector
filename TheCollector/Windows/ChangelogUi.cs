@@ -22,8 +22,12 @@ public class ChangelogUi : IUiService
         Add0_32(Changelog);
         Add0_33(Changelog);
         Add0_34(Changelog);
+        Add0_35(Changelog);
     }
 
+    public static void Add0_35(Changelog log) =>
+        log.NextVersion("Version 0.35")
+           .RegisterHighlight("Added Mason's Abrasive and fixed a few items indices");
     public static void Add0_34(Changelog log) =>
         log.NextVersion("Version 0.34")
            .RegisterHighlight(

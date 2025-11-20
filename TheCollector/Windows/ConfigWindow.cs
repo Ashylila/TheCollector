@@ -205,7 +205,7 @@ public class ConfigWindow : Window, IDisposable
                 {
                     ImGui.BeginDisabled(CollectableNpcLocations.CollectableShops[i].Disabled || (CollectableNpcLocations.CollectableShops[i].IsLifestreamRequired && !IPCSubscriber_Common.IsReady("Lifestream")));
                     var shop = CollectableNpcLocations.CollectableShops[i];
-                    if (ImGui.Selectable(shop.IsLifestreamRequired ? (shop.Name + " (Lifestream required)") : shop.Name))
+                    if (ImGui.Selectable(shop.IsLifestreamRequired && !IPCSubscriber_Common.IsReady("Lifestream") ? (shop.Name + " (Lifestream required)") : shop.Name))
                     {
                         Configuration.PreferredCollectableShop = CollectableNpcLocations.CollectableShops[i];
                         Configuration.Save();
