@@ -129,7 +129,7 @@ public partial class ScripShopAutomationHandler
     {
         _buyQueue =
             (from i in _configuration.ItemsToPurchase
-             join s in Plugin.ShopItems on i.Name equals s.Name
+             join s in ScripShopItemManager.ShopItems on i.Name equals s.Name
              let remaining = i.Quantity - i.AmountPurchased
              where i.Quantity > 0 && remaining > 0
              select (

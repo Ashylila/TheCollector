@@ -51,6 +51,7 @@ public static class ServiceWrapper
         collection.AddSingleton<FishingWatcher>();
         
         collection.AddSingleton<PlogonLog>();
+        collection.AddSingleton<ScripShopItemManager>();
 
         collection.AddSingleton<MainWindow>();
         collection.AddSingleton<ConfigWindow>();

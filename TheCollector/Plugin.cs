@@ -32,8 +32,6 @@ public sealed class Plugin : IDalamudPlugin
     [PluginService]
     internal static ICommandManager CommandManager { get; private set; } = null!;
     
-    public static List<ScripShopItem> ShopItems;
-    public static bool IsLoading = false;
     private readonly CollectableWindowHandler _collectableWindowHandler;
 
     private const string CommandName = "/collector";
@@ -90,7 +88,7 @@ public sealed class Plugin : IDalamudPlugin
     public void Start()
     {
         _automationHandler.Init();
-        _ = LoadScripItemsAsync();
+        _ = ServiceWrapper.Get<ScripShopItemManager>();
     }
     public void Dispose()
     {
@@ -129,26 +127,6 @@ public sealed class Plugin : IDalamudPlugin
             default:
                 ToggleMainUI();
                 break;
-        }
-    }
-    public async Task LoadScripItemsAsync()
-    {
-        IsLoading = true;
-        try
-        {
-            var path = Path.Combine(PluginInterface.AssemblyLocation.DirectoryName, "ScripShopItems.json");
-            var text = await File.ReadAllTextAsync(path);
-            ShopItems = JsonSerializer.Deserialize<List<ScripShopItem>>(text) ?? new();
-        }
-        catch (Exception ex)
-        {
-            ShopItems = new();
-            Svc.Log.Error("Failed to read file", ex);
-        }
-        finally
-        {
-            IsLoading = false;
-            _log.Debug($"Loaded {ShopItems.Count} items from {Path.Combine(PluginInterface.AssemblyLocation.DirectoryName, "ScripShopItems.json")}.");
         }
     }
     private void DrawUI() => WindowSystem.Draw();

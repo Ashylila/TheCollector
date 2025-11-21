@@ -44,7 +44,7 @@ public class MainWindow : Window, IDisposable
 
     public override void Draw()
     {
-        if (Plugin.IsLoading)
+        if (ScripShopItemManager.IsLoading)
         {
             ImGui.Text("Loading items...");
             return;
@@ -57,7 +57,7 @@ public class MainWindow : Window, IDisposable
             ImGui.InputTextWithHint("##ComboFilter", "Filter...", ref comboFilter, 100);
             ImGui.Separator();
 
-            foreach (var item in Plugin.ShopItems
+            foreach (var item in ScripShopItemManager.ShopItems
                          .Where(i => string.IsNullOrEmpty(comboFilter) ||
                                      i.Name.Contains(comboFilter, StringComparison.OrdinalIgnoreCase)))
             {
