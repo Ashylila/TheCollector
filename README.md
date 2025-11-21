@@ -1,6 +1,6 @@
 # TheCollector – FFXIV Dalamud Plugin
 
-![TheCollector – FFXIV Dalamud Plugin Banner](https://girlcox.ashylila.moe/uploads/TheCollector-Banner-SuperSlim.png)
+![TheCollector – FFXIV Dalamud Plugin Banner](https://ashylila.moe/img/projects/thecollector.png)
 
 > ✨FFXIV Dalamud plugin to automate collectable turn-ins, auto-buy scrip items, and create perfect crafting & gathering loops.✨
 
