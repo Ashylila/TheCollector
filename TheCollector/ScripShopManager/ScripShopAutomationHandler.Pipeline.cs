@@ -184,7 +184,13 @@ public partial class ScripShopAutomationHandler
                     return StepStatus.Continue;
                 }
 
-                _scripShopWindowHandler.SelectItem(h.index, amount);
+                if (!_scripShopWindowHandler.SelectItem(h.name, amount))
+                {
+                    _log.Error($"Could not locate item {h.name}");
+                    _buyQueue = _buyQueue.Skip(1).ToArray();
+                    _buyPhase = 0;
+                    return StepStatus.Continue;
+                }
                 _currentPurchaseAmount = amount;
                 _cooldownUntil = DateTime.UtcNow + _uiInteractDelay;
                 _buyPhase = 3;

@@ -53,10 +53,16 @@ public unsafe class ScripShopWindowHandler
             };
             addon->FireCallback(2, selectSubPage);
         }
-    } public void SelectItem(int index, int amount)
+    } public bool SelectItem(string name, int amount)
     {
         if (GenericHelpers.TryGetAddonByName("InclusionShop", out AtkUnitBase* addon))
         {
+            var shop = new InclusionShop(addon);
+            var index = shop.GetItemIndexOf(name);
+            if (index == -1)
+            {
+                return false;
+            }
             var selectItem = stackalloc AtkValue[]
             {
                 new() { Type = ValueType.Int, Int = 14 },
@@ -64,7 +70,10 @@ public unsafe class ScripShopWindowHandler
                 new() { Type = ValueType.UInt, UInt =  (uint)amount}
             };
             addon->FireCallback(3, selectItem);
+            return true;
         }
+
+        return false;
     }
 
     public void PurchaseItem()
