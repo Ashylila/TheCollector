@@ -7,12 +7,8 @@ using TheCollector.Utility;
 
 namespace TheCollector.CollectableManager;
 
-public unsafe class TurninWindow : TreeListWindowBase
+public unsafe class TurninWindow(AtkUnitBase* addon) : TreeListWindowBase(addon)
 {
-    public record TurninEntry(int Index, string Label);
-    
-    public TurninWindow(AtkUnitBase* addon) : base(addon){}
-
     protected override bool IsTargetNode(AtkResNode* node) => node->Type == (NodeType)1028 && node->NodeId == 28;
 
     protected override string ExtractLabel(AtkComponentTreeListItem* item)

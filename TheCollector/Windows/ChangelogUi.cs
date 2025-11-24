@@ -23,8 +23,12 @@ public class ChangelogUi : IUiService
         Add0_33(Changelog);
         Add0_34(Changelog);
         Add0_35(Changelog);
+        Add0_36(Changelog);
     }
-
+    public static void Add0_36(Changelog log) =>
+        log.NextVersion("Version 0.36")
+           .RegisterHighlight("Added failsafe for buying scrip items so it wont buy the wrong shop item anymore if it cant find the selected one in the shop tab")
+           .RegisterEntry("Made it fetch the data for the scrip shop items from the git repo instead of locally, allowing for edits without having to actually update the plugin");
     public static void Add0_35(Changelog log) =>
         log.NextVersion("Version 0.35")
            .RegisterHighlight("Added Mason's Abrasive and fixed a few items indices");

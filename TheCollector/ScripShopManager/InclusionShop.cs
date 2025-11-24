@@ -4,9 +4,8 @@ using TheCollector.Utility;
 
 namespace TheCollector.ScripShopManager;
 
-public unsafe class InclusionShop : TreeListWindowBase
+public unsafe class InclusionShop(AtkUnitBase* addon) : TreeListWindowBase(addon)
 {
-    public InclusionShop(AtkUnitBase* addon) : base(addon) { }
 
     protected override bool IsTargetNode(AtkResNode* node) => node->Type == (NodeType)1024 && node->NodeId == 19;
 
