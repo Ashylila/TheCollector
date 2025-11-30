@@ -24,7 +24,14 @@ public class ChangelogUi : IUiService
         Add0_34(Changelog);
         Add0_35(Changelog);
         Add0_36(Changelog);
+        Add0_37(Changelog);
     }
+
+    public static void Add0_37(Changelog log) =>
+        log.NextVersion("Version 0.37")
+           .RegisterEntry("Fixed a bug where it wouldn't teleport when you're in a housing ward")
+           .RegisterEntry(
+               "Now moves to the shop instead of teleporting if you're in the same territory and are somewhat nearby");
     public static void Add0_36(Changelog log) =>
         log.NextVersion("Version 0.36")
            .RegisterHighlight("Added failsafe for buying scrip items so it wont buy the wrong shop item anymore if it cant find the selected one in the shop tab")

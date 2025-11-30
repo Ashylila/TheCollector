@@ -24,7 +24,7 @@ public static class CollectableNpcLocations
         },
         new CollectableShop()
         {
-            Name = "New Gridania",
+            Name = "Old Gridania",
             Location = new Vector3(143.62454f, 13.74769f, -105.33799f),
             IsLifestreamRequired = true,
             LifestreamCommand = "Leatherworkers"

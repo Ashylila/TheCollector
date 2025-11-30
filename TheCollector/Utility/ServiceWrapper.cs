@@ -29,6 +29,7 @@ public static class ServiceWrapper
         collection.AddSingleton(Svc.PluginInterface);
         collection.AddSingleton(Svc.Chat);
         collection.AddSingleton(Svc.Condition);
+        collection.AddSingleton(Plugin.PlayerState);
         
         collection.AddSingleton<TaskManager>();
         

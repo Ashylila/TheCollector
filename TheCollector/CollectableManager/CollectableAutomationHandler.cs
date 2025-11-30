@@ -150,7 +150,8 @@ public partial class CollectableAutomationHandler
         IFramework frameWork,
         IClientState clientState,
         GatherbuddyReborn_IPCSubscriber gatherbuddyService,
-        Lifestream_IPCSubscriber lifestreamIpc)
+        Lifestream_IPCSubscriber lifestreamIpc,
+        IPlayerState playerState)
     {
         _log = log;
         _collectibleWindowHandler = collectibleWindowHandler;
@@ -162,6 +163,7 @@ public partial class CollectableAutomationHandler
         _clientState = clientState;
         _gatherbuddyService = gatherbuddyService;
         _lifestreamIpc = lifestreamIpc;
+        _player = playerState;
         Instance = this;
     }
 

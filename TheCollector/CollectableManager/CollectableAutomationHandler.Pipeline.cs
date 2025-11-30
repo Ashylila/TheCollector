@@ -1,4 +1,6 @@
 ﻿using System.Threading.Tasks;
+using Dalamud.IoC;
+using Dalamud.Plugin.Services;
 using ECommons.DalamudServices;
 using ECommons.ExcelServices;
 using Lumina.Excel.Sheets;
@@ -18,7 +20,7 @@ using ECommons;
 public partial class CollectableAutomationHandler
 {
     private FrameRunner? _runner;
-    
+    private readonly IPlayerState _player;
     private readonly TimeSpan _uiLoadDelay = TimeSpan.FromSeconds(2);
     private readonly TimeSpan _uiInteractDelay = TimeSpan.FromMilliseconds(500);
     private DateTime _uiLoadWaitUntil;
@@ -56,14 +58,13 @@ public partial class CollectableAutomationHandler
 
         var steps = new[]
         {
-            new FrameRunner.Step(
-                "EnsureNotInDuty",
-                () => PlayerHelper.IsInDuty ? StepStatus.Failed : StepStatus.Succeeded,
-                TimeSpan.FromSeconds(1),
-                (() => PrimeTurnIn())
-            ),
             FrameRunner.Delay("InitialDelay", TimeSpan.FromSeconds(2)),
-
+            new FrameRunner.Step(
+                "CanActCheck",
+                () => PlayerHelper.CanAct ?  StepStatus.Succeeded : StepStatus.Continue,
+                TimeSpan.FromSeconds(20),
+                        PrimeTurnIn),
+                
             new FrameRunner.Step(
                 "TeleportToPreferredShop",
                 () => MakeTeleportTick(shopName),
@@ -150,9 +151,12 @@ public partial class CollectableAutomationHandler
     private StepStatus MakeTeleportTick(string shopName)
     {
         Plugin.State = PluginState.Teleporting;
+        _log.Debug(_dataManager.GetExcelSheet<TerritoryType>()
+                               .FirstOrDefault(t => t.RowId == _clientState.TerritoryType)
+                               .PlaceName.Value.Name.ExtractText().Contains(_configuration.PreferredCollectableShop.Name).ToString());
         if (_dataManager.GetExcelSheet<TerritoryType>()
                 .FirstOrDefault(t => t.RowId == _clientState.TerritoryType)
-                .PlaceName.Value.Name.ExtractText() == _configuration.PreferredCollectableShop.Name)
+                .PlaceName.Value.Name.ExtractText().Contains(_configuration.PreferredCollectableShop.Name))
             return StepStatus.Succeeded;
 
         if (!_teleportAttempted)
@@ -183,12 +187,12 @@ public partial class CollectableAutomationHandler
     private DateTime _lastMove;
     private StepStatus MakeMoveTick(Vector3 destination)
     {
+        Plugin.State = PluginState.MovingToCollectableVendor;
         if ((DateTime.UtcNow - _lastMove).TotalMilliseconds >= 200)
         {
             if (!VNavmesh_IPCSubscriber.Path_IsRunning())
                 VNavmesh_IPCSubscriber.SimpleMove_PathfindAndMoveTo(destination, false);
             _lastMove = DateTime.UtcNow;
-            Plugin.State = PluginState.MovingToCollectableVendor;
         }
 
         if (PlayerHelper.GetDistanceToPlayer(destination) <= 0.4f)
@@ -203,7 +207,9 @@ public partial class CollectableAutomationHandler
 
     private bool IsNearShop(Vector3 destination)
     {
-        if (PlayerHelper.GetDistanceToPlayer(destination) <= 0.4f) //TODO: things
+        var playerTer = _clientState.TerritoryType;
+        var ter = _dataManager.GetExcelSheet<TerritoryType>().FirstOrDefault(t => t.PlaceName.Value.Name.ToString().Equals(_configuration.PreferredCollectableShop.Name)).RowId;
+        if (playerTer == ter && PlayerHelper.GetDistanceToPlayer(destination) <= 40f)
         {
             return true;
         }

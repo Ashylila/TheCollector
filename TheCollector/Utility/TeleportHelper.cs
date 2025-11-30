@@ -27,7 +27,7 @@ public static class TeleportHelper
                     .ToString();
                 
                 var result = aetheryteName.Contains(name, StringComparison.OrdinalIgnoreCase);
-                if (!result && !aetheryteName.Equals(name, StringComparison.OrdinalIgnoreCase))
+                if (!result && !aetheryteName.Contains(name, StringComparison.OrdinalIgnoreCase))
                     continue;
                 info = tpInfo;
                 aetherName = aetheryteName;
@@ -39,7 +39,7 @@ public static class TeleportHelper
             Logger.Error(ex, "Failed to find teleportInfo");
             return false;
         }
-
+        Logger.Error("Failed to find teleportInfo");
         return false;
     }
 

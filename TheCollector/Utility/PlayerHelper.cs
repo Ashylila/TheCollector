@@ -35,10 +35,12 @@ public static class PlayerHelper
                 || Svc.Condition[ConditionFlag.Occupied39]
                 || Svc.Condition[ConditionFlag.Unconscious]
                 || Svc.Condition[ConditionFlag.ExecutingGatheringAction]
-                //Node is open? Fades off shortly after closing the node, can't use items (but can mount) while it's set
                 || Svc.Condition[85] && !Svc.Condition[ConditionFlag.Gathering]
                 || Svc.ClientState.LocalPlayer.IsDead
-                || Player.IsAnimationLocked)
+                || Player.IsAnimationLocked
+                || Svc.Condition[ConditionFlag.Crafting]
+                || Svc.Condition[ConditionFlag.ExecutingCraftingAction]
+                || Svc.Condition[ConditionFlag.PreparingToCraft])
                 return false;
 
             return true;
