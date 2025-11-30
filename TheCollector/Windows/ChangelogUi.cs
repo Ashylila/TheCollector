@@ -29,6 +29,8 @@ public class ChangelogUi : IUiService
 
     public static void Add0_37(Changelog log) =>
         log.NextVersion("Version 0.37")
+           .RegisterImportant("If you had your shop preferred shop set to Gridania, please select something else and then re-select Gridania for everything to work correctly, thank you!")
+           .RegisterEntry("Now properly checks if you can actually teleport when artisan is done crafting a list")
            .RegisterEntry("Fixed a bug where it wouldn't teleport when you're in a housing ward")
            .RegisterEntry(
                "Now moves to the shop instead of teleporting if you're in the same territory and are somewhat nearby");
