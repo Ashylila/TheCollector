@@ -84,7 +84,7 @@ public sealed class Plugin : IDalamudPlugin
         _collectableWindowHandler = new();
         _automationHandler = ServiceWrapper.Get<AutomationHandler>();
         _log = ServiceWrapper.Get<PlogonLog>();
-        Start();
+        //Start();
         
     }
 
@@ -108,7 +108,8 @@ public sealed class Plugin : IDalamudPlugin
 
     private void OnCommand(string command, string args)
     {
-        HandleCommand(args);
+        ChangelogUi.Changelog.ForceOpen = true;
+        //HandleCommand(args);
     }
 
     private void HandleCommand(string args)

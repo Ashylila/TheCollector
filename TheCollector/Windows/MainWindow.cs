@@ -44,7 +44,8 @@ public class MainWindow : Window, IDisposable
 
     public override void Draw()
     {
-        if (ScripShopItemManager.IsLoading)
+        ImGui.TextUnformatted("Disabled currently, see changelog");
+        /*if (ScripShopItemManager.IsLoading)
         {
             ImGui.Text("Loading items...");
             return;
@@ -144,6 +145,7 @@ public class MainWindow : Window, IDisposable
             }
             
         }
+        */
     }
     
 

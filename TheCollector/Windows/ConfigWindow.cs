@@ -59,11 +59,16 @@ public class ConfigWindow : Window, IDisposable
 
     public override void Draw()
     {
-        DrawInstalledPlugins();
-        DrawOptions();
-        DrawSupportButton();
+        DrawDisabled();
+        //DrawInstalledPlugins();
+        //DrawOptions();
+        //DrawSupportButton();
     }
-    
+
+    private void DrawDisabled()
+    {
+        ImGui.TextUnformatted("Disabled currently, see changelog");
+    }
     private void DrawInstalledPlugins()
     {
         ImGuiHelper.Panel("InstalledPlgs", () =>

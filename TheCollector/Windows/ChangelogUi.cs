@@ -25,7 +25,14 @@ public class ChangelogUi : IUiService
         Add0_35(Changelog);
         Add0_36(Changelog);
         Add0_37(Changelog);
+        Add0_38(Changelog);
+        
     }
+
+    public static void Add0_38(Changelog log) =>
+        log.NextVersion("Version 0.38")
+           .RegisterImportant(
+               "With the most recent testing build of GatherBuddyReborn, it has implemented the feature to automatically turn-in collectables and also handle scripshop purchases.\n For the time being I'm going disable the functionality of this Plugin till the next version, where I will cut out all the gatherable collectable stuff so it'll be crafting only.\n This should be out in the next couple of days, a big thank you to anyone using the plugin and those who decided to support!♡");
 
     public static void Add0_37(Changelog log) =>
         log.NextVersion("Version 0.37")
