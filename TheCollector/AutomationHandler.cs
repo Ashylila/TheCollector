@@ -24,12 +24,13 @@ public class AutomationHandler : IDisposable
     private readonly ArtisanWatcher _artisanWatcher;
     private readonly IFramework _framework;
     private readonly FishingWatcher _fishingWatcher;
+    private readonly CraftingHandler  _craftingHandler;
     public bool IsRunning => _collectableAutomationHandler.IsRunning || _scripShopAutomationHandler.IsRunning;
     
     
     
     public AutomationHandler(
-        PlogonLog log,CollectableAutomationHandler collectableAutomationHandler, Configuration config, ScripShopAutomationHandler scripShopAutomationHandler, IChatGui chatGui, GatherbuddyReborn_IPCSubscriber gatherbuddyReborn_IPCSubscriber, ArtisanWatcher artisanWatcher, IFramework framework, FishingWatcher fishingWatcher)
+        PlogonLog log,CollectableAutomationHandler collectableAutomationHandler, Configuration config, ScripShopAutomationHandler scripShopAutomationHandler, IChatGui chatGui, GatherbuddyReborn_IPCSubscriber gatherbuddyReborn_IPCSubscriber, ArtisanWatcher artisanWatcher, IFramework framework, FishingWatcher fishingWatcher, CraftingHandler craftingHandler)
     {
         _log = log;
         _gatherbuddyReborn_IPCSubscriber = gatherbuddyReborn_IPCSubscriber;
@@ -40,6 +41,7 @@ public class AutomationHandler : IDisposable
         _artisanWatcher = artisanWatcher;
         _framework = framework;
         _fishingWatcher = fishingWatcher;
+        _craftingHandler = craftingHandler;
     }
 
     public void Init()
@@ -56,9 +58,9 @@ public class AutomationHandler : IDisposable
 
     private void OnAutoGatherStatusChanged(bool enabled)
     {
-        if (!enabled && _config.CollectOnAutogatherDisabled)
+        if (_config.ShouldCraftOnAutogatherChanged && !enabled)
         {
-            Invoke();
+            _craftingHandler.ShouldStartCrafting();
         }
     }
     public void Invoke()

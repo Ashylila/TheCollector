@@ -151,12 +151,9 @@ public partial class CollectableAutomationHandler
     private StepStatus MakeTeleportTick(string shopName)
     {
         Plugin.State = PluginState.Teleporting;
-        _log.Debug(_dataManager.GetExcelSheet<TerritoryType>()
-                               .FirstOrDefault(t => t.RowId == _clientState.TerritoryType)
-                               .PlaceName.Value.Name.ExtractText().Contains(_configuration.PreferredCollectableShop.Name).ToString());
         if (_dataManager.GetExcelSheet<TerritoryType>()
                 .FirstOrDefault(t => t.RowId == _clientState.TerritoryType)
-                .PlaceName.Value.Name.ExtractText().Contains(_configuration.PreferredCollectableShop.Name))
+                .PlaceName.Value.Name.ExtractText().Contains(_configuration.PreferredCollectableShop.Name) || _configuration.PreferredCollectableShop.IsLifestreamRequired)
             return StepStatus.Succeeded;
 
         if (!_teleportAttempted)

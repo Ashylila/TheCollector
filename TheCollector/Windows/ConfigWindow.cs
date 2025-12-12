@@ -59,16 +59,11 @@ public class ConfigWindow : Window, IDisposable
 
     public override void Draw()
     {
-        DrawDisabled();
-        //DrawInstalledPlugins();
-        //DrawOptions();
-        //DrawSupportButton();
+        DrawInstalledPlugins();
+        DrawOptions();
+        DrawSupportButton();
     }
-
-    private void DrawDisabled()
-    {
-        ImGui.TextUnformatted("Disabled currently, see changelog");
-    }
+    
     private void DrawInstalledPlugins()
     {
         ImGuiHelper.Panel("InstalledPlgs", () =>
@@ -99,14 +94,7 @@ public class ConfigWindow : Window, IDisposable
             ImGui.TextUnformatted("Artisan(optional)");
             ImGui.PopStyleColor();
             ImGui.Spacing();
-
-            ImGui.PushStyleColor(ImGuiCol.Text,
-                                 IPCSubscriber_Common.IsReady("ArtisanBuddy")
-                                     ? new Vector4(0, 1, 0, 1)
-                                     : new Vector4(1, 0, 0, 1));
-            ImGui.TextUnformatted("ArtisanBuddy(optional)");
-            ImGui.PopStyleColor();
-            ImGui.Spacing();
+            
             ImGui.PushStyleColor(ImGuiCol.Text,
                                  IPCSubscriber_Common.IsReady("Lifestream")
                                      ? new Vector4(0, 1, 0, 1)
@@ -149,13 +137,21 @@ public class ConfigWindow : Window, IDisposable
             ImGui.BeginDisabled(!IPCSubscriber_Common.IsReady("vnavmesh"));
             ImGui.BeginDisabled(!IPCSubscriber_Common.IsReady("GatherbuddyReborn"));
 
-            var toggleOnAutogatherStop = Configuration.CollectOnAutogatherDisabled;
-            if (ImGui.Checkbox("Collect on Autogather Stop", ref toggleOnAutogatherStop))
+            var craftOnAutogatherDisabled = Configuration.ShouldCraftOnAutogatherChanged;
+            if (ImGui.Checkbox("Craft selected Artisan list id on autogather finish", ref craftOnAutogatherDisabled))
             {
-                Configuration.CollectOnAutogatherDisabled = toggleOnAutogatherStop;
+                Configuration.ShouldCraftOnAutogatherChanged = craftOnAutogatherDisabled;
                 Configuration.Save();
             }
-
+            ImGui.BeginDisabled(!craftOnAutogatherDisabled);
+            var listId = Configuration.ArtisanListId;
+            ImGui.Text("Artisan List ID:");
+            if (ImGui.InputInt("##ArtisanListID", ref listId, 100))
+            {
+                Configuration.ArtisanListId = listId;
+                Configuration.Save();
+            }
+            ImGui.EndDisabled();
             var toggleAutogatherOnFinish = Configuration.EnableAutogatherOnFinish;
             if (ImGui.Checkbox("Enable Autogather on Finish", ref toggleAutogatherOnFinish))
             {
