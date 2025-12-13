@@ -26,9 +26,14 @@ public class ChangelogUi : IUiService
         Add0_36(Changelog);
         Add0_37(Changelog);
         Add0_38(Changelog);
+        Add0_39(Changelog);
         
     }
-
+    public static void Add0_39(Changelog log) =>
+        log.NextVersion("Version 0.39")
+           .RegisterHighlight("Re-enabled functionality")
+           .RegisterHighlight("Merged ArtisanBuddy functionality into TheCollector, adding the ability to craft a selected artisan list after autogather disables")
+           .RegisterEntry("Removed the feature to enable auto collectable turn-in after autogather disables");
     public static void Add0_38(Changelog log) =>
         log.NextVersion("Version 0.38")
            .RegisterImportant(
