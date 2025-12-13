@@ -3,6 +3,7 @@ using System;
 using System.Linq;
 using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Plugin.Services;
+using ECommons;
 using ECommons.Automation;
 using ECommons.Automation.NeoTaskManager;
 using ECommons.ExcelServices;
@@ -59,7 +60,7 @@ public class CraftingHandler : IDisposable
     private void StartCrafting()
     {
 
-        if (Player.TerritoryIntendedUse == TerritoryIntendedUseEnum.Open_World &&
+        if (Player.TerritoryIntendedUseEnum == TerritoryIntendedUseEnum.Open_World &&
             Player.Available)
         {
             _taskManager.Enqueue(TeleportToSafeArea);
@@ -98,7 +99,7 @@ public class CraftingHandler : IDisposable
     private void TeleportToSafeArea()
     {
         var nearestAetheryte = _data.GetExcelSheet<Aetheryte>()
-                                    .FirstOrDefault(a => a.Territory.RowId == Player.Territory).PlaceName.Value.Name
+                                    .FirstOrDefault(a => a.Territory.RowId == Player.Territory.RowId).PlaceName.Value.Name
                                     .ExtractText();
         if (TeleportHelper.TryFindAetheryteByName(nearestAetheryte, out var info, out var aetherName))
         {

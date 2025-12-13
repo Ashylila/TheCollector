@@ -53,7 +53,7 @@ public static class PlayerHelper
         {
             if (Svc.ClientState.LocalPlayer == null)
                 return false;
-            if (Player.TerritoryIntendedUse.EqualsAny(TerritoryIntendedUseEnum.City_Area,
+            if (Player.TerritoryIntendedUseEnum.EqualsAny(TerritoryIntendedUseEnum.City_Area,
                                                       TerritoryIntendedUseEnum.Open_World,
                                                       TerritoryIntendedUseEnum.Inn,
                                                       TerritoryIntendedUseEnum.Barracks,

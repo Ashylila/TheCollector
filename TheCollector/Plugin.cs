@@ -91,6 +91,7 @@ public sealed class Plugin : IDalamudPlugin
     public void Start()
     {
         _automationHandler.Init();
+        ServiceWrapper.Get<ArtisanWatcher>();
         _ = ServiceWrapper.Get<ScripShopItemManager>();
     }
     public void Dispose()
