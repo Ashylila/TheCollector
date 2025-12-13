@@ -1,5 +1,6 @@
 ﻿using System;
 using ECommons.EzIpcManager;
+using TheCollector.Utility;
 
 namespace TheCollector.Ipc;
 

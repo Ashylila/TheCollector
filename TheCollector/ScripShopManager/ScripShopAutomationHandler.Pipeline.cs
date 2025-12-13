@@ -22,47 +22,57 @@ public partial class ScripShopAutomationHandler
     private DateTime _cooldownUntil;
     private int _buyPhase;
 
+    private bool _attemptedTarget;
+
     public void StartPipeline()
     {
         Plugin.State = PluginState.SpendingScrip;
 
-        _runner ??= new FrameRunner(_framework,
-                                    n => _log.Debug(n),
-                                    (string name, StepStatus status, string? error) =>
-                                    {
-                                        if (StepStatus.Failed == status)
-                                        {
-                                            _runner.Cancel(error);
-                                            Plugin.State = PluginState.Idle;
-                                        }
-                                        _log.Debug($"{name} -> {status}{(error is null ? "" : $" ({error})")}");
-                                    },
-                                    e => OnError?.Invoke(e),
-                                    ok =>
-                                    {
-                                        IsRunning = false;
-                                        if (ok) OnFinishedTrading?.Invoke();
-                                        Plugin.State = PluginState.Idle;
-                                    });
+        _runner ??= new FrameRunner(
+            _framework,
+            n => _log.Debug(n),
+            (string name, StepStatus status, string? error) =>
+            {
+                if (status == StepStatus.Failed)
+                {
+                    _runner.Cancel(error ?? "Failed");
+                    Plugin.State = PluginState.Idle;
+                }
+                _log.Debug($"{name} -> {status}{(error is null ? "" : $" ({error})")}");
+            },
+            e => OnError?.Invoke(e),
+            ok =>
+            {
+                IsRunning = false;
+                if (ok) OnFinishedTrading?.Invoke();
+                Plugin.State = PluginState.Idle;
+            }
+        );
+
+        _attemptedTarget = false;
 
         var steps = new[]
         {
             FrameRunner.Delay("InitialDelay", TimeSpan.FromSeconds(1)),
+
             new FrameRunner.Step(
                 "MoveToShop",
                 () => MakeMoveTick(),
                 TimeSpan.FromSeconds(20),
-                (() => Plugin.State = PluginState.SpendingScrip)
+                () => Plugin.State = PluginState.SpendingScrip
             ),
+
             new FrameRunner.Step(
                 "TargetShop",
                 () => TargetShop(),
                 TimeSpan.FromSeconds(5)
             ),
+
             FrameRunner.Delay("PostTargetDelay", TimeSpan.FromSeconds(1)),
+
             new FrameRunner.Step(
                 "OpenScripShop",
-                () => StepStatus.Succeeded,
+                () => StepResult.Success(),
                 TimeSpan.FromSeconds(2),
                 () => _scripShopWindowHandler.OpenShop()
             ),
@@ -73,14 +83,13 @@ public partial class ScripShopAutomationHandler
                 {
                     unsafe
                     {
-                        if (ECommons.GenericHelpers
-                                    .TryGetAddonByName<FFXIVClientStructs.FFXIV.Component.GUI.AtkUnitBase>(
-                                        "InclusionShop", out var a) &&
+                        if (ECommons.GenericHelpers.TryGetAddonByName<FFXIVClientStructs.FFXIV.Component.GUI.AtkUnitBase>(
+                                "InclusionShop", out var a) &&
                             ECommons.GenericHelpers.IsAddonReady(a))
-                            return StepStatus.Succeeded;
+                            return StepResult.Success();
                     }
 
-                    return StepStatus.Continue;
+                    return StepResult.Continue();
                 },
                 TimeSpan.FromSeconds(10)
             ),
@@ -93,25 +102,29 @@ public partial class ScripShopAutomationHandler
                 TimeSpan.FromSeconds(90),
                 PrimeBuy
             ),
+
             FrameRunner.Delay("PostBuyDelay", TimeSpan.FromMilliseconds(600)),
+
             new FrameRunner.Step(
                 "CloseScripShop",
                 () =>
                 {
                     _scripShopWindowHandler.CloseShop();
-                    return StepStatus.Succeeded;
+                    return StepResult.Success();
                 },
                 TimeSpan.FromSeconds(2)
             ),
+
             new FrameRunner.Step(
                 "SetState",
                 () =>
                 {
                     Plugin.State = PluginState.Idle;
                     IsRunning = false;
-                    return StepStatus.Succeeded;
+                    return StepResult.Success();
                 },
-                TimeSpan.FromSeconds(1))
+                TimeSpan.FromSeconds(1)
+            )
         };
 
         _runner.Start(steps);
@@ -133,15 +146,14 @@ public partial class ScripShopAutomationHandler
              let remaining = i.Quantity - i.AmountPurchased
              where i.Quantity > 0 && remaining > 0
              select (
-                        page: s.Page,
-                        subPage: s.SubPage,
-                        index: s.Index,
-                        remaining: remaining,
-                        cost: (int)s.ItemCost,
-                        name: i.Name
-                    ))
+                 page: s.Page,
+                 subPage: s.SubPage,
+                 index: s.Index,
+                 remaining: remaining,
+                 cost: (int)s.ItemCost,
+                 name: i.Name
+             ))
             .ToArray();
-
 
         _lastBuy = DateTime.MinValue;
         _cooldownUntil = DateTime.MinValue;
@@ -149,10 +161,10 @@ public partial class ScripShopAutomationHandler
         _currentPurchaseAmount = 0;
     }
 
-    private StepStatus MakeBuyTick()
+    private StepResult MakeBuyTick()
     {
-        if (_buyQueue.Length == 0) return StepStatus.Succeeded;
-        if (DateTime.UtcNow < _cooldownUntil) return StepStatus.Continue;
+        if (_buyQueue.Length == 0) return StepResult.Success();
+        if (DateTime.UtcNow < _cooldownUntil) return StepResult.Continue();
 
         var h = _buyQueue[0];
 
@@ -163,13 +175,13 @@ public partial class ScripShopAutomationHandler
                 _cooldownUntil = DateTime.UtcNow + _uiInteractDelay;
                 _buyPhase = 1;
                 _log.Verbose(h.page + h.name + h.index + h.subPage);
-                return StepStatus.Continue;
+                return StepResult.Continue();
 
             case 1:
                 _scripShopWindowHandler.SelectSubPage(h.subPage);
                 _cooldownUntil = DateTime.UtcNow + _uiInteractDelay;
                 _buyPhase = 2;
-                return StepStatus.Continue;
+                return StepResult.Continue();
 
             case 2:
             {
@@ -181,20 +193,16 @@ public partial class ScripShopAutomationHandler
                 {
                     _buyQueue = _buyQueue.Skip(1).ToArray();
                     _buyPhase = 0;
-                    return StepStatus.Continue;
+                    return StepResult.Continue();
                 }
 
                 if (!_scripShopWindowHandler.SelectItem(h.name, amount))
-                {
-                    _log.Error($"Could not locate item {h.name}");
-                    _buyQueue = _buyQueue.Skip(1).ToArray();
-                    _buyPhase = 0;
-                    return StepStatus.Continue;
-                }
+                    return StepResult.Fail($"Could not locate item {h.name}");
+
                 _currentPurchaseAmount = amount;
                 _cooldownUntil = DateTime.UtcNow + _uiInteractDelay;
                 _buyPhase = 3;
-                return StepStatus.Continue;
+                return StepResult.Continue();
             }
 
             case 3:
@@ -212,27 +220,29 @@ public partial class ScripShopAutomationHandler
                     cfgItem.AmountPurchased += Math.Max(0, _currentPurchaseAmount);
                     _configuration.Save();
                 }
+
                 _currentPurchaseAmount = 0;
+
                 if (h.remaining <= 0)
                     _buyQueue = _buyQueue.Skip(1).ToArray();
                 else
                     _buyQueue[0] = h;
 
-                return StepStatus.Continue;
+                return StepResult.Continue();
             }
         }
 
-        return StepStatus.Continue;
+        return StepResult.Continue();
     }
 
     private DateTime _lastMove;
 
-    private StepStatus MakeMoveTick()
+    private StepResult MakeMoveTick()
     {
         var shop = _configuration.PreferredCollectableShop;
 
         if (shop.ScripShopLocation == shop.Location)
-            return StepStatus.Succeeded;
+            return StepResult.Success();
 
         if ((DateTime.UtcNow - _lastMove).TotalMilliseconds >= 200)
         {
@@ -245,33 +255,26 @@ public partial class ScripShopAutomationHandler
         if (PlayerHelper.GetDistanceToPlayer(shop.ScripShopLocation) <= 0.4f)
         {
             VNavmesh_IPCSubscriber.Path_Stop();
-            return StepStatus.Succeeded;
+            return StepResult.Success();
         }
 
-        return StepStatus.Continue;
+        return StepResult.Continue();
     }
 
-
-    public unsafe StepStatus TargetShop()
+    public unsafe StepResult TargetShop()
     {
-        var attemptedTarget = false;
+        if (_attemptedTarget) return StepResult.Success();
 
-        if (!attemptedTarget)
-        {
-            var gameObj = _objectTable.FirstOrDefault(a =>
-                                                          a.Name.TextValue.Contains(
-                                                              "scrip", StringComparison.OrdinalIgnoreCase));
+        var gameObj = _objectTable.FirstOrDefault(a =>
+            a.Name.TextValue.Contains("scrip", StringComparison.OrdinalIgnoreCase));
 
-            if (gameObj == null)
-                return StepStatus.Continue;
+        if (gameObj == null)
+            return StepResult.Continue();
 
-            TargetSystem.Instance()->Target = (GameObject*)gameObj.Address;
-            TargetSystem.Instance()->OpenObjectInteraction(TargetSystem.Instance()->Target);
+        TargetSystem.Instance()->Target = (GameObject*)gameObj.Address;
+        TargetSystem.Instance()->OpenObjectInteraction(TargetSystem.Instance()->Target);
 
-            attemptedTarget = true;
-        }
-
-
-        return StepStatus.Succeeded;
+        _attemptedTarget = true;
+        return StepResult.Success();
     }
 }

@@ -172,12 +172,6 @@ public partial class CollectableAutomationHandler
     public void Start()
     {
         if (IsRunning) return;
-        if (!HasCollectible)
-        {
-            _log.Debug("No collectables found in inventory, cancelling");
-            IsRunning = false;
-            return;
-        }
         StartPipeline();
         
     }

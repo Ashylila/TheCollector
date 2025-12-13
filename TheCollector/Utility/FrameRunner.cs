@@ -5,6 +5,22 @@ using System.Collections.Generic;
 using Dalamud.Plugin.Services;
 
 public enum StepStatus { Continue, Succeeded, Failed }
+public readonly struct StepResult
+{
+    public readonly StepStatus Status;
+    public readonly string? Error;
+
+    private StepResult(StepStatus status, string? error)
+    {
+        Status = status;
+        Error = error;
+    }
+
+    public static StepResult Continue() => new(StepStatus.Continue, null);
+    public static StepResult Success() => new(StepStatus.Succeeded, null);
+    public static StepResult Fail(string error) => new(StepStatus.Failed, error);
+}
+
 
 public sealed class FrameRunner
 {
@@ -12,13 +28,18 @@ public sealed class FrameRunner
     {
         public readonly string Name;
         public readonly Action? Begin;
-        public readonly Func<StepStatus> Tick;
+        public readonly Func<StepResult> Tick;
         public readonly TimeSpan Timeout;
-        public Step(string name, Func<StepStatus> tick, TimeSpan timeout, Action? begin = null)
+
+        public Step(string name, Func<StepResult> tick, TimeSpan timeout, Action? begin = null)
         {
-            Name = name; Tick = tick; Timeout = timeout; Begin = begin;
+            Name = name;
+            Tick = tick;
+            Timeout = timeout;
+            Begin = begin;
         }
     }
+
 
     private readonly IFramework _fw;
     private readonly Action<string> _onStart;
@@ -60,8 +81,18 @@ public sealed class FrameRunner
     private void OnUpdate(IFramework _)
     {
         if (!_running) return;
-        if (_cancel) { Stop(false); return; }
-        if (!_hasCur) { Stop(true); return; }
+
+        if (_cancel)
+        {
+            Stop(false);
+            return;
+        }
+
+        if (!_hasCur)
+        {
+            Stop(true);
+            return;
+        }
 
         if (_cur.Timeout > TimeSpan.Zero && DateTime.UtcNow - _started > _cur.Timeout)
         {
@@ -70,10 +101,12 @@ public sealed class FrameRunner
             return;
         }
 
-        var st = _cur.Tick();
-        if (st == StepStatus.Continue) return;
+        var result = _cur.Tick();
 
-        _onDone(_cur.Name, st, _err);
+        if (result.Status == StepStatus.Continue)
+            return;
+
+        _onDone(_cur.Name, result.Status, result.Error);
         Next();
     }
 
@@ -100,7 +133,7 @@ public sealed class FrameRunner
         DateTime until = default;
         return new FrameRunner.Step(
             name,
-            () => DateTime.UtcNow >= until ? StepStatus.Succeeded : StepStatus.Continue,
+            () => DateTime.UtcNow >= until ? StepResult.Success() : StepResult.Continue(),
             duration + TimeSpan.FromSeconds(2),
             () => until = DateTime.UtcNow + duration
         );

@@ -61,10 +61,13 @@ public partial class CollectableAutomationHandler
             FrameRunner.Delay("InitialDelay", TimeSpan.FromSeconds(2)),
             new FrameRunner.Step(
                 "CanActCheck",
-                () => PlayerHelper.CanAct ?  StepStatus.Succeeded : StepStatus.Continue,
+                () => PlayerHelper.CanAct ?  StepResult.Success() : StepResult.Continue(),
                 TimeSpan.FromSeconds(20),
                         PrimeTurnIn),
-                
+            new FrameRunner.Step(
+                "CollectableCheck",
+                (() => CollectableCheck()),
+                TimeSpan.FromSeconds(5)),
             new FrameRunner.Step(
                 "TeleportToPreferredShop",
                 () => MakeTeleportTick(shopName),
@@ -74,7 +77,7 @@ public partial class CollectableAutomationHandler
 
             new FrameRunner.Step(
                 "WaitCanActAfterTeleport",
-                () => PlayerHelper.CanAct ? StepStatus.Succeeded : StepStatus.Continue,
+                () => PlayerHelper.CanAct ? StepResult.Success() : StepResult.Continue(),
                 TimeSpan.FromSeconds(20)
             ),
             new FrameRunner.Step(
@@ -90,7 +93,7 @@ public partial class CollectableAutomationHandler
             FrameRunner.Delay("PostLifestreamBuffer", TimeSpan.FromSeconds(2)),
             new FrameRunner.Step(
                 "CanActCheck",
-                (() => PlayerHelper.CanAct ? StepStatus.Succeeded : StepStatus.Continue ),
+                (() => PlayerHelper.CanAct ? StepResult.Success() : StepResult.Continue() ),
                 TimeSpan.FromSeconds(10)
                 ),
             new FrameRunner.Step(
@@ -102,7 +105,7 @@ public partial class CollectableAutomationHandler
             
             new FrameRunner.Step(
                 "OpenCollectablesShop",
-                () => StepStatus.Succeeded,
+                () => StepResult.Success(),
                 TimeSpan.FromSeconds(2),
                 () => OpenShop()
             ),
@@ -115,9 +118,9 @@ public partial class CollectableAutomationHandler
                     {
                         if (GenericHelpers.TryGetAddonByName<AtkUnitBase>("CollectablesShop", out var a) &&
                             GenericHelpers.IsAddonReady(a))
-                            return StepStatus.Succeeded;
+                            return StepResult.Success();
                     }
-                    return StepStatus.Continue;
+                    return StepResult.Continue();
                 },
                 TimeSpan.FromSeconds(5)
             ),
@@ -135,7 +138,7 @@ public partial class CollectableAutomationHandler
                 {
                     _collectibleWindowHandler.CloseWindow();
                     _targetManager.Target = null;
-                    return StepStatus.Succeeded;
+                    return StepResult.Success();
                 },
                 TimeSpan.FromSeconds(5)
             ),
@@ -148,13 +151,13 @@ public partial class CollectableAutomationHandler
     public void StopPipeline() => _runner?.Cancel("Canceled");
 
     private bool _teleportAttempted;
-    private StepStatus MakeTeleportTick(string shopName)
+    private StepResult MakeTeleportTick(string shopName)
     {
         Plugin.State = PluginState.Teleporting;
         if (_dataManager.GetExcelSheet<TerritoryType>()
                 .FirstOrDefault(t => t.RowId == _clientState.TerritoryType)
                 .PlaceName.Value.Name.ExtractText().Contains(_configuration.PreferredCollectableShop.Name) || _configuration.PreferredCollectableShop.IsLifestreamRequired)
-            return StepStatus.Succeeded;
+            return StepResult.Success();
 
         if (!_teleportAttempted)
         {
@@ -165,7 +168,7 @@ public partial class CollectableAutomationHandler
             }
             else
             {
-                return StepStatus.Failed;
+                return StepResult.Fail("Couldn't find an Aetheryte to teleport to");
             }
         }
 
@@ -175,14 +178,14 @@ public partial class CollectableAutomationHandler
         if (string.Equals(currentName, shopName, StringComparison.OrdinalIgnoreCase))
         {
             Plugin.State = PluginState.Idle;
-            return StepStatus.Succeeded;
+            return StepResult.Success();
         }
 
-        return StepStatus.Continue;
+        return StepResult.Continue();
     }
 
     private DateTime _lastMove;
-    private StepStatus MakeMoveTick(Vector3 destination)
+    private StepResult MakeMoveTick(Vector3 destination)
     {
         Plugin.State = PluginState.MovingToCollectableVendor;
         if ((DateTime.UtcNow - _lastMove).TotalMilliseconds >= 200)
@@ -196,10 +199,10 @@ public partial class CollectableAutomationHandler
         {
             VNavmesh_IPCSubscriber.Path_Stop();
             Plugin.State = PluginState.Idle;
-            return StepStatus.Succeeded;
+            return StepResult.Success();
         }
 
-        return StepStatus.Continue;
+        return StepResult.Continue();
     }
 
     private bool IsNearShop(Vector3 destination)
@@ -213,23 +216,23 @@ public partial class CollectableAutomationHandler
 
         return false;
     }
-    private StepStatus LifestreamCheck()
+    private StepResult LifestreamCheck()
     {
-        if (IsNearShop(_configuration.PreferredCollectableShop.Location))return StepStatus.Succeeded;
+        if (IsNearShop(_configuration.PreferredCollectableShop.Location))return StepResult.Success();
         if (_configuration.PreferredCollectableShop.IsLifestreamRequired)
         {
             _lifestreamIpc.ExecuteCommand(_configuration.PreferredCollectableShop.LifestreamCommand);
         }
-        return StepStatus.Succeeded;
+        return StepResult.Success();
     }
-    private StepStatus WaitForLifestream()
+    private StepResult WaitForLifestream()
     {
         if (_configuration.PreferredCollectableShop.IsLifestreamRequired)
         {
             if (_lifestreamIpc.IsBusy())
-                return StepStatus.Continue;
+                return StepResult.Continue();
         }
-        return StepStatus.Succeeded;
+        return StepResult.Success();
     }
     public (string name, int left, int jobIndex)[] TurnInQueue { get; private set; }
     private DateTime _lastTurnIn;
@@ -262,15 +265,15 @@ public partial class CollectableAutomationHandler
         _currentJobIndex = int.MinValue;
     }
     
-    private StepStatus MakeTurnInTick()
+    private StepResult MakeTurnInTick()
     {
         Plugin.State = PluginState.ExchangingItems;
         if (TurnInQueue.Length == 0)
         {
             Plugin.State = PluginState.Idle;
-            return StepStatus.Succeeded;
+            return StepResult.Success();
         };
-        if (DateTime.UtcNow < _cooldownUntil) return StepStatus.Continue;
+        if (DateTime.UtcNow < _cooldownUntil) return StepResult.Continue();
 
         var h = TurnInQueue[0];
         _log.Debug($"found id{h.jobIndex.ToString()} for item {h.name.ToString()}");
@@ -282,7 +285,7 @@ public partial class CollectableAutomationHandler
                 _currentJobIndex = h.jobIndex;
                 _cooldownUntil = DateTime.UtcNow + _uiInteractDelay;
                 _turnInPhase = 1; 
-                return StepStatus.Continue;
+                return StepResult.Continue();
             }
             
             if (!string.Equals(CurrentItemName, h.name, StringComparison.Ordinal))
@@ -291,12 +294,12 @@ public partial class CollectableAutomationHandler
                 CurrentItemName = h.name;
                 _cooldownUntil = DateTime.UtcNow + _uiInteractDelay;
                 _turnInPhase = 2;
-                return StepStatus.Continue;
+                return StepResult.Continue();
             }
             
             _cooldownUntil = DateTime.UtcNow + _uiInteractDelay;
             _turnInPhase = 2;
-            return StepStatus.Continue;
+            return StepResult.Continue();
         }
         
         _collectibleWindowHandler.SubmitItem();
@@ -314,8 +317,18 @@ public partial class CollectableAutomationHandler
         {
             TurnInQueue[0] = h;
         }
-        return StepStatus.Continue;
+        return StepResult.Continue();
     }
 
-
+    private StepResult CollectableCheck()
+    {
+        if (!HasCollectible)
+        {
+            _log.Debug("No collectables found in inventory, cancelling");
+            return StepResult.Fail("No collectables found in inventory, cancelling");
+        }
+        return StepResult.Success();
+    }
 }
+
+
