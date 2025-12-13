@@ -9,8 +9,7 @@ Banner](https://ashylila.moe/img/projects/thecollector.png)
 **TheCollector** is a **Dalamud plugin for Final Fantasy XIV** that
 helps you save time by automating collectable turn-ins and automatically
 purchasing items when you hit scrip caps.\
-It integrates with **GatherBuddyReborn** and **Artisan**, and when
-combined with the **ArtisanBuddy** plugin, you can set up **full
+It integrates with **GatherBuddyReborn** and **Artisan**, you can set up **full
 automation loops** for gathering, crafting, and scrip management.
 
 ------------------------------------------------------------------------
@@ -21,7 +20,7 @@ automation loops** for gathering, crafting, and scrip management.
     clicks\
 -   💰Auto-buy items at scrip cap --- never waste capped currency\
 -   🛠️Integrates with Artisan & GatherBuddyReborn\
--   ♻️Loop automation with ArtisanBuddy --- gather, craft, and turn-in
+-   ♻️Loop automation --- gather, craft, and turn-in
     seamlessly
 
 ⚠️ If you haven't unlocked the required Splendors tab for your current
