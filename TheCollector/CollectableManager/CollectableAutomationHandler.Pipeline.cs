@@ -29,7 +29,7 @@ public partial class CollectableAutomationHandler
     private int _currentJobIndex = int.MinValue;
 
 
-    public void StartPipeline()
+    private void StartPipeline()
     {
         if (IsRunning) return;
         IsRunning = true;
