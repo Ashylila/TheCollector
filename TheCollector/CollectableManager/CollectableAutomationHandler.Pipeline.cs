@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Reflection.Metadata.Ecma335;
+using System.Threading.Tasks;
 using Dalamud.IoC;
 using Dalamud.Plugin.Services;
 using ECommons.DalamudServices;
@@ -257,7 +259,6 @@ public partial class CollectableAutomationHandler
                 TurnInQueue[i] = item;
             }
         }
-
         _lastTurnIn = DateTime.MinValue;
         _cooldownUntil = DateTime.MinValue;
         _turnInPhase = 0;
@@ -301,7 +302,19 @@ public partial class CollectableAutomationHandler
             _turnInPhase = 2;
             return StepResult.Continue();
         }
-        
+
+        var scripItem = CheckScripType(h.name);
+        var current = scripItem.type is ScripType.CraftingOrange or ScripType.GatheringOrange
+                          ? _collectibleWindowHandler.OrangeScripCount()
+                          : _collectibleWindowHandler.PurpleScripCount();
+
+        var remaining = 4000 - current;
+
+        if (scripItem.maxCur > remaining)
+        {
+            return StepResult.Success();
+        }
+
         _collectibleWindowHandler.SubmitItem();
         _lastTurnIn = DateTime.UtcNow;
         _cooldownUntil = _lastTurnIn + _uiInteractDelay;
@@ -329,6 +342,45 @@ public partial class CollectableAutomationHandler
         }
         return StepResult.Success();
     }
+
+    public static (ScripType type, ushort maxCur) CheckScripType(string name)
+    {
+        var items = Svc.Data.GetExcelSheet<Item>()!;
+        var collectables = Svc.Data.GetSubrowExcelSheet<CollectablesShopItem>()!;
+
+        var itemId = items
+                     .FirstOrDefault(i => i.Name.ExtractText().Equals(name, StringComparison.OrdinalIgnoreCase))
+                     .RowId;
+
+        CollectablesShopItem? match = null;
+
+        foreach (var row in collectables)
+        {
+            foreach (var sub in row)
+            {
+                if (sub.Item.RowId == itemId)
+                {
+                    match = sub;
+                    break;
+                }
+            }
+            if (match != null)
+                break;
+        }
+
+        var currency = match!.Value.CollectablesShopRewardScrip.Value.Currency;
+        var maxCur = match!.Value.CollectablesShopRewardScrip.Value.HighReward;
+        return currency switch
+        {
+            2 => (ScripType.CraftingPurple, maxCur),
+            6 => (ScripType.CraftingOrange,maxCur),
+            4 => (ScripType.GatheringPurple, maxCur),
+            7 => (ScripType.GatheringOrange, maxCur),
+            _ => throw new InvalidOperationException($"Unknown scrip currency: {currency}")
+        };
+    }
+
+
 }
 
 
