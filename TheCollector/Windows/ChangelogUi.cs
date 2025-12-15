@@ -27,8 +27,17 @@ public class ChangelogUi : IUiService
         Add0_37(Changelog);
         Add0_38(Changelog);
         Add0_39(Changelog);
+        Add0_40(Changelog);
         
     }
+
+    private void Add0_40(Changelog changelog)
+    {
+        changelog.NextVersion("Version 0.40")
+                 .RegisterEntry("The plugin will now turn in any remaining collectables after finishing scrip shop purchases")
+                 .RegisterEntry("Collectable turn-in will now abort early if you're hitting scrip cap again as well");
+    }
+
     public static void Add0_39(Changelog log) =>
         log.NextVersion("Version 0.39")
            .RegisterHighlight("Re-enabled functionality")
