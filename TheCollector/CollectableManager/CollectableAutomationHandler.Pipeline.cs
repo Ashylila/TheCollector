@@ -22,6 +22,7 @@ using ECommons;
 public partial class CollectableAutomationHandler
 {
     private FrameRunner? _runner;
+    private Dictionary<uint, CollectablesShopItem> _collectableByItemId = new();
     private readonly IPlayerState _player;
     private readonly TimeSpan _uiLoadDelay = TimeSpan.FromSeconds(2);
     private readonly TimeSpan _uiInteractDelay = TimeSpan.FromMilliseconds(500);
@@ -236,17 +237,17 @@ public partial class CollectableAutomationHandler
         }
         return StepResult.Success();
     }
-    public (string name, int left, int jobIndex)[] TurnInQueue { get; private set; }
+    public (CollectablesShopItem item,string name,int left, int jobIndex)[] TurnInQueue { get; private set; }
     private DateTime _lastTurnIn;
     private int _turnInPhase;
 
     private void PrimeTurnIn()
     {
         TurnInQueue = ItemHelper.GetLuminaItemsFromInventory()
-            .Where(i => i.Name.ExtractText().Contains("Rarefied", StringComparison.OrdinalIgnoreCase) || FishingCollectables.Contains(i.Name.ExtractText())) 
-            .GroupBy(i => i.Name)
-            .Select(g => (g.Key.ExtractText(), g.Count(), int.MinValue))
-            .ToArray();
+                                .Where(i => _collectableByItemId.ContainsKey(i.RowId))
+                                .GroupBy(i => i.RowId)
+                                .Select(g => (_collectableByItemId[g.Key],_collectableByItemId[g.Key].Item.Value.Name.ExtractText(), g.Count(), int.MinValue))
+                                .ToArray();
         
 
         for (var i = 0; i < TurnInQueue.Length; i++)
@@ -277,7 +278,7 @@ public partial class CollectableAutomationHandler
         if (DateTime.UtcNow < _cooldownUntil) return StepResult.Continue();
 
         var h = TurnInQueue[0];
-        _log.Debug($"found id{h.jobIndex.ToString()} for item {h.name.ToString()}");
+        _log.Debug($"found id{h.jobIndex.ToString()} for item {h.name}");
         if (_turnInPhase < 2)
         {
             if (h.jobIndex != int.MinValue && _currentJobIndex != h.jobIndex)
@@ -302,15 +303,17 @@ public partial class CollectableAutomationHandler
             _turnInPhase = 2;
             return StepResult.Continue();
         }
+        var current = h.item.CollectablesShopRewardScrip.Value.Currency switch
+        {
+            6 or 7 => _collectibleWindowHandler.OrangeScripCount(),
+            2 or 4 => _collectibleWindowHandler.PurpleScripCount(),
+            _ => throw new InvalidOperationException($"Unknown scrip currency: {h.item.CollectablesShopRewardScrip.Value.Currency}")
+        };
 
-        var scripItem = CheckScripType(h.name);
-        var current = scripItem.type is ScripType.CraftingOrange or ScripType.GatheringOrange
-                          ? _collectibleWindowHandler.OrangeScripCount()
-                          : _collectibleWindowHandler.PurpleScripCount();
 
         var remaining = 4000 - current;
 
-        if (scripItem.maxCur > remaining)
+        if (h.item.CollectablesShopRewardScrip.Value.HighReward > remaining)
         {
             return StepResult.Success();
         }
@@ -342,45 +345,6 @@ public partial class CollectableAutomationHandler
         }
         return StepResult.Success();
     }
-
-    public static (ScripType type, ushort maxCur) CheckScripType(string name)
-    {
-        var items = Svc.Data.GetExcelSheet<Item>()!;
-        var collectables = Svc.Data.GetSubrowExcelSheet<CollectablesShopItem>()!;
-
-        var itemId = items
-                     .FirstOrDefault(i => i.Name.ExtractText().Equals(name, StringComparison.OrdinalIgnoreCase))
-                     .RowId;
-
-        CollectablesShopItem? match = null;
-
-        foreach (var row in collectables)
-        {
-            foreach (var sub in row)
-            {
-                if (sub.Item.RowId == itemId)
-                {
-                    match = sub;
-                    break;
-                }
-            }
-            if (match != null)
-                break;
-        }
-
-        var currency = match!.Value.CollectablesShopRewardScrip.Value.Currency;
-        var maxCur = match!.Value.CollectablesShopRewardScrip.Value.HighReward;
-        return currency switch
-        {
-            2 => (ScripType.CraftingPurple, maxCur),
-            6 => (ScripType.CraftingOrange,maxCur),
-            4 => (ScripType.GatheringPurple, maxCur),
-            7 => (ScripType.GatheringOrange, maxCur),
-            _ => throw new InvalidOperationException($"Unknown scrip currency: {currency}")
-        };
-    }
-
-
 }
 
 

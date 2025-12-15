@@ -164,11 +164,19 @@ public partial class CollectableAutomationHandler
         _gatherbuddyService = gatherbuddyService;
         _lifestreamIpc = lifestreamIpc;
         _player = playerState;
+        
         Instance = this;
+        Init();
     }
 
     public bool HasCollectible => ItemHelper.GetCurrentInventoryItems().Any(i => i.IsCollectable);
 
+    private void Init()
+    {
+        foreach (var row in _dataManager.GetSubrowExcelSheet<CollectablesShopItem>())
+        foreach (var sub in row)
+            _collectableByItemId[sub.Item.RowId] = sub;
+    }
     public void Start()
     {
         if (IsRunning) return;
