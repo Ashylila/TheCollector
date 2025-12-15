@@ -244,7 +244,7 @@ public partial class CollectableAutomationHandler
     private void PrimeTurnIn()
     {
         TurnInQueue = ItemHelper.GetLuminaItemsFromInventory()
-                                .Where(i => _collectableByItemId.ContainsKey(i.RowId))
+                                .Where(i => i.IsCollectable && _collectableByItemId.ContainsKey(i.RowId))
                                 .GroupBy(i => i.RowId)
                                 .Select(g => (_collectableByItemId[g.Key],_collectableByItemId[g.Key].Item.Value.Name.ExtractText(), g.Count(), int.MinValue))
                                 .ToArray();
@@ -344,6 +344,43 @@ public partial class CollectableAutomationHandler
             return StepResult.Fail("No collectables found in inventory, cancelling");
         }
         return StepResult.Success();
+    }
+    public static void TestLogAllRarefiedCollectables()
+    {
+        var items = Svc.Data.GetExcelSheet<Item>()!;
+        var collectables = Svc.Data.GetSubrowExcelSheet<CollectablesShopItem>()!;
+
+        var collectableByItemId = new Dictionary<uint, CollectablesShopItem>();
+
+        foreach (var row in collectables)
+        {
+            foreach (var sub in row)
+                collectableByItemId[sub.Item.RowId] = sub;
+        }
+
+        foreach (var item in items)
+        {
+            var name = item.Name.ExtractText();
+            if (!name.Contains("Rarefied", StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            if (!collectableByItemId.TryGetValue(item.RowId, out var collectable))
+                continue;
+
+            var currency = collectable.CollectablesShopRewardScrip.Value.Currency;
+            var maxCur = collectable.CollectablesShopRewardScrip.Value.HighReward;
+
+            var type = currency switch
+            {
+                2 => ScripType.CraftingPurple,
+                6 => ScripType.CraftingOrange,
+                4 => ScripType.GatheringPurple,
+                7 => ScripType.GatheringOrange,
+                _ => (ScripType?)null
+            };
+
+            Svc.Log.Debug($"{name} | Currency={currency} | Type={type} | MaxCur={maxCur}");
+        }
     }
 }
 
