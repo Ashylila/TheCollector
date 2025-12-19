@@ -4,11 +4,12 @@
   "Punchline": "Plugin that automatically turns in collectables and buys specified scrip items",
   "Description": "TheCollector is a powerful Dalamud plugin for Final Fantasy XIV that automates collectable turn-ins and automatically purchases specified items when reaching scrip caps. It integrates with GatherBuddyReborn and Artisan, and when used alongside the lightweight ArtisanBuddy plugin, it allows you to create perfect loops of gathering, crafting, and turn-ins.",
   "ApplicableVersion": "any", 
-    "AssemblyVersion": "0.4", 
+    "AssemblyVersion": "0.4.1", 
     "TestingAssemblyVersion": "0.4",
   "Tags": [
     "collectables",
       "automation"
   ],
-    "IconUrl": "https://raw.githubusercontent.com/Ashylila/TheCollector/refs/heads/master/icon.png"
+    "IconUrl": "https://raw.githubusercontent.com/Ashylila/TheCollector/refs/heads/master/icon.png",
+  "DalamudApiLevel": 14
 }
