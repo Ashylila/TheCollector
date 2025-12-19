@@ -345,43 +345,6 @@ public partial class CollectableAutomationHandler
         }
         return StepResult.Success();
     }
-    public static void TestLogAllRarefiedCollectables()
-    {
-        var items = Svc.Data.GetExcelSheet<Item>()!;
-        var collectables = Svc.Data.GetSubrowExcelSheet<CollectablesShopItem>()!;
-
-        var collectableByItemId = new Dictionary<uint, CollectablesShopItem>();
-
-        foreach (var row in collectables)
-        {
-            foreach (var sub in row)
-                collectableByItemId[sub.Item.RowId] = sub;
-        }
-
-        foreach (var item in items)
-        {
-            var name = item.Name.ExtractText();
-            if (!name.Contains("Rarefied", StringComparison.OrdinalIgnoreCase))
-                continue;
-
-            if (!collectableByItemId.TryGetValue(item.RowId, out var collectable))
-                continue;
-
-            var currency = collectable.CollectablesShopRewardScrip.Value.Currency;
-            var maxCur = collectable.CollectablesShopRewardScrip.Value.HighReward;
-
-            var type = currency switch
-            {
-                2 => ScripType.CraftingPurple,
-                6 => ScripType.CraftingOrange,
-                4 => ScripType.GatheringPurple,
-                7 => ScripType.GatheringOrange,
-                _ => (ScripType?)null
-            };
-
-            Svc.Log.Debug($"{name} | Currency={currency} | Type={type} | MaxCur={maxCur}");
-        }
-    }
 }
 
 

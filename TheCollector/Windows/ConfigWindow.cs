@@ -133,9 +133,12 @@ public class ConfigWindow : Window, IDisposable
 
         ImGuiHelper.Panel("Options", () =>
         {
-            ImGui.TextUnformatted("Options:");
             ImGui.BeginDisabled(!IPCSubscriber_Common.IsReady("vnavmesh"));
-            ImGui.BeginDisabled(!IPCSubscriber_Common.IsReady("GatherbuddyReborn"));
+            ImGui.TextUnformatted("Options:");
+            if (ImGui.CollapsingHeader("Artisan"))
+            {
+                
+            ImGui.BeginDisabled(!IPCSubscriber_Common.IsReady("GatherbuddyReborn") || !IPCSubscriber_Common.IsReady("Artisan"));
 
             var craftOnAutogatherDisabled = Configuration.ShouldCraftOnAutogatherChanged;
             if (ImGui.Checkbox("Craft selected Artisan list id on autogather finish", ref craftOnAutogatherDisabled))
@@ -151,17 +154,6 @@ public class ConfigWindow : Window, IDisposable
                 Configuration.ArtisanListId = listId;
                 Configuration.Save();
             }
-            ImGui.EndDisabled();
-            var toggleAutogatherOnFinish = Configuration.EnableAutogatherOnFinish;
-            if (ImGui.Checkbox("Enable Autogather on Finish", ref toggleAutogatherOnFinish))
-            {
-                Configuration.EnableAutogatherOnFinish = toggleAutogatherOnFinish;
-                Configuration.Save();
-            }
-
-            ImGui.EndDisabled();
-
-            ImGui.BeginDisabled(!IPCSubscriber_Common.IsReady("Artisan"));
 
             var toggleCollectOnFinishCraftingList = Configuration.CollectOnFinishCraftingList;
             if (ImGui.Checkbox("Collect on Finish Crafting an Artisan List", ref toggleCollectOnFinishCraftingList))
@@ -171,6 +163,20 @@ public class ConfigWindow : Window, IDisposable
             }
 
             ImGui.EndDisabled();
+            ImGui.EndDisabled();
+            }
+            if (ImGui.CollapsingHeader("Misc"))
+            {
+            ImGui.BeginDisabled(!IPCSubscriber_Common.IsReady("GatherbuddyReborn"));
+            var toggleAutogatherOnFinish = Configuration.EnableAutogatherOnFinish;
+            if (ImGui.Checkbox("Enable Autogather on finish collecting", ref toggleAutogatherOnFinish))
+            {
+                Configuration.EnableAutogatherOnFinish = toggleAutogatherOnFinish;
+                Configuration.Save();
+            }
+
+            ImGui.EndDisabled();
+
 
             var buyAfterEachCollect = Configuration.BuyAfterEachCollect;
             if (ImGui.Checkbox("Buy items after each trade instead of on capping scrips", ref buyAfterEachCollect))
@@ -193,7 +199,7 @@ public class ConfigWindow : Window, IDisposable
                 Configuration.CollectOnFinishedFishing = invokeAfterFinishFishing;
                 Configuration.Save();
             }
-
+            }
             ImGui.TextUnformatted("Select your preferred collectable shop:");
             ImGui.SameLine();
 
