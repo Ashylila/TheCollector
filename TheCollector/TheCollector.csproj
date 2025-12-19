@@ -8,6 +8,22 @@
     <PackageLicenseExpression>AGPL-3.0-or-later</PackageLicenseExpression>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
+  <PropertyGroup>
+  <Author>Ashy</Author>
+  <Name>The Collector</Name>
+  <InternalName>TheCollector</InternalName>
+  <Punchline>Plugin that automatically turns in collectables and buys specified scrip items</Punchline>
+  <Description>Automates collectable turn-ins and automatically purchases specified items when reaching scrip caps. Integrates with GatherBuddyReborn and Artisan, allowing you to create perfect loops of gathering, crafting, and turn-ins.</Description>
+  <RepoUrl>https://github.com/Ashylila/TheCollector</RepoUrl>
+  <ApplicableVersion>any</ApplicableVersion>
+  <AssemblyVersion>0.4.1</AssemblyVersion>
+  <TestingAssemblyVersion>0.4</TestingAssemblyVersion>
+  <Tags>collectables;automation</Tags>
+  <IconUrl>https://raw.githubusercontent.com/Ashylila/TheCollector/refs/heads/master/icon.png</IconUrl>
+  <DalamudApiLevel>14</DalamudApiLevel>
+  <AcceptsFeedback>false</AcceptsFeedback>
+</PropertyGroup>
+
     <ItemGroup>
         <Content Include="..\Data\ScripShopItems.json">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
