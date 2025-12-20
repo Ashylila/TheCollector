@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Version to build (e.g. 0.93.1). Leave empty to use the latest tag ref when applicable.'
+        description: 'Version to build (e.g. 0.4.1). Leave empty to use the tag ref when applicable.'
         required: false
         default: ''
 
@@ -35,7 +35,7 @@ jobs:
           }
 
           if ([string]::IsNullOrWhiteSpace($tag) -or $tag -like 'refs/*') {
-            throw "No valid tag/version provided. Run manually with an input tag, or push a tag like 0.93.1"
+            throw "No valid tag/version provided. Run manually with an input tag, or push a tag like 0.4.1"
           }
 
           "tag=$tag" | Out-File -Append -FilePath $Env:GITHUB_ENV
@@ -52,14 +52,14 @@ jobs:
           Expand-Archive -Force latest.zip "$env:AppData\XIVLauncher\addon\Hooks\dev"
 
       - name: Restore Nuget Packages
-        run: dotnet restore AetherLink/AetherLink.csproj
+        run: dotnet restore TheCollector/TheCollector.csproj
 
       - name: Build Plugin
-        run: dotnet build --no-restore -c Release AetherLink/AetherLink.csproj -p:AssemblyVersion=${{ env.tag }} -p:FileVersion=${{ env.tag }} -p:PackageVersion=${{ env.tag }} -p:InformationalVersion=${{ env.tag }} --output .\build
+        run: dotnet build --no-restore -c Release TheCollector/TheCollector.csproj -p:AssemblyVersion=${{ env.tag }} -p:FileVersion=${{ env.tag }} -p:PackageVersion=${{ env.tag }} -p:InformationalVersion=${{ env.tag }} --output .\build
 
       - name: Zip Plugin
         shell: pwsh
-        run: Compress-Archive -Force -Path .\build\* -DestinationPath .\build\AetherLink.zip
+        run: Compress-Archive -Force -Path .\build\* -DestinationPath .\build\TheCollector.zip
 
       - name: Publish Plugin
         uses: softprops/action-gh-release@v2
@@ -67,5 +67,5 @@ jobs:
           tag_name: ${{ env.tag }}
           name: ${{ env.tag }}
           files: |
-            ./build/AetherLink.zip
+            ./build/TheCollector.zip
           token: ${{ secrets.GITHUB_TOKEN }}
