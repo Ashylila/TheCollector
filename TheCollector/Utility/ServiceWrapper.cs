@@ -20,16 +20,16 @@ public static class ServiceWrapper
     {
         var collection = new ServiceCollection();
         
-        collection.AddSingleton(Svc.Log);
-        collection.AddSingleton(Svc.Data);
-        collection.AddSingleton(Svc.Objects);
-        collection.AddSingleton(Svc.Targets);
-        collection.AddSingleton(Svc.Framework);
-        collection.AddSingleton(Svc.ClientState);
-        collection.AddSingleton(Svc.PluginInterface);
-        collection.AddSingleton(Svc.Chat);
-        collection.AddSingleton(Svc.Condition);
-        collection.AddSingleton(Plugin.PlayerState);
+        collection.AddSingleton(DalamudServices.Log);
+        collection.AddSingleton(DalamudServices.GameData);
+        collection.AddSingleton(DalamudServices.Objects);
+        collection.AddSingleton(DalamudServices.Targets);
+        collection.AddSingleton(DalamudServices.Framework);
+        collection.AddSingleton(DalamudServices.ClientState);
+        collection.AddSingleton(DalamudServices.PluginInterface);
+        collection.AddSingleton(DalamudServices.Chat);
+        collection.AddSingleton(DalamudServices.Conditions);
+        collection.AddSingleton(DalamudServices.PlayerState);
         
         collection.AddSingleton<TaskManager>();
         

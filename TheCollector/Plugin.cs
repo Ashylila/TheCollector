@@ -53,6 +53,7 @@ public sealed class Plugin : IDalamudPlugin
     public static event Action<bool> OnCollectorStatusChanged;
     public Plugin()
     {
+        DalamudServices.Initialize(PluginInterface);
         Configuration = PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
         ECommonsMain.Init(PluginInterface, this, Module.DalamudReflector);
         ServiceWrapper.Init(this);
