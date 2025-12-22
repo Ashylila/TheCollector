@@ -28,9 +28,14 @@ public class ChangelogUi : IUiService
         Add0_38(Changelog);
         Add0_39(Changelog);
         Add0_40(Changelog);
+        Add_0_4_4(Changelog);
         
     }
-
+    private void Add_0_4_4(Changelog log)
+    {
+        log.NextVersion("0.4.4")
+            .RegisterEntry("Now matches scripshopitems with ItemIds instead of strings, supporting more languages than english");
+    }
     private void Add0_40(Changelog changelog)
     {
         changelog.NextVersion("Version 0.40")
