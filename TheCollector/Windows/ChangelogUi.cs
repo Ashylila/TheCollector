@@ -34,7 +34,7 @@ public class ChangelogUi : IUiService
     private void Add_0_4_4(Changelog log)
     {
         log.NextVersion("0.4.4")
-            .RegisterEntry("Now matches scripshopitems with ItemIds instead of strings, supporting more languages than english");
+            .RegisterEntry("Now matches scripshopitems with ItemIds instead of strings, supporting more languages than english (You might have to re-add your items to purchase for them to show up properly)");
     }
     private void Add0_40(Changelog changelog)
     {
