@@ -2,7 +2,7 @@
 <Project Sdk="Dalamud.Net.SDK/14.0.1">
   <PropertyGroup>
     <TargetFramework>net10.0-windows7.0</TargetFramework>
-    <Version>0.4.3</Version>
+    <Version>0.4.4</Version>
     <Description>TheCollector</Description>
     <PackageProjectUrl>https://github.com/Ashylila/TheCollector</PackageProjectUrl>
     <PackageLicenseExpression>AGPL-3.0-or-later</PackageLicenseExpression>
@@ -16,7 +16,7 @@
   <Description>Automates collectable turn-ins and automatically purchases specified items when reaching scrip caps. Integrates with GatherBuddyReborn and Artisan, allowing you to create perfect loops of gathering, crafting, and turn-ins.</Description>
   <RepoUrl>https://github.com/Ashylila/TheCollector</RepoUrl>
   <ApplicableVersion>any</ApplicableVersion>
-  <AssemblyVersion>0.4.3</AssemblyVersion>
+  <AssemblyVersion>0.4.4</AssemblyVersion>
   <TestingAssemblyVersion>0.4</TestingAssemblyVersion>
   <Tags>collectables;automation</Tags>
   <IconUrl>https://raw.githubusercontent.com/Ashylila/TheCollector/refs/heads/master/icon.png</IconUrl>
