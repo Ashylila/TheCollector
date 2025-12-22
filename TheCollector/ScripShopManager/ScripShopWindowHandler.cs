@@ -53,26 +53,39 @@ public unsafe class ScripShopWindowHandler
             };
             addon->FireCallback(2, selectSubPage);
         }
-    } public bool SelectItem(string name, int amount)
+    } public bool SelectItem(uint itemId, int amount)
     {
         if (GenericHelpers.TryGetAddonByName("InclusionShop", out AtkUnitBase* addon))
         {
-            var shop = new InclusionShop(addon);
-            var index = shop.GetItemIndexOf(name);
+            var shop = new ECommons.UIHelpers.AddonMasterImplementations.AddonMaster.InclusionShop(addon);
+            var shopItems = shop.ShopItems;
+            var index = -1;
+            
+            for (int i = 0; i < shopItems.Length; i++)
+            {
+                if (shopItems[i].ItemId == itemId)
+                {
+                    index = i;
+                    break;
+                }
+            }
+            
             if (index == -1)
             {
+                Svc.Log.Error($"[ScripShopWindowHandler] Item ID {itemId} not found in current scrip shop tab");
                 return false;
             }
+            
             var selectItem = stackalloc AtkValue[]
             {
                 new() { Type = ValueType.Int, Int = 14 },
                 new() { Type = ValueType.UInt, UInt = (uint)index },
-                new() { Type = ValueType.UInt, UInt =  (uint)amount}
+                new() { Type = ValueType.UInt, UInt = (uint)amount }
             };
             addon->FireCallback(3, selectItem);
             return true;
         }
-
+        
         return false;
     }
 

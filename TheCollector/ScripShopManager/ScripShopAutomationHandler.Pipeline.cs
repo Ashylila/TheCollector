@@ -8,6 +8,7 @@ namespace TheCollector.ScripShopManager;
 
 using System;
 using System.Linq;
+using FFXIVClientStructs.FFXIV.Client.UI;
 using TheCollector.Automation;
 using TheCollector.Data;
 
@@ -132,8 +133,8 @@ public partial class ScripShopAutomationHandler
 
     public void StopPipeline() => _runner?.Cancel("Canceled");
 
-    private (int page, int subPage, int index, int remaining, int cost, string name)[] _buyQueue =
-        Array.Empty<(int, int, int, int, int, string)>();
+    private (int page, int subPage, int index, int remaining, int cost, uint itemId)[] _buyQueue =
+        Array.Empty<(int, int, int, int, int, uint)>();
 
     private DateTime _lastBuy;
     private int _currentPurchaseAmount;
@@ -142,7 +143,7 @@ public partial class ScripShopAutomationHandler
     {
         _buyQueue =
             (from i in _configuration.ItemsToPurchase
-             join s in ScripShopItemManager.ShopItems on i.Name equals s.Name
+             join s in ScripShopItemManager.ShopItems on i.Item.ItemId equals s.ItemId
              let remaining = i.Quantity - i.AmountPurchased
              where i.Quantity > 0 && remaining > 0
              select (
@@ -151,7 +152,8 @@ public partial class ScripShopAutomationHandler
                  index: s.Index,
                  remaining: remaining,
                  cost: (int)s.ItemCost,
-                 name: i.Name
+                 itemId:s.ItemId
+                 
              ))
             .ToArray();
 
@@ -174,7 +176,6 @@ public partial class ScripShopAutomationHandler
                 _scripShopWindowHandler.SelectPage(h.page);
                 _cooldownUntil = DateTime.UtcNow + _uiInteractDelay;
                 _buyPhase = 1;
-                _log.Verbose(h.page + h.name + h.index + h.subPage);
                 return StepResult.Continue();
 
             case 1:
@@ -196,8 +197,8 @@ public partial class ScripShopAutomationHandler
                     return StepResult.Continue();
                 }
 
-                if (!_scripShopWindowHandler.SelectItem(h.name, amount))
-                    return StepResult.Fail($"Could not locate item {h.name}");
+                if (!_scripShopWindowHandler.SelectItem(h.itemId, amount))
+                    return StepResult.Fail($"Could not locate item {h.itemId}");
 
                 _currentPurchaseAmount = amount;
                 _cooldownUntil = DateTime.UtcNow + _uiInteractDelay;
@@ -214,7 +215,7 @@ public partial class ScripShopAutomationHandler
 
                 h.remaining -= _currentPurchaseAmount;
 
-                var cfgItem = _configuration.ItemsToPurchase.FirstOrDefault(x => x.Name == h.name);
+                var cfgItem = _configuration.ItemsToPurchase.FirstOrDefault(x => x.Item.ItemId == h.itemId);
                 if (cfgItem != null)
                 {
                     cfgItem.AmountPurchased += Math.Max(0, _currentPurchaseAmount);
