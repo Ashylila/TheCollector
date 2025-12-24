@@ -36,7 +36,7 @@ public partial class ScripShopAutomationHandler
             {
                 if (status == StepStatus.Failed)
                 {
-                    _runner.Cancel(error ?? "Failed");
+                    _runner?.Cancel(error ?? "Failed");
                     Plugin.State = PluginState.Idle;
                 }
                 _log.Debug($"{name} -> {status}{(error is null ? "" : $" ({error})")}");
@@ -133,8 +133,8 @@ public partial class ScripShopAutomationHandler
 
     public void StopPipeline() => _runner?.Cancel("Canceled");
 
-    private (int page, int subPage, int index, int remaining, int cost, uint itemId)[] _buyQueue =
-        Array.Empty<(int, int, int, int, int, uint)>();
+    private (int page, int subPage, int remaining, int cost, uint itemId)[] _buyQueue =
+        Array.Empty<(int, int, int, int, uint)>();
 
     private DateTime _lastBuy;
     private int _currentPurchaseAmount;
@@ -149,11 +149,10 @@ public partial class ScripShopAutomationHandler
              select (
                  page: s.Page,
                  subPage: s.SubPage,
-                 index: s.Index,
                  remaining: remaining,
                  cost: (int)s.ItemCost,
-                 itemId:s.ItemId
-                 
+                 itemId: s.ItemId
+
              ))
             .ToArray();
 
@@ -185,52 +184,63 @@ public partial class ScripShopAutomationHandler
                 return StepResult.Continue();
 
             case 2:
-            {
-                var scrips = _scripShopWindowHandler.ScripCount();
-                var maxByScrip = h.cost > 0 ? (scrips / h.cost) : h.remaining;
-                var amount = Math.Min(h.remaining, Math.Min(maxByScrip, 99));
-
-                if (amount <= 0)
                 {
-                    _buyQueue = _buyQueue.Skip(1).ToArray();
-                    _buyPhase = 0;
+                    var scrips = _scripShopWindowHandler.ScripCount();
+                    var maxByScrip = h.cost > 0 ? (scrips / h.cost) : h.remaining;
+                    var amount = Math.Min(h.remaining, Math.Min(maxByScrip, 99));
+
+                    if (amount <= 0)
+                    {
+                        _buyQueue = _buyQueue.Skip(1).ToArray();
+                        _buyPhase = 0;
+                        return StepResult.Continue();
+                    }
+
+
+                    _currentPurchaseAmount = amount;
+                    _cooldownUntil = DateTime.UtcNow + _uiInteractDelay;
+                    _buyPhase = 69;
                     return StepResult.Continue();
                 }
-
-                if (!_scripShopWindowHandler.SelectItem(h.itemId, amount))
-                    return StepResult.Fail($"Could not locate item {h.itemId}");
-
-                _currentPurchaseAmount = amount;
-                _cooldownUntil = DateTime.UtcNow + _uiInteractDelay;
-                _buyPhase = 3;
-                return StepResult.Continue();
-            }
-
-            case 3:
-            {
-                _scripShopWindowHandler.PurchaseItem();
-                _lastBuy = DateTime.UtcNow;
-                _cooldownUntil = _lastBuy + _uiInteractDelay;
-                _buyPhase = 0;
-
-                h.remaining -= _currentPurchaseAmount;
-
-                var cfgItem = _configuration.ItemsToPurchase.FirstOrDefault(x => x.Item.ItemId == h.itemId);
-                if (cfgItem != null)
+            case 69:
                 {
-                    cfgItem.AmountPurchased += Math.Max(0, _currentPurchaseAmount);
-                    _configuration.Save();
+                    var r = _scripShopWindowHandler.SelectItem(h.itemId, _currentPurchaseAmount);
+
+                    if (r.Status == StepStatus.Continue)
+                        return StepResult.Continue();
+
+                    if (r.Status == StepStatus.Failed)
+                        return r;
+
+                    _cooldownUntil = DateTime.UtcNow + _uiInteractDelay;
+                    _buyPhase = 3;
+                    return StepResult.Continue();
                 }
+            case 3:
+                {
+                    _scripShopWindowHandler.PurchaseItem();
+                    _lastBuy = DateTime.UtcNow;
+                    _cooldownUntil = _lastBuy + _uiInteractDelay;
+                    _buyPhase = 0;
 
-                _currentPurchaseAmount = 0;
+                    h.remaining -= _currentPurchaseAmount;
 
-                if (h.remaining <= 0)
-                    _buyQueue = _buyQueue.Skip(1).ToArray();
-                else
-                    _buyQueue[0] = h;
+                    var cfgItem = _configuration.ItemsToPurchase.FirstOrDefault(x => x.Item.ItemId == h.itemId);
+                    if (cfgItem != null)
+                    {
+                        cfgItem.AmountPurchased += Math.Max(0, _currentPurchaseAmount);
+                        _configuration.Save();
+                    }
 
-                return StepResult.Continue();
-            }
+                    _currentPurchaseAmount = 0;
+
+                    if (h.remaining <= 0)
+                        _buyQueue = _buyQueue.Skip(1).ToArray();
+                    else
+                        _buyQueue[0] = h;
+
+                    return StepResult.Continue();
+                }
         }
 
         return StepResult.Continue();
