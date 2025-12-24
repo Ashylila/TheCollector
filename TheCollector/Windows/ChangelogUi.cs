@@ -29,7 +29,13 @@ public class ChangelogUi : IUiService
         Add0_39(Changelog);
         Add0_40(Changelog);
         Add_0_4_4(Changelog);
+        Add_0_4_5(Changelog);
         
+    }
+    private void Add_0_4_5(Changelog log)
+    {
+        log.NextVersion("Version 0.4.5")
+            .RegisterEntry("Bandaid fix for cases where the user has missing scripshop subpages and it cant find the item - now forces through every sub page trying to find the item");
     }
     private void Add_0_4_4(Changelog log)
     {

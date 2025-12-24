@@ -13,7 +13,7 @@ using TheCollector.Automation;
 
 namespace TheCollector.ScripShopManager;
 
-public unsafe partial class ScripShopWindowHandler
+public unsafe class ScripShopWindowHandler
 {
     private IFramework _framework;
     private readonly PlogonLog _log;
