@@ -1,4 +1,5 @@
-﻿using OtterGui.Services;
+﻿using System;
+using OtterGui.Services;
 using OtterGui.Widgets;
 using TheCollector.Utility;
 
@@ -30,8 +31,16 @@ public class ChangelogUi : IUiService
         Add0_40(Changelog);
         Add_0_4_4(Changelog);
         Add_0_4_5(Changelog);
+        Add_0_4_6(Changelog);
         
     }
+
+    private void Add_0_4_6(Changelog changeLog)
+    {
+        changeLog.NextVersion("Version 0.4.6")
+            .RegisterEntry("Updated logic for reading scrip amount, fixing various issues");
+    }
+
     private void Add_0_4_5(Changelog log)
     {
         log.NextVersion("Version 0.4.5")
