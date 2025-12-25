@@ -156,5 +156,9 @@ public class AutomationHandler : IDisposable
         _scripShopAutomationHandler.OnError -= OnError;
         _scripShopAutomationHandler.OnFinishedTrading -= OnFinishedTrading;
         _gatherbuddyReborn_IPCSubscriber.OnAutoGatherStatusChanged -= OnAutoGatherStatusChanged;
+        _artisanWatcher.OnCraftingFinished -= OnFinishedWatching;
+        _fishingWatcher.OnFishingFinished -= OnFinishedWatching;
+        _collectableAutomationHandler.OnScripsCapped -= OnScripCapped;
+        _collectableAutomationHandler.OnFinishCollecting -= OnFinishedCollecting;
     }
 }

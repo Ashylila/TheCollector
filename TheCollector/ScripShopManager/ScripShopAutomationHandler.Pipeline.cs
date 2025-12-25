@@ -185,10 +185,11 @@ public partial class ScripShopAutomationHandler
 
             case 2:
                 {
-                    var scrips = _scripShopWindowHandler.ScripCount();
+                    if(!ScripShopItemManager.TryGetScripType(h.itemId, out var value)) return StepResult.Fail($"Couldnt get the scripType for item {h.itemId}");
+                    var scrips = _scripShopWindowHandler.ScripCount((uint)value);
+                    _log.Debug($"Scripcount: {scrips}");
                     var maxByScrip = h.cost > 0 ? (scrips / h.cost) : h.remaining;
                     var amount = Math.Min(h.remaining, Math.Min(maxByScrip, 99));
-
                     if (amount <= 0)
                     {
                         _buyQueue = _buyQueue.Skip(1).ToArray();
@@ -197,7 +198,7 @@ public partial class ScripShopAutomationHandler
                     }
 
 
-                    _currentPurchaseAmount = amount;
+                    _currentPurchaseAmount = (int)amount;
                     _cooldownUntil = DateTime.UtcNow + _uiInteractDelay;
                     _buyPhase = 69;
                     return StepResult.Continue();
@@ -250,6 +251,7 @@ public partial class ScripShopAutomationHandler
 
     private StepResult MakeMoveTick()
     {
+        
         var shop = _configuration.PreferredCollectableShop;
 
         if (shop.ScripShopLocation == shop.Location)

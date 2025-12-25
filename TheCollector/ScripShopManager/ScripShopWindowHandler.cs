@@ -7,9 +7,11 @@ using Lumina.Data.Parsing.Uld;
 using Lumina.Excel.Sheets;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using Dalamud.Plugin.Services;
-using FFXIVClientStructs.FFXIV.Client.System.Framework;
+using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using TheCollector.Utility;
 using TheCollector.Automation;
+using FFXIVClientStructs.FFXIV.Client.Game;
+using ECommons.Commands;
 
 namespace TheCollector.ScripShopManager;
 
@@ -180,17 +182,16 @@ public unsafe class ScripShopWindowHandler
             addon->FireCallback(2, selectSubPage);
         }
     }
-
     private bool TrySelectItemInCurrentTab(AtkUnitBase* addon, uint itemId, int amount)
     {
         var shop = new ECommons.UIHelpers.AddonMasterImplementations.AddonMaster.InclusionShop(addon);
         var shopItems = shop.ShopItems;
-
         var index = -1;
         for (int i = 0; i < shopItems.Length; i++)
         {
             if (shopItems[i].ItemId == itemId)
             {
+                _log.Debug($"Index: {index}");
                 index = i;
                 break;
             }
@@ -223,24 +224,17 @@ public unsafe class ScripShopWindowHandler
         }
     }
 
-    public int ScripCount()
+    public uint ScripCount(uint curType)
     {
         if (GenericHelpers.TryGetAddonByName("InclusionShop", out AtkUnitBase* addon))
         {
-            for (int i = 0; i < addon->UldManager.NodeListCount; i++)
-            {
-                var node = addon->UldManager.NodeList[i];
-                if (node->Type == NodeType.Text && node->NodeId == 4)
-                {
-                    var textNode = node->GetAsAtkTextNode();
-                    if (textNode != null)
-                    {
-                        return int.Parse(textNode->NodeText.ToString().Replace(",", ""));
-                    }
-                }
-            }
+            var cur = CurrencyManager.Instance();
+        
+            var curAmount = cur->GetItemIdBySpecialId((byte)curType);
+
+            return cur->GetItemCount(curAmount);
         }
-        return -1;
+        return uint.MinValue;
     }
     public void CloseShop()
     {

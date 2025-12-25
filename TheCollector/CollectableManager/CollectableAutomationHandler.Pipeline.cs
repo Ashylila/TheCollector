@@ -43,7 +43,7 @@ public partial class CollectableAutomationHandler
             {
                 if (StepStatus.Failed == status)
                 {
-                    _runner.Cancel(error);
+                    _runner?.Cancel(error);
                     Plugin.State = PluginState.Idle;
                 }
                 _log.Debug($"{name} -> {status}{(error is null ? "" : $" ({error})")}");
