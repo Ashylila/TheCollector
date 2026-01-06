@@ -133,8 +133,8 @@ public partial class ScripShopAutomationHandler
 
     public void StopPipeline() => _runner?.Cancel("Canceled");
 
-    private (int page, int subPage, int remaining, int cost, uint itemId)[] _buyQueue =
-        Array.Empty<(int, int, int, int, uint)>();
+    private (int page, int subPage, int remaining, int cost, uint itemId, uint currencyId)[] _buyQueue =
+        Array.Empty<(int, int, int, int, uint, uint)>();
 
     private DateTime _lastBuy;
     private int _currentPurchaseAmount;
@@ -151,7 +151,8 @@ public partial class ScripShopAutomationHandler
                  subPage: s.SubPage,
                  remaining: remaining,
                  cost: (int)s.ItemCost,
-                 itemId: s.ItemId
+                 itemId: s.ItemId,
+                 currencyId: s.CurrencyId
 
              ))
             .ToArray();
@@ -185,8 +186,8 @@ public partial class ScripShopAutomationHandler
 
             case 2:
                 {
-                    if(!ScripShopItemManager.TryGetScripType(h.itemId, out var value)) return StepResult.Fail($"Couldnt get the scripType for item {h.itemId}");
-                    var scrips = _scripShopWindowHandler.ScripCount((uint)value);
+                    
+                    var scrips = _scripShopWindowHandler.ScripCount(h.currencyId);
                     _log.Debug($"Scripcount: {scrips}");
                     var maxByScrip = h.cost > 0 ? (scrips / h.cost) : h.remaining;
                     var amount = Math.Min(h.remaining, Math.Min(maxByScrip, 99));

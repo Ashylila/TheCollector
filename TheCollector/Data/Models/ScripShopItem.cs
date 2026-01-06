@@ -13,8 +13,9 @@ public class ScripShopItem
     public uint ItemCost { get; set; }
     public int Page { get; set; }
     public int SubPage { get; set; }
-    public ScripType ScripType { get; set; }
     public uint ItemId { get; set; }
+    [JsonIgnore]
+    public uint CurrencyId { get; set; }
     
     [JsonIgnore]
     private Item? _itemCache;
