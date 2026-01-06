@@ -51,7 +51,7 @@
         "Page":  0,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10296
+        "ItemId":  15654
     },
     {
         "Name":  "Millkeep's Claw Hammer",
@@ -60,7 +60,7 @@
         "Page":  0,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  14106
+        "ItemId":  15873
     },
     {
         "Name":  "Millkeep's Cap",
@@ -69,7 +69,7 @@
         "Page":  0,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10230
+        "ItemId":  15665
     },
     {
         "Name":  "Millkeep's Apron",
@@ -78,7 +78,7 @@
         "Page":  0,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10231
+        "ItemId":  15666
     },
     {
         "Name":  "Millkeep's Gloves",
@@ -87,7 +87,7 @@
         "Page":  0,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10232
+        "ItemId":  15667
     },
     {
         "Name":  "Millkeep's Slops",
@@ -96,7 +96,7 @@
         "Page":  0,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10233
+        "ItemId":  15668
     },
     {
         "Name":  "Millkeep's Workboots",
@@ -105,7 +105,7 @@
         "Page":  0,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10234
+        "ItemId":  15669
     },
     {
         "Name":  "Forgekeep's Hammer",
@@ -114,7 +114,7 @@
         "Page":  0,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10297
+        "ItemId":  15655
     },
     {
         "Name":  "Forgekeep's File",
@@ -123,7 +123,7 @@
         "Page":  0,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  14107
+        "ItemId":  15874
     },
     {
         "Name":  "Forgekeep's Goggles",
@@ -132,7 +132,7 @@
         "Page":  0,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10235
+        "ItemId":  15670
     },
     {
         "Name":  "Forgekeep's Redingote",
@@ -141,7 +141,7 @@
         "Page":  0,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10236
+        "ItemId":  15671
     },
     {
         "Name":  "Forgekeep's Gloves",
@@ -150,7 +150,7 @@
         "Page":  0,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10237
+        "ItemId":  15672
     },
     {
         "Name":  "Forgekeep's Slops",
@@ -159,7 +159,7 @@
         "Page":  0,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10238
+        "ItemId":  15673
     },
     {
         "Name":  "Forgekeep's Sandals",
@@ -168,7 +168,7 @@
         "Page":  0,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10239
+        "ItemId":  15674
     },
     {
         "Name":  "Hammerkeep's Beetle",
@@ -177,7 +177,7 @@
         "Page":  0,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10298
+        "ItemId":  15656
     },
     {
         "Name":  "Hammerkeep's Pliers",
@@ -186,7 +186,7 @@
         "Page":  0,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  14108
+        "ItemId":  15875
     },
     {
         "Name":  "Hammerkeep's Visor",
@@ -195,7 +195,7 @@
         "Page":  0,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10240
+        "ItemId":  15675
     },
     {
         "Name":  "Hammerkeep's Waist Apron",
@@ -204,7 +204,7 @@
         "Page":  0,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10241
+        "ItemId":  15676
     },
     {
         "Name":  "Hammerkeep's Work Gloves",
@@ -213,7 +213,7 @@
         "Page":  0,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10242
+        "ItemId":  15677
     },
     {
         "Name":  "Hammerkeep's Slops",
@@ -222,7 +222,7 @@
         "Page":  0,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10243
+        "ItemId":  15678
     },
     {
         "Name":  "Hammerkeep's Workboots",
@@ -231,7 +231,7 @@
         "Page":  0,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10244
+        "ItemId":  15679
     },
     {
         "Name":  "Gemkeep's Mallet",
@@ -240,7 +240,7 @@
         "Page":  0,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10299
+        "ItemId":  15657
     },
     {
         "Name":  "Gemkeep's Grinding Wheel",
@@ -249,7 +249,7 @@
         "Page":  0,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  14109
+        "ItemId":  15876
     },
     {
         "Name":  "Gemkeep's Coronal",
@@ -258,7 +258,7 @@
         "Page":  0,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10245
+        "ItemId":  15680
     },
     {
         "Name":  "Gemkeep's Gown",
@@ -267,7 +267,7 @@
         "Page":  0,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10246
+        "ItemId":  15681
     },
     {
         "Name":  "Gemkeep's Chaplets",
@@ -276,7 +276,7 @@
         "Page":  0,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10247
+        "ItemId":  15682
     },
     {
         "Name":  "Gemkeep's Trousers",
@@ -285,7 +285,7 @@
         "Page":  0,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10248
+        "ItemId":  15683
     },
     {
         "Name":  "Gemkeep's Sandals",
@@ -294,7 +294,7 @@
         "Page":  0,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10249
+        "ItemId":  15684
     },
     {
         "Name":  "Hidekeep's Knife",
@@ -303,7 +303,7 @@
         "Page":  0,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10300
+        "ItemId":  15658
     },
     {
         "Name":  "Hidekeep's Awl",
@@ -312,7 +312,7 @@
         "Page":  0,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  14110
+        "ItemId":  15877
     },
     {
         "Name":  "Hidekeep's Cap",
@@ -321,7 +321,7 @@
         "Page":  0,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10250
+        "ItemId":  15685
     },
     {
         "Name":  "Hidekeep's Apron",
@@ -330,7 +330,7 @@
         "Page":  0,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10251
+        "ItemId":  15686
     },
     {
         "Name":  "Hidekeep's Gloves",
@@ -339,7 +339,7 @@
         "Page":  0,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10252
+        "ItemId":  15687
     },
     {
         "Name":  "Hidekeep's Trousers",
@@ -348,7 +348,7 @@
         "Page":  0,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10253
+        "ItemId":  15688
     },
     {
         "Name":  "Hidekeep's Workboots",
@@ -357,7 +357,7 @@
         "Page":  0,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10254
+        "ItemId":  15689
     },
     {
         "Name":  "Boltkeep's Needle",
@@ -366,7 +366,7 @@
         "Page":  0,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10301
+        "ItemId":  15659
     },
     {
         "Name":  "Boltkeep's Spinning Wheel",
@@ -375,7 +375,7 @@
         "Page":  0,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  14111
+        "ItemId":  15878
     },
     {
         "Name":  "Boltkeep's Gibus",
@@ -384,7 +384,7 @@
         "Page":  0,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10255
+        "ItemId":  15690
     },
     {
         "Name":  "Boltkeep's Dreadnought",
@@ -393,7 +393,7 @@
         "Page":  0,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10256
+        "ItemId":  15691
     },
     {
         "Name":  "Boltkeep's Gloves",
@@ -402,7 +402,7 @@
         "Page":  0,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10257
+        "ItemId":  15692
     },
     {
         "Name":  "Boltkeep's Slacks",
@@ -411,7 +411,7 @@
         "Page":  0,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10258
+        "ItemId":  15693
     },
     {
         "Name":  "Boltkeep's Top Boots",
@@ -420,7 +420,7 @@
         "Page":  0,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10259
+        "ItemId":  15694
     },
     {
         "Name":  "Cauldronkeep's Alembic",
@@ -429,7 +429,7 @@
         "Page":  0,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10302
+        "ItemId":  15660
     },
     {
         "Name":  "Cauldronkeep's Mortar",
@@ -438,7 +438,7 @@
         "Page":  0,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  14112
+        "ItemId":  15879
     },
     {
         "Name":  "Cauldronkeep's Spectacles",
@@ -447,7 +447,7 @@
         "Page":  0,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10260
+        "ItemId":  15695
     },
     {
         "Name":  "Cauldronkeep's Overcoat",
@@ -456,7 +456,7 @@
         "Page":  0,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10261
+        "ItemId":  15696
     },
     {
         "Name":  "Cauldronkeep's Gloves",
@@ -465,7 +465,7 @@
         "Page":  0,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10262
+        "ItemId":  15697
     },
     {
         "Name":  "Cauldronkeep's Longkilt",
@@ -474,7 +474,7 @@
         "Page":  0,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10263
+        "ItemId":  15698
     },
     {
         "Name":  "Cauldronkeep's Jackboots",
@@ -483,7 +483,7 @@
         "Page":  0,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10264
+        "ItemId":  15699
     },
     {
         "Name":  "Galleykeep's Frypan",
@@ -492,7 +492,7 @@
         "Page":  0,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10303
+        "ItemId":  15661
     },
     {
         "Name":  "Galleykeep's Culinary Knife",
@@ -501,7 +501,7 @@
         "Page":  0,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  14113
+        "ItemId":  15880
     },
     {
         "Name":  "Galleykeep's Toque",
@@ -510,7 +510,7 @@
         "Page":  0,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10265
+        "ItemId":  15700
     },
     {
         "Name":  "Galleykeep's Whites",
@@ -519,7 +519,7 @@
         "Page":  0,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10266
+        "ItemId":  15701
     },
     {
         "Name":  "Galleykeep's Gloves",
@@ -528,7 +528,7 @@
         "Page":  0,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10267
+        "ItemId":  15702
     },
     {
         "Name":  "Galleykeep's Trousers",
@@ -537,7 +537,7 @@
         "Page":  0,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10268
+        "ItemId":  15703
     },
     {
         "Name":  "Galleykeep's Top Boots",
@@ -546,7 +546,7 @@
         "Page":  0,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10269
+        "ItemId":  15704
     },
     {
         "Name":  "Handmaster's Earrings",
@@ -555,7 +555,7 @@
         "Page":  0,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  14117
+        "ItemId":  15884
     },
     {
         "Name":  "Handmaster's Necklace",
@@ -564,7 +564,7 @@
         "Page":  0,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  14118
+        "ItemId":  15885
     },
     {
         "Name":  "Handmaster's Armillae",
@@ -573,7 +573,7 @@
         "Page":  0,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  14119
+        "ItemId":  15886
     },
     {
         "Name":  "Handmaster's Ring",
@@ -582,7 +582,7 @@
         "Page":  0,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  14120
+        "ItemId":  15887
     },
     {
         "Name":  "Millking's Saw",
@@ -591,7 +591,7 @@
         "Page":  0,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19590
+        "ItemId":  21208
     },
     {
         "Name":  "Millking's Claw Hammer",
@@ -609,7 +609,7 @@
         "Page":  0,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19662
+        "ItemId":  21219
     },
     {
         "Name":  "Millking's Coat",
@@ -618,7 +618,7 @@
         "Page":  0,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19663
+        "ItemId":  21220
     },
     {
         "Name":  "Millking's Gloves",
@@ -627,7 +627,7 @@
         "Page":  0,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19664
+        "ItemId":  21221
     },
     {
         "Name":  "Millking's Slops",
@@ -636,7 +636,7 @@
         "Page":  0,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19665
+        "ItemId":  21222
     },
     {
         "Name":  "Millking's Boots",
@@ -645,7 +645,7 @@
         "Page":  0,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19666
+        "ItemId":  21223
     },
     {
         "Name":  "Forgeking's Hammer",
@@ -654,7 +654,7 @@
         "Page":  0,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19591
+        "ItemId":  21209
     },
     {
         "Name":  "Forgeking's File",
@@ -672,7 +672,7 @@
         "Page":  0,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19667
+        "ItemId":  21224
     },
     {
         "Name":  "Forgeking's Apron",
@@ -681,7 +681,7 @@
         "Page":  0,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19668
+        "ItemId":  21225
     },
     {
         "Name":  "Forgeking's Gloves",
@@ -690,7 +690,7 @@
         "Page":  0,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19669
+        "ItemId":  21226
     },
     {
         "Name":  "Forgeking's Slops",
@@ -699,7 +699,7 @@
         "Page":  0,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19670
+        "ItemId":  21227
     },
     {
         "Name":  "Forgeking's Boots",
@@ -708,7 +708,7 @@
         "Page":  0,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19671
+        "ItemId":  21228
     },
     {
         "Name":  "Hammerking's Beetle",
@@ -717,7 +717,7 @@
         "Page":  0,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19592
+        "ItemId":  21210
     },
     {
         "Name":  "Hammerking's Pliers",
@@ -735,7 +735,7 @@
         "Page":  0,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19672
+        "ItemId":  21229
     },
     {
         "Name":  "Hammerking's Redingote",
@@ -744,7 +744,7 @@
         "Page":  0,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19673
+        "ItemId":  21230
     },
     {
         "Name":  "Hammerking's Gloves",
@@ -753,7 +753,7 @@
         "Page":  0,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19674
+        "ItemId":  21231
     },
     {
         "Name":  "Hammerking's Slops",
@@ -762,7 +762,7 @@
         "Page":  0,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19675
+        "ItemId":  21232
     },
     {
         "Name":  "Hammerking's Boots",
@@ -771,7 +771,7 @@
         "Page":  0,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19676
+        "ItemId":  21233
     },
     {
         "Name":  "Gemking's Mallet",
@@ -780,7 +780,7 @@
         "Page":  0,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19593
+        "ItemId":  21211
     },
     {
         "Name":  "Gemking's Grinding Wheel",
@@ -798,7 +798,7 @@
         "Page":  0,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19677
+        "ItemId":  21234
     },
     {
         "Name":  "Gemking's Coat",
@@ -807,7 +807,7 @@
         "Page":  0,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19678
+        "ItemId":  21235
     },
     {
         "Name":  "Gemking's Gloves",
@@ -816,7 +816,7 @@
         "Page":  0,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19679
+        "ItemId":  21236
     },
     {
         "Name":  "Gemking's Slops",
@@ -825,7 +825,7 @@
         "Page":  0,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19680
+        "ItemId":  21237
     },
     {
         "Name":  "Gemking's Boots",
@@ -834,7 +834,7 @@
         "Page":  0,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19681
+        "ItemId":  21238
     },
     {
         "Name":  "Hideking's Knife",
@@ -843,7 +843,7 @@
         "Page":  0,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19594
+        "ItemId":  21212
     },
     {
         "Name":  "Hideking's Awl",
@@ -861,7 +861,7 @@
         "Page":  0,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19682
+        "ItemId":  21239
     },
     {
         "Name":  "Hideking's Jacket",
@@ -870,7 +870,7 @@
         "Page":  0,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19683
+        "ItemId":  21240
     },
     {
         "Name":  "Hideking's Gloves",
@@ -879,7 +879,7 @@
         "Page":  0,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19684
+        "ItemId":  21241
     },
     {
         "Name":  "Hideking's Slacks",
@@ -888,7 +888,7 @@
         "Page":  0,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19685
+        "ItemId":  21242
     },
     {
         "Name":  "Hideking's Thighboots",
@@ -897,7 +897,7 @@
         "Page":  0,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19686
+        "ItemId":  21243
     },
     {
         "Name":  "Boltking's Needle",
@@ -906,7 +906,7 @@
         "Page":  0,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19595
+        "ItemId":  21213
     },
     {
         "Name":  "Boltking's Spinning Wheel",
@@ -924,7 +924,7 @@
         "Page":  0,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19687
+        "ItemId":  21244
     },
     {
         "Name":  "Boltking's Jacket",
@@ -933,7 +933,7 @@
         "Page":  0,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19688
+        "ItemId":  21245
     },
     {
         "Name":  "Boltking's Gloves",
@@ -942,7 +942,7 @@
         "Page":  0,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19689
+        "ItemId":  21246
     },
     {
         "Name":  "Boltking's Slops",
@@ -951,7 +951,7 @@
         "Page":  0,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19690
+        "ItemId":  21247
     },
     {
         "Name":  "Boltking's Boots",
@@ -960,7 +960,7 @@
         "Page":  0,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19691
+        "ItemId":  21248
     },
     {
         "Name":  "Cauldronking's Alembic",
@@ -969,7 +969,7 @@
         "Page":  0,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19596
+        "ItemId":  21214
     },
     {
         "Name":  "Cauldronking's Mortar",
@@ -987,7 +987,7 @@
         "Page":  0,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19692
+        "ItemId":  21249
     },
     {
         "Name":  "Cauldronking's Coat",
@@ -996,7 +996,7 @@
         "Page":  0,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19693
+        "ItemId":  21250
     },
     {
         "Name":  "Cauldronking's Dress Gloves",
@@ -1005,7 +1005,7 @@
         "Page":  0,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19694
+        "ItemId":  21251
     },
     {
         "Name":  "Cauldronking's Slops",
@@ -1014,7 +1014,7 @@
         "Page":  0,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19695
+        "ItemId":  21252
     },
     {
         "Name":  "Cauldronking's Boots",
@@ -1023,7 +1023,7 @@
         "Page":  0,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19696
+        "ItemId":  21253
     },
     {
         "Name":  "Galleyking's Frypan",
@@ -1032,7 +1032,7 @@
         "Page":  0,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19597
+        "ItemId":  21215
     },
     {
         "Name":  "Galleyking's Culinary Knife",
@@ -1050,7 +1050,7 @@
         "Page":  0,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19697
+        "ItemId":  21254
     },
     {
         "Name":  "Galleyking's Apron",
@@ -1059,7 +1059,7 @@
         "Page":  0,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19698
+        "ItemId":  21255
     },
     {
         "Name":  "Galleyking's Mittens",
@@ -1068,7 +1068,7 @@
         "Page":  0,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19699
+        "ItemId":  21256
     },
     {
         "Name":  "Galleyking's Trousers",
@@ -1077,7 +1077,7 @@
         "Page":  0,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19700
+        "ItemId":  21257
     },
     {
         "Name":  "Galleyking's Shoes",
@@ -1086,7 +1086,7 @@
         "Page":  0,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19701
+        "ItemId":  21258
     },
     {
         "Name":  "Millfiend's Saw",
@@ -5461,7 +5461,7 @@
         "Page":  3,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10304
+        "ItemId":  15662
     },
     {
         "Name":  "Minekeep's Sledgehammer",
@@ -5470,7 +5470,7 @@
         "Page":  3,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  14114
+        "ItemId":  15881
     },
     {
         "Name":  "Minekeep's Helmet",
@@ -5479,7 +5479,7 @@
         "Page":  3,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10270
+        "ItemId":  15705
     },
     {
         "Name":  "Minekeep's Overalls",
@@ -5488,7 +5488,7 @@
         "Page":  3,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10271
+        "ItemId":  15706
     },
     {
         "Name":  "Minekeep's Work Gloves",
@@ -5497,7 +5497,7 @@
         "Page":  3,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10272
+        "ItemId":  15707
     },
     {
         "Name":  "Minekeep's Slops",
@@ -5506,7 +5506,7 @@
         "Page":  3,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10273
+        "ItemId":  15708
     },
     {
         "Name":  "Minekeep's Workboots",
@@ -5515,7 +5515,7 @@
         "Page":  3,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10274
+        "ItemId":  15709
     },
     {
         "Name":  "Fieldkeep's Hatchet",
@@ -5524,7 +5524,7 @@
         "Page":  3,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10305
+        "ItemId":  15663
     },
     {
         "Name":  "Fieldkeep's Scythe",
@@ -5533,7 +5533,7 @@
         "Page":  3,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  14115
+        "ItemId":  15882
     },
     {
         "Name":  "Fieldkeep's Canotier",
@@ -5542,7 +5542,7 @@
         "Page":  3,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10275
+        "ItemId":  15710
     },
     {
         "Name":  "Fieldkeep's Shirt",
@@ -5551,7 +5551,7 @@
         "Page":  3,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10276
+        "ItemId":  15711
     },
     {
         "Name":  "Fieldkeep's Corsage",
@@ -5560,7 +5560,7 @@
         "Page":  3,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10277
+        "ItemId":  15712
     },
     {
         "Name":  "Fieldkeep's Slops",
@@ -5569,7 +5569,7 @@
         "Page":  3,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10278
+        "ItemId":  15713
     },
     {
         "Name":  "Fieldkeep's Jackboots",
@@ -5578,7 +5578,7 @@
         "Page":  3,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10279
+        "ItemId":  15714
     },
     {
         "Name":  "Tacklekeep's Rod",
@@ -5587,7 +5587,7 @@
         "Page":  3,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10306
+        "ItemId":  15664
     },
     {
         "Name":  "Tacklekeep's Cap",
@@ -5596,7 +5596,7 @@
         "Page":  3,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10280
+        "ItemId":  15715
     },
     {
         "Name":  "Tacklekeep's Vest",
@@ -5605,7 +5605,7 @@
         "Page":  3,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10281
+        "ItemId":  15716
     },
     {
         "Name":  "Tacklekeep's Gloves",
@@ -5614,7 +5614,7 @@
         "Page":  3,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10282
+        "ItemId":  15717
     },
     {
         "Name":  "Tacklekeep's Gaskins",
@@ -5623,7 +5623,7 @@
         "Page":  3,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10283
+        "ItemId":  15718
     },
     {
         "Name":  "Tacklekeep's Waders",
@@ -5632,7 +5632,7 @@
         "Page":  3,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  10284
+        "ItemId":  15719
     },
     {
         "Name":  "Landmaster's Earrings",
@@ -5641,7 +5641,7 @@
         "Page":  3,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  14122
+        "ItemId":  15889
     },
     {
         "Name":  "Landmaster's Choker",
@@ -5650,7 +5650,7 @@
         "Page":  3,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  14123
+        "ItemId":  15890
     },
     {
         "Name":  "Landmaster's Wristbands",
@@ -5659,7 +5659,7 @@
         "Page":  3,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  14124
+        "ItemId":  15891
     },
     {
         "Name":  "Landmaster's Ring",
@@ -5668,7 +5668,7 @@
         "Page":  3,
         "SubPage":  2,
         "ScripType":  0,
-        "ItemId":  14125
+        "ItemId":  15892
     },
     {
         "Name":  "Mineking's Pickaxe",
@@ -5677,7 +5677,7 @@
         "Page":  3,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19598
+        "ItemId":  21216
     },
     {
         "Name":  "Mineking's Sledgehammer",
@@ -5695,7 +5695,7 @@
         "Page":  3,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19702
+        "ItemId":  21259
     },
     {
         "Name":  "Mineking's Work Shirt",
@@ -5704,7 +5704,7 @@
         "Page":  3,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19703
+        "ItemId":  21260
     },
     {
         "Name":  "Mineking's Work Gloves",
@@ -5713,7 +5713,7 @@
         "Page":  3,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19704
+        "ItemId":  21261
     },
     {
         "Name":  "Mineking's Slops",
@@ -5722,7 +5722,7 @@
         "Page":  3,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19705
+        "ItemId":  21262
     },
     {
         "Name":  "Mineking's Workboots",
@@ -5731,7 +5731,7 @@
         "Page":  3,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19706
+        "ItemId":  21263
     },
     {
         "Name":  "Fieldking's Hatchet",
@@ -5740,7 +5740,7 @@
         "Page":  3,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19599
+        "ItemId":  21217
     },
     {
         "Name":  "Fieldking's Scythe",
@@ -5758,7 +5758,7 @@
         "Page":  3,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19707
+        "ItemId":  21264
     },
     {
         "Name":  "Fieldking's Shirt",
@@ -5767,7 +5767,7 @@
         "Page":  3,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19708
+        "ItemId":  21265
     },
     {
         "Name":  "Fieldking's Gloves",
@@ -5776,7 +5776,7 @@
         "Page":  3,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19709
+        "ItemId":  21266
     },
     {
         "Name":  "Fieldking's Slops",
@@ -5785,7 +5785,7 @@
         "Page":  3,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19710
+        "ItemId":  21267
     },
     {
         "Name":  "Fieldking's Shoes",
@@ -5794,7 +5794,7 @@
         "Page":  3,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19711
+        "ItemId":  21268
     },
     {
         "Name":  "Tackleking's Rod",
@@ -5803,7 +5803,7 @@
         "Page":  3,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19600
+        "ItemId":  21218
     },
     {
         "Name":  "Tackleking's Bandana",
@@ -5812,7 +5812,7 @@
         "Page":  3,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19712
+        "ItemId":  21269
     },
     {
         "Name":  "Tackleking's Vest",
@@ -5821,7 +5821,7 @@
         "Page":  3,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19713
+        "ItemId":  21270
     },
     {
         "Name":  "Tackleking's Fingerless Gloves",
@@ -5830,7 +5830,7 @@
         "Page":  3,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19714
+        "ItemId":  21271
     },
     {
         "Name":  "Tackleking's Halfslops",
@@ -5839,7 +5839,7 @@
         "Page":  3,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19715
+        "ItemId":  21272
     },
     {
         "Name":  "Tackleking's Sandals",
@@ -5848,7 +5848,7 @@
         "Page":  3,
         "SubPage":  3,
         "ScripType":  0,
-        "ItemId":  19716
+        "ItemId":  21273
     },
     {
         "Name":  "Landking's Pickaxe",
