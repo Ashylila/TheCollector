@@ -191,8 +191,8 @@ public unsafe class ScripShopWindowHandler
         {
             if (shopItems[i].ItemId == itemId)
             {
-                _log.Debug($"Index: {index}");
                 index = i;
+                _log.Debug($"Index: {index}");
                 break;
             }
         }
@@ -229,7 +229,7 @@ public unsafe class ScripShopWindowHandler
         if (GenericHelpers.TryGetAddonByName("InclusionShop", out AtkUnitBase* addon))
         {
             var cur = CurrencyManager.Instance();
-        
+
             var curAmount = cur->GetItemIdBySpecialId((byte)curType);
 
             return cur->GetItemCount(curAmount);

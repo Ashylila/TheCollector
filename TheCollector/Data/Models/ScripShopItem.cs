@@ -8,12 +8,13 @@ namespace TheCollector.Data.Models;
 
 public class ScripShopItem
 {
-    public string Name => Item.Name.ToString();
     public int Index { get; set; }
     public uint ItemCost { get; set; }
     public int Page { get; set; }
     public int SubPage { get; set; }
     public uint ItemId { get; set; }
+    [JsonIgnore]
+    public string Name => Item.Name.ToString();
     [JsonIgnore]
     public uint CurrencyId { get; set; }
     
