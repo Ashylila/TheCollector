@@ -1,4 +1,4 @@
-﻿namespace TheCollector.Automation;
+﻿namespace TheCollector.Utility;
 
 using System;
 using System.Collections.Generic;

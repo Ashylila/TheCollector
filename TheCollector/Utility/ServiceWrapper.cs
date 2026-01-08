@@ -54,6 +54,7 @@ public static class ServiceWrapper
         collection.AddSingleton<PlogonLog>();
         collection.AddSingleton<ScripShopItemManager>();
         collection.AddSingleton<CraftingHandler>();
+        collection.AddSingleton<AutoRetainerManager>();
 
         collection.AddSingleton<MainWindow>();
         collection.AddSingleton<ConfigWindow>();

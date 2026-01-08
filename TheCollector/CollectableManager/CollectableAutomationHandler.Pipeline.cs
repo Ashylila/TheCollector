@@ -14,7 +14,7 @@ namespace TheCollector.CollectableManager;
 using System;
 using System.Linq;
 using System.Numerics;
-using TheCollector.Automation;
+using TheCollector.Utility;
 using TheCollector.Utility;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using ECommons;

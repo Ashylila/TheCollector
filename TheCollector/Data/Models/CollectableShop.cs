@@ -11,6 +11,7 @@ public class CollectableShop
 {
     public string Name { get; set; }
     public Vector3 Location { get; set; }
+    public Vector3 RetainerBellLoc {get; set;}
     public bool Disabled { get; set; } = false;
     public bool IsLifestreamRequired { get; set; } = false;
     public string LifestreamCommand { get; set; } = "";

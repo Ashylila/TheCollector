@@ -13,6 +13,7 @@ public static class CollectableNpcLocations
             Name = "Solution Nine",
             Location = new Vector3(-162.17f, 0.9219f, -30.458f),
             ScripShopLocation = new Vector3(-161.84605f, 0.921f, -42.06536f),
+            RetainerBellLoc = new Vector3(-151.598f, 0.59f, -15.30f),
             IsLifestreamRequired = true,
             LifestreamCommand = "Nexus Arcade"
             
