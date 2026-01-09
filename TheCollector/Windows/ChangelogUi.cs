@@ -32,7 +32,12 @@ public class ChangelogUi : IUiService
         Add_0_4_4(Changelog);
         Add_0_4_5(Changelog);
         Add_0_4_6(Changelog);
-        
+        Add_0_4_8(Changelog);
+    }
+    private void Add_0_4_8(Changelog log)
+    {
+        Changelog.NextVersion("Version 0.4.8 testing")
+            .RegisterHighlight("Added the option to check for completed ventures between runs via AutoRetainer");
     }
 
     private void Add_0_4_6(Changelog changeLog)
