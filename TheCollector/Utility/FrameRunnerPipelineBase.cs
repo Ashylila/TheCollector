@@ -55,7 +55,6 @@ public abstract class FrameRunnerPipelineBase : IPipeline
 
     protected virtual void OnCanceledOrFailed(string? error)
     {
-        IsRunning = false;
         Plugin.State = PluginState.Idle;
         Stop(error);
     }

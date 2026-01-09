@@ -72,8 +72,11 @@ public unsafe class AutoRetainerManager : FrameRunnerPipelineBase
     }
     private StepResult InteractWithBell()
     {
-        var target = _objects.FirstOrDefault(x => x.BaseId == SummoningBellDataIds(Player.Territory.RowId));
-        if(target == null) return StepResult.Fail("Could not find SummoningBell GameObject");
+        var target = _objects
+            .Where(o => o.BaseId == SummoningBellDataIds(Player.Territory.RowId))
+            .OrderBy(o => Vector3.DistanceSquared(Player.Position, o.Position))
+            .FirstOrDefault();
+        if (target == null) return StepResult.Fail("Could not find SummoningBell GameObject");
         TargetSystem.Instance()->InteractWithObject((FFXIVClientStructs.FFXIV.Client.Game.Object.GameObject*)target.Address, false);
         return StepResult.Success();
     }
