@@ -1,11 +1,14 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Dalamud.Plugin.Services;
-
+using TheCollector.Data;
 
 namespace TheCollector.Utility;
 
-public abstract class FrameRunnerPipelineBase
+public abstract class FrameRunnerPipelineBase : IPipeline
 {
+    public abstract string Key { get; }
     protected readonly IFramework Framework;
     protected readonly PlogonLog Log;
 
@@ -45,28 +48,58 @@ public abstract class FrameRunnerPipelineBase
     protected virtual void OnFinished(bool ok)
     {
         IsRunning = false;
+        Plugin.State = PluginState.Idle;
     }
 
     protected virtual void OnCanceledOrFailed(string? error)
     {
-        Runner?.Cancel(error ?? "Failed");
+        Runner?.Cancel(error ?? "Canceled");
     }
 
     protected void EnsureRunner()
     {
-        Runner ??= new FrameRunner(
-            Framework,
+        var config = new FrameRunnerConfig(
             n => Log.Debug(n),
             (string name, StepStatus status, string? error) =>
             {
-                if (status == StepStatus.Failed)
+                if (status is StepStatus.Failed or StepStatus.Cancel)
                     OnCanceledOrFailed(error);
 
                 Log.Debug($"{name} -> {status}{(error is null ? "" : $" ({error})")}");
                 OnStepStatus(name, status, error);
             },
             e => OnError?.Invoke(new Exception(e)),
-            ok => OnFinished(ok)
+            ok => OnFinished(ok),
+            TimeSpan.FromMicroseconds(100)
         );
+        Runner ??= new FrameRunner(
+            Framework,
+            config
+        );
+    }
+}
+
+public interface IPipeline
+{
+    string Key { get; }
+    bool IsRunning { get; }
+    void Start();
+    void Stop(string reason = "Canceled");
+}
+public sealed class PipelineRegistry
+{
+    private readonly Dictionary<string, IPipeline> _pipelines;
+
+    public PipelineRegistry(IEnumerable<IPipeline> pipelines)
+        => _pipelines = pipelines.ToDictionary(p => p.Key, StringComparer.OrdinalIgnoreCase);
+
+    public IReadOnlyCollection<IPipeline> All => _pipelines.Values;
+
+    public IPipeline Get(string key) => _pipelines[key];
+
+    public void StopAll(string reason = "StopAll")
+    {
+        foreach (var p in _pipelines.Values)
+            if (p.IsRunning) p.Stop(reason);
     }
 }

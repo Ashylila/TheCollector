@@ -9,7 +9,6 @@ using FFXIVClientStructs.FFXIV.Component.GUI;
 using Dalamud.Plugin.Services;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using TheCollector.Utility;
-using TheCollector.Automation;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using ECommons.Commands;
 

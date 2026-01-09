@@ -6,5 +6,6 @@ public enum PluginState
     Teleporting,
     ExchangingItems,
     SpendingScrip,
-    Idle
+    Idle,
+    AutoRetainer
 }

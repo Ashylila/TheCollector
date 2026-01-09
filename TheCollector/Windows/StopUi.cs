@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Numerics;
 using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Windowing;
@@ -25,6 +26,7 @@ public class StopUi : Window, IDisposable
     {
         _automation = automation;
         _collectableHandler = collectableHandler;
+
         SizeConstraints = new WindowSizeConstraints
         {
             MinimumSize = new Vector2(350, 140),
@@ -35,9 +37,7 @@ public class StopUi : Window, IDisposable
 
     public override void PreOpenCheck()
     {
-        if (_automation.IsRunning)
-            IsOpen = true;
-        else IsOpen = false;
+        IsOpen = _automation.IsRunning;
     }
 
     public override void PreDraw()
@@ -96,6 +96,10 @@ public class StopUi : Window, IDisposable
             case PluginState.SpendingScrip:
                 ImGui.TextUnformatted("Spending scrip...");
                 break;
+            case PluginState.AutoRetainer:
+                ImGui.TextUnformatted("Turning in ventures...");
+                break;
+
         }
     }
 

@@ -1,10 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.Reflection.Metadata.Ecma335;
-using System.Threading.Tasks;
-using Dalamud.IoC;
 using Dalamud.Plugin.Services;
-using ECommons.DalamudServices;
-using ECommons.ExcelServices;
 using Lumina.Excel.Sheets;
 using TheCollector.Data;
 using TheCollector.Ipc;
@@ -15,13 +10,12 @@ using System;
 using System.Linq;
 using System.Numerics;
 using TheCollector.Utility;
-using TheCollector.Utility;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using ECommons;
 
-public partial class CollectableAutomationHandler
+public partial class CollectableAutomationHandler : FrameRunnerPipelineBase
 {
-    private FrameRunner? _runner;
+    public override string Key => "collectables";
     private Dictionary<uint, CollectablesShopItem> _collectableByItemId = new();
     private readonly IPlayerState _player;
     private readonly TimeSpan _uiLoadDelay = TimeSpan.FromSeconds(2);
@@ -32,30 +26,8 @@ public partial class CollectableAutomationHandler
     private int _currentJobIndex = int.MinValue;
 
 
-    private void StartPipeline()
+    protected override FrameRunner.Step[] BuildSteps()
     {
-        if (IsRunning) return;
-        IsRunning = true;
-        Plugin.State = PluginState.MovingToCollectableVendor;
-        _runner ??= new FrameRunner(_framework,
-            n => _log.Debug(n),
-            (string name, StepStatus status, string? error) =>
-            {
-                if (StepStatus.Failed == status)
-                {
-                    _runner?.Cancel(error);
-                    Plugin.State = PluginState.Idle;
-                }
-                _log.Debug($"{name} -> {status}{(error is null ? "" : $" ({error})")}");
-            },
-            e => OnError?.Invoke(e),
-            ok =>
-            {
-                IsRunning = false;
-                if (ok) OnFinishCollecting?.Invoke();
-                Plugin.State = PluginState.Idle;
-            });
-
         var shopName = _configuration.PreferredCollectableShop.Name;
         var target = _configuration.PreferredCollectableShop.Location;
 
@@ -69,7 +41,7 @@ public partial class CollectableAutomationHandler
                         PrimeTurnIn),
             new FrameRunner.Step(
                 "CollectableCheck",
-                (() => CollectableCheck()),
+                CollectableCheck,
                 TimeSpan.FromSeconds(5)),
             new FrameRunner.Step(
                 "TeleportToPreferredShop",
@@ -105,14 +77,14 @@ public partial class CollectableAutomationHandler
                 TimeSpan.FromSeconds(60),
                 () => _lastMove = DateTime.MinValue
             ),
-            
+
             new FrameRunner.Step(
                 "OpenCollectablesShop",
                 () => StepResult.Success(),
                 TimeSpan.FromSeconds(2),
                 () => OpenShop()
             ),
-            
+
             new FrameRunner.Step(
                 "WaitCollectablesReady",
                 () =>
@@ -148,11 +120,13 @@ public partial class CollectableAutomationHandler
             FrameRunner.Delay("FinalDelay", TimeSpan.FromSeconds(1)),
         };
 
-        _runner.Start(steps);
+        return steps;
     }
-
-    public void StopPipeline() => _runner?.Cancel("Canceled");
-
+    protected override void OnFinished(bool ok)
+    {
+        base.OnFinished(ok);
+        OnFinishCollecting?.Invoke();
+    }
     private bool _teleportAttempted;
     private StepResult MakeTeleportTick(string shopName)
     {
@@ -221,7 +195,7 @@ public partial class CollectableAutomationHandler
     }
     private StepResult LifestreamCheck()
     {
-        if (IsNearShop(_configuration.PreferredCollectableShop.Location))return StepResult.Success();
+        if (IsNearShop(_configuration.PreferredCollectableShop.Location)) return StepResult.Success();
         if (_configuration.PreferredCollectableShop.IsLifestreamRequired)
         {
             _lifestreamIpc.ExecuteCommand(_configuration.PreferredCollectableShop.LifestreamCommand);
@@ -237,7 +211,7 @@ public partial class CollectableAutomationHandler
         }
         return StepResult.Success();
     }
-    public (CollectablesShopItem item,string name,int left, int jobIndex)[] TurnInQueue { get; private set; }
+    public (CollectablesShopItem item, string name, int left, int jobIndex)[] TurnInQueue { get; private set; }
     private DateTime _lastTurnIn;
     private int _turnInPhase;
 
@@ -246,9 +220,9 @@ public partial class CollectableAutomationHandler
         TurnInQueue = ItemHelper.GetLuminaItemsFromInventory()
                                 .Where(i => i.IsCollectable && _collectableByItemId.ContainsKey(i.RowId))
                                 .GroupBy(i => i.RowId)
-                                .Select(g => (_collectableByItemId[g.Key],_collectableByItemId[g.Key].Item.Value.Name.ExtractText(), g.Count(), int.MinValue))
+                                .Select(g => (_collectableByItemId[g.Key], _collectableByItemId[g.Key].Item.Value.Name.ExtractText(), g.Count(), int.MinValue))
                                 .ToArray();
-        
+
 
         for (var i = 0; i < TurnInQueue.Length; i++)
         {
@@ -256,7 +230,7 @@ public partial class CollectableAutomationHandler
             var jobId = ItemJobResolver.GetJobIdForItem(item.name, _dataManager);
             if (jobId != -1)
             {
-                item.jobIndex = jobId; 
+                item.jobIndex = jobId;
                 TurnInQueue[i] = item;
             }
         }
@@ -266,7 +240,7 @@ public partial class CollectableAutomationHandler
         CurrentItemName = null;
         _currentJobIndex = int.MinValue;
     }
-    
+
     private StepResult MakeTurnInTick()
     {
         Plugin.State = PluginState.ExchangingItems;
@@ -274,11 +248,11 @@ public partial class CollectableAutomationHandler
         {
             Plugin.State = PluginState.Idle;
             return StepResult.Success();
-        };
+        }
+        ;
         if (DateTime.UtcNow < _cooldownUntil) return StepResult.Continue();
 
         var h = TurnInQueue[0];
-        _log.Debug($"found id{h.jobIndex.ToString()} for item {h.name}");
         if (_turnInPhase < 2)
         {
             if (h.jobIndex != int.MinValue && _currentJobIndex != h.jobIndex)
@@ -286,10 +260,10 @@ public partial class CollectableAutomationHandler
                 _collectibleWindowHandler.SelectJob((uint)h.jobIndex);
                 _currentJobIndex = h.jobIndex;
                 _cooldownUntil = DateTime.UtcNow + _uiInteractDelay;
-                _turnInPhase = 1; 
+                _turnInPhase = 1;
                 return StepResult.Continue();
             }
-            
+
             if (!string.Equals(CurrentItemName, h.name, StringComparison.Ordinal))
             {
                 _collectibleWindowHandler.SelectItem(h.name);
@@ -298,7 +272,7 @@ public partial class CollectableAutomationHandler
                 _turnInPhase = 2;
                 return StepResult.Continue();
             }
-            
+
             _cooldownUntil = DateTime.UtcNow + _uiInteractDelay;
             _turnInPhase = 2;
             return StepResult.Continue();
@@ -340,7 +314,7 @@ public partial class CollectableAutomationHandler
     {
         if (!HasCollectible)
         {
-            _log.Debug("No collectables found in inventory, cancelling");
+            Log.Debug("No collectables found in inventory, cancelling");
             return StepResult.Fail("No collectables found in inventory, cancelling");
         }
         return StepResult.Success();

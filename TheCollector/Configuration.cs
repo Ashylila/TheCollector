@@ -19,18 +19,19 @@ public class Configuration : IPluginConfiguration
     public List<ItemToPurchase> ItemsToPurchase { get; set; } = new List<ItemToPurchase>();
     public bool EnableAutogatherOnFinish { get; set; } = false;
     public bool CollectOnFinishCraftingList { get; set; } = false;
-    public bool ShouldCraftOnAutogatherChanged {get; set;} = false;
+    public bool ShouldCraftOnAutogatherChanged { get; set; } = false;
     public bool BuyAfterEachCollect { get; set; } = false;
     public bool ResetEachQuantityAfterCompletingList { get; set; } = false;
     public bool CollectOnFinishedFishing { get; set; } = false;
     public int ArtisanListId { get; set; } = 0;
     public int LastSeenVersion { get; set; } = ChangelogUi.LastChangelogVersion;
+    public bool CheckForVenturesBetweenRuns { get; set; } = false;
     public ChangeLogDisplayType ChangeLogDisplayType { get; set; } = ChangeLogDisplayType.New;
-    public CollectableShop PreferredCollectableShop { get; set; } = new ();
-    
+    public CollectableShop PreferredCollectableShop { get; set; } = new();
+
     public void Save()
     {
         Svc.PluginInterface.SavePluginConfig(this);
     }
-    
+
 }
