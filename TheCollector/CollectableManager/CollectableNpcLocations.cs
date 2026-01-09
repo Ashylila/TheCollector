@@ -22,7 +22,7 @@ public static class CollectableNpcLocations
         {
             Name = "Eulmore",
             Location = new Vector3(16.94f, 82.05f, -19.177f),
-            RetainerBellLoc = new Vector3(7.186f, 83.176f, 83.17f)
+            RetainerBellLoc = new Vector3(7.186f, 83.176f, 31.44f)
         },
         new CollectableShop()
         {
