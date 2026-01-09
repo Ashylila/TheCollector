@@ -23,9 +23,6 @@ automation loops** for gathering, crafting, and scrip management.
 -   ♻️Loop automation --- gather, craft, and turn-in
     seamlessly
 
-⚠️ If you haven't unlocked the required Splendors tab for your current
-level (e.g. Lv. 80+ Purple Scrips), the plugin may select the wrong
-item. Talk to the appropriate Splendors vendor to unlock it first.
 
 > ⚠️ **Note**: TheCollector is still early in development --- bugs may
 > occur.
