@@ -211,7 +211,7 @@ public partial class CollectableAutomationHandler : FrameRunnerPipelineBase
         }
         return StepResult.Success();
     }
-    public (CollectablesShopItem item, string name, int left, int jobIndex)[] TurnInQueue { get; private set; }
+    public (CollectablesShopItem item, string name, int left, int jobIndex)[] TurnInQueue { get; private set; } = null;
     private DateTime _lastTurnIn;
     private int _turnInPhase;
 
@@ -266,7 +266,7 @@ public partial class CollectableAutomationHandler : FrameRunnerPipelineBase
 
             if (!string.Equals(CurrentItemName, h.name, StringComparison.Ordinal))
             {
-                _collectibleWindowHandler.SelectItem(h.name);
+                if(!_collectibleWindowHandler.SelectItem(h.name)) return StepResult.Fail($"Could not select item {h.name}");
                 CurrentItemName = h.name;
                 _cooldownUntil = DateTime.UtcNow + _uiInteractDelay;
                 _turnInPhase = 2;

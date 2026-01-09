@@ -21,23 +21,17 @@ public static class CollectableNpcLocations
         new CollectableShop()
         {
             Name = "Eulmore",
-            Location = new Vector3(16.94f, 82.05f, -19.177f)
+            Location = new Vector3(16.94f, 82.05f, -19.177f),
+            RetainerBellLoc = new Vector3(7.186f, 83.176f, 83.17f)
         },
         new CollectableShop()
         {
             Name = "Old Gridania",
             Location = new Vector3(143.62454f, 13.74769f, -105.33799f),
             IsLifestreamRequired = true,
-            LifestreamCommand = "Leatherworkers"
+            LifestreamCommand = "Leatherworkers",
+            RetainerBellLoc = new Vector3(171f, 15.48f, -101.48f)
         }
     };
-    public static Vector3 CollectableNpcLocationVectors(int territoryId)
-    {
-        return territoryId switch
-        {
-            1186 => new Vector3(-162f, 0.92f, -33),
-            _ => new Vector3(162f, 0.92f, -33),
-        };
-    }
     
 }
