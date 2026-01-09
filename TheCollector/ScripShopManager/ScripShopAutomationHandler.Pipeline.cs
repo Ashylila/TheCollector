@@ -91,17 +91,6 @@ public partial class ScripShopAutomationHandler : FrameRunnerPipelineBase
                     return StepResult.Success();
                 },
                 TimeSpan.FromSeconds(2)
-            ),
-
-            new FrameRunner.Step(
-                "SetState",
-                () =>
-                {
-                    Plugin.State = PluginState.Idle;
-                    IsRunning = false;
-                    return StepResult.Success();
-                },
-                TimeSpan.FromSeconds(1)
             )
         };
 

@@ -10,6 +10,7 @@ using TheCollector.Data;
 using TheCollector.Ipc;
 using TheCollector.Utility;
 using TheCollector.Windows;
+using TheCollector.ScripShopManager;
 
 namespace TheCollector;
 
@@ -39,7 +40,7 @@ public sealed class Plugin : IDalamudPlugin
     private readonly PlogonLog _log;
 
     public static PluginState State { get; set; } = PluginState.Idle;
-    public static event Action<bool> OnCollectorStatusChanged;
+    public static event Action<bool>? OnCollectorStatusChanged;
     public Plugin()
     {
         Configuration = PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
@@ -114,6 +115,9 @@ public sealed class Plugin : IDalamudPlugin
             case "stop":
                 _automationHandler.ForceStop("Manually stopped by user");
                 break;
+            case "buy":
+            ServiceWrapper.Get<ScripShopAutomationHandler>().Start();
+            break;
             default:
                 ToggleMainUI();
                 break;

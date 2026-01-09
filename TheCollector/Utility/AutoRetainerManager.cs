@@ -16,7 +16,6 @@ namespace TheCollector.Utility;
 public unsafe class AutoRetainerManager : FrameRunnerPipelineBase
 {
     public override string Key => "autoretainer";
-    private FrameRunner? _runner;
     private string[] AddonsToClose { get; } = ["RetainerList", "SelectYesno", "SelectString", "RetainerTaskAsk"];
     private Configuration _config;
     private IObjectTable _objects;
@@ -47,7 +46,7 @@ public unsafe class AutoRetainerManager : FrameRunnerPipelineBase
         {
             FrameRunner.Delay("InitDelay", TimeSpan.FromSeconds(1)),
             new FrameRunner.Step("MoveToBell", () => MoveToBell(destination), TimeSpan.FromSeconds(1)),
-            new FrameRunner.Step("IsNearBellCheck", () => IsNearBell(destination), TimeSpan.FromSeconds(15)),
+            new FrameRunner.Step("IsNearBellCheck", () => IsNearBell(destination), TimeSpan.FromSeconds(20)),
             new FrameRunner.Step("InteractWithBell", InteractWithBell, TimeSpan.FromSeconds(1)),
             new FrameRunner.Step("EngageRetainer", EngageRetainer, TimeSpan.FromSeconds(1)),
             FrameRunner.Delay("StartDelay", TimeSpan.FromSeconds(1)),

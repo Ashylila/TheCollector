@@ -289,6 +289,7 @@ public partial class CollectableAutomationHandler : FrameRunnerPipelineBase
 
         if (h.item.CollectablesShopRewardScrip.Value.HighReward > remaining)
         {
+            Log.Debug("Scrip cap reached, cancelling");
             return StepResult.Success();
         }
 

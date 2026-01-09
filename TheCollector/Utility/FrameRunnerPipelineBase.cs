@@ -36,6 +36,8 @@ public abstract class FrameRunnerPipelineBase : IPipeline
 
     public void Stop(string reason = "Canceled")
     {
+        if (!IsRunning) return;
+        IsRunning = false;
         Runner?.Cancel(reason);
     }
 
@@ -53,7 +55,9 @@ public abstract class FrameRunnerPipelineBase : IPipeline
 
     protected virtual void OnCanceledOrFailed(string? error)
     {
-        Runner?.Cancel(error ?? "Canceled");
+        IsRunning = false;
+        Plugin.State = PluginState.Idle;
+        Stop(error);
     }
 
     protected void EnsureRunner()

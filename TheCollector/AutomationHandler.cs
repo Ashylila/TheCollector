@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Dalamud.Plugin.Services;
 using ECommons.DalamudServices;
+using ECommons.GameHelpers;
 using TheCollector.CollectableManager;
 using TheCollector.Data;
 using TheCollector.Ipc;
@@ -95,15 +96,7 @@ public class AutomationHandler : IDisposable
     }
     public void ForceStop(string reason)
     {
-        if (_collectableAutomationHandler.IsRunning)
-        {
-            _collectableAutomationHandler.Stop(reason);
-        }
-
-        if (_scripShopAutomationHandler.IsRunning)
-        {
-            _scripShopAutomationHandler.Stop(reason);
-        }
+        _pipelineRegistry.StopAll(reason);
     }
 
     private void OnFinishedCollecting()
@@ -113,6 +106,12 @@ public class AutomationHandler : IDisposable
             _scripShopAutomationHandler.Start();
             return;
         }
+        if(_config.CheckForVenturesBetweenRuns && Autoretainer_IPCSubscriber.AreAnyRetainersAvailableForCurrentChara())
+        {
+            _autoretainerManager.Start();
+            return;
+        }
+
         if (_config.EnableAutogatherOnFinish){
             _gatherbuddyReborn_IPCSubscriber.SetAutoGatherEnabled(true);
             return;
@@ -127,9 +126,11 @@ public class AutomationHandler : IDisposable
             _collectableAutomationHandler.Start();
             return;
         }
+        _log.Debug(_config.CheckForVenturesBetweenRuns.ToString() + " " + Autoretainer_IPCSubscriber.GetClosestRetainerVentureSecondsRemaining(Svc.PlayerState.ContentId) );
         if (_config.CheckForVenturesBetweenRuns && Autoretainer_IPCSubscriber.AreAnyRetainersAvailableForCurrentChara())
         {
             _autoretainerManager.Start();
+            return;
         }
         if (_config.EnableAutogatherOnFinish)
         {

@@ -9,7 +9,7 @@ using TheCollector.Utility;
 
 namespace TheCollector.Windows;
 
-public class StopUi : Window, IDisposable
+public class StopUi : Window
 {
     private readonly AutomationHandler _automation;
     private readonly CollectableAutomationHandler _collectableHandler;
@@ -19,9 +19,7 @@ public class StopUi : Window, IDisposable
                ImGuiWindowFlags.NoScrollbar
                | ImGuiWindowFlags.NoScrollWithMouse
                | ImGuiWindowFlags.NoResize
-               | ImGuiWindowFlags.NoCollapse
                | ImGuiWindowFlags.NoSavedSettings
-               | ImGuiWindowFlags.NoMove
                | ImGuiWindowFlags.AlwaysAutoResize)
     {
         _automation = automation;
@@ -104,8 +102,4 @@ public class StopUi : Window, IDisposable
     }
 
 
-    public void Dispose()
-    {
-        _automation.Dispose();
-    }
 }
