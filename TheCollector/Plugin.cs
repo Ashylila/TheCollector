@@ -74,6 +74,7 @@ public sealed class Plugin : IDalamudPlugin
         _collectableWindowHandler = new();
         _automationHandler = ServiceWrapper.Get<AutomationHandler>();
         _log = ServiceWrapper.Get<PlogonLog>();
+        Configuration.Migrate();
         Start();
         
     }

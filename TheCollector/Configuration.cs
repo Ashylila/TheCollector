@@ -33,5 +33,46 @@ public class Configuration : IPluginConfiguration
     {
         Svc.PluginInterface.SavePluginConfig(this);
     }
+    public bool Migrate()
+    {
+        var changed = false;
+
+        if (Version < 2)
+        {
+            changed |= Migrate_AddBellLocation();
+            Version = 2;
+        }
+        Save();
+        return changed;
+    }
+
+    private bool Migrate_AddBellLocation()
+    {
+        var changed = false;
+
+        if (PreferredCollectableShop != null)
+            changed |= EnsureBellLocation(PreferredCollectableShop);
+
+
+        return changed;
+    }
+
+    private bool EnsureBellLocation(CollectableShop loc)
+    {
+        if (loc == null) return false;
+
+        if (loc.RetainerBellLoc == default)
+        {
+            var def = CollectableNpcLocations.CollectableShops
+                .FirstOrDefault(s => string.Equals(s.Name, loc.Name, StringComparison.Ordinal));
+
+            if (def == null) return false;
+
+            loc.RetainerBellLoc = def.RetainerBellLoc;
+            return true;
+        }
+
+        return false;
+    }
 
 }
