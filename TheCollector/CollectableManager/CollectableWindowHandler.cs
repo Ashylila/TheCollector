@@ -1,17 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
 using System.Text.RegularExpressions;
-using Dalamud.Game.Inventory;
-using Dalamud.Memory;
 using Dalamud.Utility;
 using ECommons;
-using ECommons.DalamudServices;
-using ECommons.Logging;
-using ECommons.UIHelpers.AddonMasterImplementations;
 using FFXIVClientStructs.FFXIV.Component.GUI;
-using Lumina.Data.Parsing.Uld;
 using TheCollector.Utility;
 using ValueType = FFXIVClientStructs.FFXIV.Component.GUI.ValueType;
 
@@ -38,7 +29,7 @@ namespace TheCollector.CollectableManager;
          }
      }
 
-    public unsafe void SelectItem(string itemName)
+    public unsafe bool SelectItem(string itemName)
     {
         if (GenericHelpers.TryGetAddonByName<AtkUnitBase>("CollectablesShop", out var addon) &&
             GenericHelpers.IsAddonReady(addon))
@@ -47,8 +38,7 @@ namespace TheCollector.CollectableManager;
             var index = turnIn.GetItemIndexOf(itemName);
             if (turnIn.GetItemIndexOf(itemName) == -1)
             {
-                CollectableAutomationHandler.Instance?.ForceStop("Error: Item not found in the current collectable tab.");
-                return;
+                return false;
             }
             var selectItem = stackalloc AtkValue[]
             {
@@ -57,7 +47,9 @@ namespace TheCollector.CollectableManager;
             };
             addon->FireCallback(2, selectItem);
             _log.Debug(turnIn.GetItemIndexOf(itemName).ToString());
+            return true;
         }
+        return false;
     }
     
     public unsafe void SubmitItem()

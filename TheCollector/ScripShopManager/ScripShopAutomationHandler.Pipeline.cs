@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using FFXIVClientStructs.FFXIV.Application.Network.WorkDefinitions;
 using FFXIVClientStructs.FFXIV.Client.Game.Control;
 using FFXIVClientStructs.FFXIV.Client.Game.Object;
 using TheCollector.Ipc;
@@ -9,12 +10,10 @@ namespace TheCollector.ScripShopManager;
 using System;
 using System.Linq;
 using FFXIVClientStructs.FFXIV.Client.UI;
-using TheCollector.Automation;
 using TheCollector.Data;
 
-public partial class ScripShopAutomationHandler
+public partial class ScripShopAutomationHandler : FrameRunnerPipelineBase
 {
-    private FrameRunner? _runner;
 
     private readonly TimeSpan _uiLoadDelay = TimeSpan.FromSeconds(2);
     private readonly TimeSpan _uiInteractDelay = TimeSpan.FromMilliseconds(300);
@@ -25,30 +24,8 @@ public partial class ScripShopAutomationHandler
 
     private bool _attemptedTarget;
 
-    public void StartPipeline()
+    protected override FrameRunner.Step[] BuildSteps()
     {
-        Plugin.State = PluginState.SpendingScrip;
-
-        _runner ??= new FrameRunner(
-            _framework,
-            n => _log.Debug(n),
-            (string name, StepStatus status, string? error) =>
-            {
-                if (status == StepStatus.Failed)
-                {
-                    _runner?.Cancel(error ?? "Failed");
-                    Plugin.State = PluginState.Idle;
-                }
-                _log.Debug($"{name} -> {status}{(error is null ? "" : $" ({error})")}");
-            },
-            e => OnError?.Invoke(e),
-            ok =>
-            {
-                IsRunning = false;
-                if (ok) OnFinishedTrading?.Invoke();
-                Plugin.State = PluginState.Idle;
-            }
-        );
 
         _attemptedTarget = false;
 
@@ -114,25 +91,16 @@ public partial class ScripShopAutomationHandler
                     return StepResult.Success();
                 },
                 TimeSpan.FromSeconds(2)
-            ),
-
-            new FrameRunner.Step(
-                "SetState",
-                () =>
-                {
-                    Plugin.State = PluginState.Idle;
-                    IsRunning = false;
-                    return StepResult.Success();
-                },
-                TimeSpan.FromSeconds(1)
             )
         };
 
-        _runner.Start(steps);
+        return steps;
     }
-
-    public void StopPipeline() => _runner?.Cancel("Canceled");
-
+    protected override void OnFinished(bool ok)
+    {
+        base.OnFinished(ok);
+        OnFinishedTrading?.Invoke();
+    }
     private (int page, int subPage, int remaining, int cost, uint itemId, uint currencyId)[] _buyQueue =
         Array.Empty<(int, int, int, int, uint, uint)>();
 

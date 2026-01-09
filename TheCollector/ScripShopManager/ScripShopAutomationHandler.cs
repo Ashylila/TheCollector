@@ -12,6 +12,7 @@ namespace TheCollector.ScripShopManager;
 
 public partial class ScripShopAutomationHandler
 {
+    public override string Key => "scripshop";
     private readonly PlogonLog _log;
     private readonly ITargetManager _targetManager;
     private readonly IFramework _framework;
@@ -20,11 +21,8 @@ public partial class ScripShopAutomationHandler
     private readonly IObjectTable _objectTable;
     private readonly ScripShopWindowHandler _scripShopWindowHandler;
 
-    public bool IsRunning { get; private set; } = false;
 
-    internal static ScripShopAutomationHandler? Instance { get; private set; }
     public event Action? OnFinishedTrading;
-    public event Action<string>? OnError;
 
     public ScripShopAutomationHandler(
         PlogonLog log,
@@ -33,7 +31,7 @@ public partial class ScripShopAutomationHandler
         IClientState clientState,
         Configuration configuration,
         IObjectTable objectTable,
-        ScripShopWindowHandler handler)
+        ScripShopWindowHandler handler) : base(log, framework)
     {
         _log = log;
         _targetManager = targetManager;
@@ -42,25 +40,6 @@ public partial class ScripShopAutomationHandler
         _configuration = configuration;
         _objectTable = objectTable;
         _scripShopWindowHandler = handler;
-        Instance = this;
     }
 
-    public unsafe void Start()
-    {
-        if (IsRunning) return;
-        IsRunning = true;
-
-        StartPipeline();
-    }
-
-    public void ForceStop(string reason)
-    {
-        VNavmesh_IPCSubscriber.Path_Stop();
-        _scripShopWindowHandler.CloseShop();
-        StopPipeline();
-        IsRunning = false;
-        Plugin.State = PluginState.Idle;
-        _log.Error(new Exception(reason), "TheCollector has stopped unexpectedly.");
-        OnError?.Invoke(reason);
-    }
 }

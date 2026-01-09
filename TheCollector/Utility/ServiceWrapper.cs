@@ -37,8 +37,6 @@ public static class ServiceWrapper
         collection.AddSingleton(plugin.Configuration);
         
         collection.AddSingleton<CollectableWindowHandler>();
-        collection.AddSingleton<CollectableAutomationHandler>();
-        collection.AddSingleton<ScripShopAutomationHandler>();
         collection.AddSingleton<ScripShopWindowHandler>();
         
         collection.AddSingleton<AutomationHandler>();
@@ -54,6 +52,17 @@ public static class ServiceWrapper
         collection.AddSingleton<PlogonLog>();
         collection.AddSingleton<ScripShopItemManager>();
         collection.AddSingleton<CraftingHandler>();
+
+        collection.AddSingleton<CollectableAutomationHandler>();
+        collection.AddSingleton<IPipeline>(sp => sp.GetRequiredService<CollectableAutomationHandler>());
+
+        collection.AddSingleton<ScripShopAutomationHandler>();
+        collection.AddSingleton<IPipeline>(sp => sp.GetRequiredService<ScripShopAutomationHandler>());
+
+        collection.AddSingleton<AutoRetainerManager>();
+        collection.AddSingleton<IPipeline>(sp => sp.GetRequiredService<AutoRetainerManager>());
+
+        collection.AddSingleton<PipelineRegistry>();
 
         collection.AddSingleton<MainWindow>();
         collection.AddSingleton<ConfigWindow>();

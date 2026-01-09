@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using Dalamud.Game.ClientState.Objects;
 using Dalamud.Plugin.Services;
 using ECommons.DalamudServices;
+using ECommons.GameHelpers;
 using TheCollector.CollectableManager;
 using TheCollector.Data;
 using TheCollector.Ipc;
@@ -25,12 +24,14 @@ public class AutomationHandler : IDisposable
     private readonly IFramework _framework;
     private readonly FishingWatcher _fishingWatcher;
     private readonly CraftingHandler  _craftingHandler;
-    public bool IsRunning => _collectableAutomationHandler.IsRunning || _scripShopAutomationHandler.IsRunning;
+    private readonly PipelineRegistry _pipelineRegistry;
+    private readonly AutoRetainerManager _autoretainerManager;
+    public bool IsRunning => _pipelineRegistry.All.Any(p => p.IsRunning);
     
     
     
     public AutomationHandler(
-        PlogonLog log,CollectableAutomationHandler collectableAutomationHandler, Configuration config, ScripShopAutomationHandler scripShopAutomationHandler, IChatGui chatGui, GatherbuddyReborn_IPCSubscriber gatherbuddyReborn_IPCSubscriber, ArtisanWatcher artisanWatcher, IFramework framework, FishingWatcher fishingWatcher, CraftingHandler craftingHandler)
+        PlogonLog log,CollectableAutomationHandler collectableAutomationHandler, Configuration config, ScripShopAutomationHandler scripShopAutomationHandler, IChatGui chatGui, GatherbuddyReborn_IPCSubscriber gatherbuddyReborn_IPCSubscriber, ArtisanWatcher artisanWatcher, IFramework framework, FishingWatcher fishingWatcher, CraftingHandler craftingHandler, PipelineRegistry registry, AutoRetainerManager retainer)
     {
         _log = log;
         _gatherbuddyReborn_IPCSubscriber = gatherbuddyReborn_IPCSubscriber;
@@ -42,6 +43,8 @@ public class AutomationHandler : IDisposable
         _framework = framework;
         _fishingWatcher = fishingWatcher;
         _craftingHandler = craftingHandler;
+        _pipelineRegistry = registry;
+        _autoretainerManager = retainer;
     }
 
     public void Init()
@@ -54,6 +57,8 @@ public class AutomationHandler : IDisposable
         _gatherbuddyReborn_IPCSubscriber.OnAutoGatherStatusChanged += OnAutoGatherStatusChanged;
         _artisanWatcher.OnCraftingFinished += OnFinishedWatching;
         _fishingWatcher.OnFishingFinished += OnFinishedWatching;
+        _autoretainerManager.OnRetainerFinish += OnAutoRetainerFinish;
+        _autoretainerManager.OnError += OnError;
     }
 
     private void OnAutoGatherStatusChanged(bool enabled)
@@ -82,18 +87,16 @@ public class AutomationHandler : IDisposable
                 throw new ArgumentOutOfRangeException(nameof(watchType), watchType, null);
         }
     }
-
+    public void OnAutoRetainerFinish()
+    {
+        if (_config.EnableAutogatherOnFinish)
+        {
+            _gatherbuddyReborn_IPCSubscriber.SetAutoGatherEnabled(true);
+        }
+    }
     public void ForceStop(string reason)
     {
-        if (_collectableAutomationHandler.IsRunning)
-        {
-            _collectableAutomationHandler.ForceStop(reason);
-        }
-
-        if (_scripShopAutomationHandler.IsRunning)
-        {
-            _scripShopAutomationHandler.ForceStop(reason);
-        }
+        _pipelineRegistry.StopAll(reason);
     }
 
     private void OnFinishedCollecting()
@@ -103,6 +106,12 @@ public class AutomationHandler : IDisposable
             _scripShopAutomationHandler.Start();
             return;
         }
+        if(_config.CheckForVenturesBetweenRuns && Autoretainer_IPCSubscriber.AreAnyRetainersAvailableForCurrentChara())
+        {
+            _autoretainerManager.Start();
+            return;
+        }
+
         if (_config.EnableAutogatherOnFinish){
             _gatherbuddyReborn_IPCSubscriber.SetAutoGatherEnabled(true);
             return;
@@ -117,6 +126,12 @@ public class AutomationHandler : IDisposable
             _collectableAutomationHandler.Start();
             return;
         }
+        _log.Debug(_config.CheckForVenturesBetweenRuns.ToString() + " " + Autoretainer_IPCSubscriber.GetClosestRetainerVentureSecondsRemaining(Svc.PlayerState.ContentId) );
+        if (_config.CheckForVenturesBetweenRuns && Autoretainer_IPCSubscriber.AreAnyRetainersAvailableForCurrentChara())
+        {
+            _autoretainerManager.Start();
+            return;
+        }
         if (_config.EnableAutogatherOnFinish)
         {
             _gatherbuddyReborn_IPCSubscriber.SetAutoGatherEnabled(true);
@@ -124,9 +139,9 @@ public class AutomationHandler : IDisposable
         
     }
 
-    private void OnError(string reason)
+    private void OnError(Exception ex)
     {
-        _chatGui.Print($"Automation threw an error, {reason}", "TheCollector");
+        _chatGui.Print($"Automation threw an error, {ex.Message}", "TheCollector");
     }
     private void OnScripCapped(bool capped)
     {
@@ -160,5 +175,7 @@ public class AutomationHandler : IDisposable
         _fishingWatcher.OnFishingFinished -= OnFinishedWatching;
         _collectableAutomationHandler.OnScripsCapped -= OnScripCapped;
         _collectableAutomationHandler.OnFinishCollecting -= OnFinishedCollecting;
+        _autoretainerManager.OnError -= OnError;
+        _autoretainerManager.OnRetainerFinish -= OnAutoRetainerFinish;
     }
 }

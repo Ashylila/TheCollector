@@ -1,26 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
 using Dalamud.Game.Command;
 using Dalamud.IoC;
 using Dalamud.Plugin;
-using System.IO;
-using System.Linq;
-using System.Text.Json;
-using System.Threading.Tasks;
 using Dalamud.Interface.Windowing;
 using Dalamud.Plugin.Services;
 using ECommons;
-using ECommons.DalamudServices;
-using FFXIVClientStructs.FFXIV.Client.Game;
-using Lumina.Excel.Sheets;
-using OtterGui.Services;
 using TheCollector.CollectableManager;
 using TheCollector.Data;
-using TheCollector.Data.Models;
 using TheCollector.Ipc;
-using TheCollector.ScripShopManager;
 using TheCollector.Utility;
 using TheCollector.Windows;
+using TheCollector.ScripShopManager;
 
 namespace TheCollector;
 
@@ -50,7 +40,7 @@ public sealed class Plugin : IDalamudPlugin
     private readonly PlogonLog _log;
 
     public static PluginState State { get; set; } = PluginState.Idle;
-    public static event Action<bool> OnCollectorStatusChanged;
+    public static event Action<bool>? OnCollectorStatusChanged;
     public Plugin()
     {
         Configuration = PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
@@ -126,8 +116,8 @@ public sealed class Plugin : IDalamudPlugin
                 _automationHandler.ForceStop("Manually stopped by user");
                 break;
             case "buy":
-                ScripShopAutomationHandler.Instance.StartPipeline();
-                break;
+            ServiceWrapper.Get<ScripShopAutomationHandler>().Start();
+            break;
             default:
                 ToggleMainUI();
                 break;
