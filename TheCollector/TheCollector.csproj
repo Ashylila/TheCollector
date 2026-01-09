@@ -2,7 +2,7 @@
 <Project Sdk="Dalamud.Net.SDK/14.0.1">
   <PropertyGroup>
     <TargetFramework>net10.0-windows7.0</TargetFramework>
-    <Version>0.4.6</Version>
+    <Version>0.4.8</Version>
     <Description>TheCollector</Description>
     <PackageProjectUrl>https://github.com/Ashylila/TheCollector</PackageProjectUrl>
     <PackageLicenseExpression>AGPL-3.0-or-later</PackageLicenseExpression>
@@ -17,7 +17,7 @@
   <RepoUrl>https://github.com/Ashylila/TheCollector</RepoUrl>
   <ApplicableVersion>any</ApplicableVersion>
   <AssemblyVersion>0.4.7</AssemblyVersion>
-  <TestingAssemblyVersion>0.4</TestingAssemblyVersion>
+  <TestingAssemblyVersion>0.4.8</TestingAssemblyVersion>
   <Tags>collectables;automation</Tags>
   <IconUrl>https://raw.githubusercontent.com/Ashylila/TheCollector/refs/heads/master/icon.png</IconUrl>
   <DalamudApiLevel>14</DalamudApiLevel>
