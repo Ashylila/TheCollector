@@ -3,8 +3,7 @@
 ![TheCollector -- FFXIV Dalamud Plugin
 Banner](https://ashylila.moe/img/projects/thecollector.png)
 
-> ✨FFXIV Dalamud plugin to automate collectable turn-ins, auto-buy
-> scrip items, and create perfect crafting & gathering loops.✨
+> ✨ FFXIV Dalamud plugin that automates collectable crafting and turn-ins, auto-buys scrip items, and enables hands-free crafting & gathering loops. ✨
 
 **TheCollector** is a **Dalamud plugin for Final Fantasy XIV** that
 helps you save time by automating collectable turn-ins and automatically
