@@ -34,6 +34,12 @@ public class ChangelogUi : IUiService
         Add_0_4_6(Changelog);
         Add_0_4_8(Changelog);
         Add_0_5_0(Changelog);
+        Add_0_5_1(Changelog);
+    }
+    private void Add_0_5_1(Changelog log)
+    {
+        log.NextVersion("Version 0.5.1")
+            .RegisterEntry("Fixed some bugs");
     }
     private void Add_0_5_0(Changelog log)
     {
