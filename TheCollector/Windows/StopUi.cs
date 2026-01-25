@@ -43,7 +43,6 @@ public class StopUi : Window
         var io = ImGui.GetIO();
         var center = io.DisplaySize / 2f;
         ImGui.SetNextWindowPos(center, ImGuiCond.Always, new Vector2(0.5f, 0.5f));
-        ImGui.SetNextWindowFocus();
     }
 
     public override void Draw()
@@ -73,11 +72,12 @@ public class StopUi : Window
                 break;
             case PluginState.ExchangingItems:
                 ImGui.TextUnformatted("Turning in items:");
-                if (_collectableHandler.TurnInQueue.Length != 0)
+                var q = _collectableHandler.TurnInQueue;
+                if (q != null || q.Length != 0)
                 {
-                    for (int i = 0; i < _collectableHandler.TurnInQueue.Length; i++)
+                    for (int i = 0; i < q.Length; i++)
                     {
-                        var item = _collectableHandler.TurnInQueue[i];
+                        var item = q[i];
                         if (_collectableHandler.CurrentItemName is not null && _collectableHandler.CurrentItemName == item.name)
                         {
                             ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(0f, 1f, 0f, 1f)); //green

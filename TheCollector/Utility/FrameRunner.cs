@@ -3,6 +3,8 @@
 using System;
 using System.Collections.Generic;
 using Dalamud.Plugin.Services;
+using ECommons.DalamudServices;
+using Serilog;
 
 public enum StepStatus { Continue, Succeeded, Failed, Cancel }
 public readonly struct StepResult
@@ -77,7 +79,6 @@ public sealed class FrameRunner
         if (!_running) return;
         _cancel = true;
         _err = reason;
-        _onError(reason);
     }
 
     private void OnUpdate(IFramework _)
@@ -108,8 +109,10 @@ public sealed class FrameRunner
         var result = _cur.Tick();
 
         if (result.Status == StepStatus.Continue) return;
-
         _onDone(_cur.Name, result.Status, result.Error);
+        if(result.Status == StepStatus.Failed)
+            _onError(result.Error ?? "Failed");
+
         Next();
     }
 

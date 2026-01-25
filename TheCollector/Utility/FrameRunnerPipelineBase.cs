@@ -14,7 +14,7 @@ public abstract class FrameRunnerPipelineBase : IPipeline
 
     protected FrameRunner? Runner;
 
-    public bool IsRunning { get; protected set; }
+    public bool IsRunning => Runner?.IsRunning ?? false;
 
     public event Action<Exception>? OnError;
 
@@ -27,8 +27,6 @@ public abstract class FrameRunnerPipelineBase : IPipeline
     public void Start()
     {
         if (IsRunning) return;
-
-        IsRunning = true;
         EnsureRunner();
         OnStart();
         Runner!.Start(BuildSteps());
@@ -37,7 +35,6 @@ public abstract class FrameRunnerPipelineBase : IPipeline
     public void Stop(string reason = "Canceled")
     {
         if (!IsRunning) return;
-        IsRunning = false;
         Runner?.Cancel(reason);
     }
 
@@ -49,14 +46,13 @@ public abstract class FrameRunnerPipelineBase : IPipeline
 
     protected virtual void OnFinished(bool ok)
     {
-        IsRunning = false;
         Plugin.State = PluginState.Idle;
     }
 
     protected virtual void OnCanceledOrFailed(string? error)
     {
         Plugin.State = PluginState.Idle;
-        Stop(error);
+
     }
 
     protected void EnsureRunner()
@@ -73,7 +69,7 @@ public abstract class FrameRunnerPipelineBase : IPipeline
             },
             e => OnError?.Invoke(new Exception(e)),
             ok => OnFinished(ok),
-            TimeSpan.FromMicroseconds(100)
+            TimeSpan.FromMilliseconds(50)
         );
         Runner ??= new FrameRunner(
             Framework,

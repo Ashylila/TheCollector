@@ -125,7 +125,16 @@ public partial class CollectableAutomationHandler : FrameRunnerPipelineBase
     protected override void OnFinished(bool ok)
     {
         base.OnFinished(ok);
-        OnFinishCollecting?.Invoke();
+        if(ok)  OnFinishCollecting?.Invoke();
+    }
+    protected override void OnCanceledOrFailed(string? error)
+    {
+        base.OnCanceledOrFailed(error);
+        VNavmesh_IPCSubscriber.Path_Stop();
+        CurrentItemName = string.Empty;
+        TurnInQueue = null;
+        _turnInPhase = 0;
+        _collectibleWindowHandler.CloseWindow();
     }
     private bool _teleportAttempted;
     private StepResult MakeTeleportTick(string shopName)
@@ -211,7 +220,7 @@ public partial class CollectableAutomationHandler : FrameRunnerPipelineBase
         }
         return StepResult.Success();
     }
-    public (CollectablesShopItem item, string name, int left, int jobIndex)[] TurnInQueue { get; private set; } = null;
+    public (CollectablesShopItem item, string name, int left, int jobIndex)[]? TurnInQueue { get; private set; } = null;
     private DateTime _lastTurnIn;
     private int _turnInPhase;
 
@@ -244,7 +253,7 @@ public partial class CollectableAutomationHandler : FrameRunnerPipelineBase
     private StepResult MakeTurnInTick()
     {
         Plugin.State = PluginState.ExchangingItems;
-        if (TurnInQueue.Length == 0)
+        if (TurnInQueue == null || TurnInQueue.Length == 0)
         {
             Plugin.State = PluginState.Idle;
             return StepResult.Success();
@@ -290,7 +299,7 @@ public partial class CollectableAutomationHandler : FrameRunnerPipelineBase
         if (h.item.CollectablesShopRewardScrip.Value.HighReward > remaining)
         {
             Log.Debug("Scrip cap reached, cancelling");
-            return StepResult.Success();
+            return StepResult.Cancel("Scrip cap reached");
         }
 
         _collectibleWindowHandler.SubmitItem();
