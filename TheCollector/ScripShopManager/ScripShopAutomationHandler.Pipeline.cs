@@ -99,7 +99,13 @@ public partial class ScripShopAutomationHandler : FrameRunnerPipelineBase
     protected override void OnFinished(bool ok)
     {
         base.OnFinished(ok);
+        Plugin.State = PluginState.Idle;
         if(ok) OnFinishedTrading?.Invoke();
+    }
+    protected override void OnCanceledOrFailed(string? error)
+    {
+        base.OnCanceledOrFailed(error);
+        Plugin.State = PluginState.Idle;
     }
     private (int page, int subPage, int remaining, int cost, uint itemId, uint currencyId)[] _buyQueue =
         Array.Empty<(int, int, int, int, uint, uint)>();

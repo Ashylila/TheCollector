@@ -1,18 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Numerics;
 using Dalamud.Bindings.ImGui;
-using Dalamud.Game.ClientState.Objects;
-using Dalamud.Interface.Utility;
 using Dalamud.Interface.Windowing;
 using Dalamud.Plugin.Services;
-using ECommons.DalamudServices;
-using ECommons.Logging;
-using Lumina.Excel.Sheets;
 using TheCollector.CollectableManager;
-using TheCollector.Data.Models;
 using TheCollector.Ipc;
 using TheCollector.ScripShopManager;
 using TheCollector.Utility;
@@ -215,8 +207,7 @@ public class ConfigWindow : Window, IDisposable
             }
             ImGui.TextUnformatted("Select your preferred collectable shop:");
             ImGui.SameLine();
-
-            string currentShopName = Configuration.PreferredCollectableShop.Name ?? "Select a shop";
+            string currentShopName = Configuration.PreferredCollectableShop.DisplayName ?? "Select a shop";
 
             ImGui.Spacing();
             if (ImGui.BeginCombo("##shopselection", currentShopName))
@@ -225,7 +216,7 @@ public class ConfigWindow : Window, IDisposable
                 {
                     ImGui.BeginDisabled(CollectableNpcLocations.CollectableShops[i].Disabled || (CollectableNpcLocations.CollectableShops[i].IsLifestreamRequired && !IPCSubscriber_Common.IsReady("Lifestream")));
                     var shop = CollectableNpcLocations.CollectableShops[i];
-                    if (ImGui.Selectable(shop.IsLifestreamRequired && !IPCSubscriber_Common.IsReady("Lifestream") ? (shop.Name + " (Lifestream required)") : shop.Name))
+                    if (ImGui.Selectable(shop.IsLifestreamRequired && !IPCSubscriber_Common.IsReady("Lifestream") ? (shop.DisplayName + " (Lifestream required)") : shop.DisplayName))
                     {
                         Configuration.PreferredCollectableShop = CollectableNpcLocations.CollectableShops[i];
                         Configuration.Save();

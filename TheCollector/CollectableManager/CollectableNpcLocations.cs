@@ -10,7 +10,7 @@ public static class CollectableNpcLocations
     {
         new CollectableShop()
         {
-            Name = "Solution Nine",
+            TerritoryId = 1186,
             Location = new Vector3(-162.17f, 0.9219f, -30.458f),
             ScripShopLocation = new Vector3(-161.84605f, 0.921f, -42.06536f),
             RetainerBellLoc = new Vector3(-151.598f, 0.59f, -15.30f),
@@ -20,13 +20,13 @@ public static class CollectableNpcLocations
         },
         new CollectableShop()
         {
-            Name = "Eulmore",
+            TerritoryId = 820,
             Location = new Vector3(16.94f, 82.05f, -19.177f),
             RetainerBellLoc = new Vector3(7.186f, 83.176f, 31.44f)
         },
         new CollectableShop()
         {
-            Name = "Old Gridania",
+            TerritoryId = 132,
             Location = new Vector3(143.62454f, 13.74769f, -105.33799f),
             IsLifestreamRequired = true,
             LifestreamCommand = "Leatherworkers",

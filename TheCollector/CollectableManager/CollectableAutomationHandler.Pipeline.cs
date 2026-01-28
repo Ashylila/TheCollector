@@ -28,7 +28,7 @@ public partial class CollectableAutomationHandler : FrameRunnerPipelineBase
 
     protected override FrameRunner.Step[] BuildSteps()
     {
-        var shopName = _configuration.PreferredCollectableShop.Name;
+        var shopId = _configuration.PreferredCollectableShop.TerritoryId;
         var target = _configuration.PreferredCollectableShop.Location;
 
         var steps = new[]
@@ -45,7 +45,7 @@ public partial class CollectableAutomationHandler : FrameRunnerPipelineBase
                 TimeSpan.FromSeconds(5)),
             new FrameRunner.Step(
                 "TeleportToPreferredShop",
-                () => MakeTeleportTick(shopName),
+                () => MakeTeleportTick(shopId),
                 TimeSpan.FromSeconds(20),
                 () => _teleportAttempted = false
             ),
@@ -125,11 +125,13 @@ public partial class CollectableAutomationHandler : FrameRunnerPipelineBase
     protected override void OnFinished(bool ok)
     {
         base.OnFinished(ok);
+        Plugin.State = PluginState.Idle;
         if(ok)  OnFinishCollecting?.Invoke();
     }
     protected override void OnCanceledOrFailed(string? error)
     {
         base.OnCanceledOrFailed(error);
+        Plugin.State = PluginState.Idle;
         VNavmesh_IPCSubscriber.Path_Stop();
         CurrentItemName = string.Empty;
         TurnInQueue = null;
@@ -137,17 +139,19 @@ public partial class CollectableAutomationHandler : FrameRunnerPipelineBase
         _collectibleWindowHandler.CloseWindow();
     }
     private bool _teleportAttempted;
-    private StepResult MakeTeleportTick(string shopName)
+    private StepResult MakeTeleportTick(uint territoryId)
     {
         Plugin.State = PluginState.Teleporting;
-        if (_dataManager.GetExcelSheet<TerritoryType>()
-                .FirstOrDefault(t => t.RowId == _clientState.TerritoryType)
-                .PlaceName.Value.Name.ExtractText().Contains(_configuration.PreferredCollectableShop.Name) || _configuration.PreferredCollectableShop.IsLifestreamRequired)
+        var terSheet = _dataManager.GetExcelSheet<TerritoryType>();
+        
+        if (_clientState.TerritoryType == territoryId || _configuration.PreferredCollectableShop.IsLifestreamRequired)
             return StepResult.Success();
+
+        var territory = terSheet.GetRow(territoryId);
 
         if (!_teleportAttempted)
         {
-            if (TeleportHelper.TryFindAetheryteByName(shopName, out var aetheryte, out _))
+            if (TeleportHelper.TryFindAetheryteByName(territory.PlaceName.Value.Name.ExtractText(), out var aetheryte, out _))
             {
                 TeleportHelper.Teleport(aetheryte.AetheryteId, aetheryte.SubIndex);
                 _teleportAttempted = true;
@@ -158,10 +162,10 @@ public partial class CollectableAutomationHandler : FrameRunnerPipelineBase
             }
         }
 
-        var currentName = _dataManager.GetExcelSheet<TerritoryType>()
+        var currentName = terSheet
             .FirstOrDefault(t => t.RowId == _clientState.TerritoryType)
             .PlaceName.Value.Name.ExtractText();
-        if (string.Equals(currentName, shopName, StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(currentName, territory.PlaceName.Value.Name.ExtractText(), StringComparison.OrdinalIgnoreCase))
         {
             Plugin.State = PluginState.Idle;
             return StepResult.Success();

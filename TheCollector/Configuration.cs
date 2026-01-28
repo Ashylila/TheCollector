@@ -37,42 +37,30 @@ public class Configuration : IPluginConfiguration
     {
         var changed = false;
 
-        if (Version < 2)
+        if (Version < 3)
         {
-            changed |= Migrate_AddBellLocation();
-            Version = 2;
+            changed |= Migrate_TerritoryId(PreferredCollectableShop);
+            Version = 3;
         }
         Save();
         return changed;
     }
 
-    private bool Migrate_AddBellLocation()
+    private bool Migrate_TerritoryId(CollectableShop shop)
     {
-        var changed = false;
+        if (shop == null) return false;
 
-        if (PreferredCollectableShop != null)
-            changed |= EnsureBellLocation(PreferredCollectableShop);
-
-
-        return changed;
-    }
-
-    private bool EnsureBellLocation(CollectableShop loc)
-    {
-        if (loc == null) return false;
-
-        if (loc.RetainerBellLoc == default)
+        if(!string.IsNullOrEmpty(shop.Name) && shop.TerritoryId == default )
         {
-            var def = CollectableNpcLocations.CollectableShops
-                .FirstOrDefault(s => string.Equals(s.Name, loc.Name, StringComparison.Ordinal));
+            var newShop = CollectableNpcLocations.CollectableShops.FirstOrDefault(x => x.RetainerBellLoc == shop.RetainerBellLoc);
+            if(newShop == null) return false;
 
-            if (def == null) return false;
-
-            loc.RetainerBellLoc = def.RetainerBellLoc;
+            shop.TerritoryId = newShop.TerritoryId;
+            shop.Name = null;
             return true;
         }
-
         return false;
     }
+    
 
 }

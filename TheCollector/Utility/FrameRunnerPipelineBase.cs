@@ -44,16 +44,8 @@ public abstract class FrameRunnerPipelineBase : IPipeline
 
     protected virtual void OnStepStatus(string name, StepStatus status, string? error) { }
 
-    protected virtual void OnFinished(bool ok)
-    {
-        Plugin.State = PluginState.Idle;
-    }
-
-    protected virtual void OnCanceledOrFailed(string? error)
-    {
-        Plugin.State = PluginState.Idle;
-
-    }
+    protected virtual void OnFinished(bool ok){}
+    protected virtual void OnCanceledOrFailed(string? error){}
 
     protected void EnsureRunner()
     {
