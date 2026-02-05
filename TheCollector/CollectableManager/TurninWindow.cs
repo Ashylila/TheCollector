@@ -17,9 +17,9 @@ public unsafe class TurninWindow(AtkUnitBase* addon) : TreeListWindowBase(addon)
         return SeString.Parse(label).TextValue;
     }
 
-    public int GetItemIndexOf(string label)
+    public override int GetItemIndexOf(string label)
     {
-        var trimmedLabels = Labels.Where(l => l.Contains("Rarefied", StringComparison.OrdinalIgnoreCase)).ToArray();
+        var trimmedLabels = Labels.Where(l => !l.Contains("Lv.", StringComparison.OrdinalIgnoreCase)).ToArray();
         for (var i = 0; i < trimmedLabels.Length; i++)
         {
             Log.Debug($"GetItemIndexOf({label})");

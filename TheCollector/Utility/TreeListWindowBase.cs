@@ -24,7 +24,7 @@ public unsafe abstract class TreeListWindowBase
         PopulateLabels();
     }
 
-    public int GetItemIndexOf(string label)
+    public virtual int GetItemIndexOf(string label)
     {
         for (var i = 0; i < Labels.Length; i++)
         {
