@@ -198,8 +198,8 @@ public partial class CollectableAutomationHandler : FrameRunnerPipelineBase
     private bool IsNearShop(Vector3 destination)
     {
         var playerTer = _clientState.TerritoryType;
-        var ter = _dataManager.GetExcelSheet<TerritoryType>().FirstOrDefault(t => t.PlaceName.Value.Name.ToString().Equals(_configuration.PreferredCollectableShop.Name)).RowId;
-        if (playerTer == ter && PlayerHelper.GetDistanceToPlayer(destination) <= 40f)
+        var ter = _dataManager.GetExcelSheet<TerritoryType>().GetRow(_configuration.PreferredCollectableShop.TerritoryId);
+        if (playerTer == ter.RowId && PlayerHelper.GetDistanceToPlayer(destination) <= 40f)
         {
             return true;
         }
