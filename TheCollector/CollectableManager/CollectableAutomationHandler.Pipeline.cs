@@ -290,17 +290,11 @@ public partial class CollectableAutomationHandler : FrameRunnerPipelineBase
             _turnInPhase = 2;
             return StepResult.Continue();
         }
-        var current = h.item.CollectablesShopRewardScrip.Value.Currency switch
-        {
-            6 or 7 => _collectibleWindowHandler.OrangeScripCount(),
-            2 or 4 => _collectibleWindowHandler.PurpleScripCount(),
-            _ => throw new InvalidOperationException($"Unknown scrip currency: {h.item.CollectablesShopRewardScrip.Value.Currency}")
-        };
-
-
+        var currencyId = h.item.CollectablesShopRewardScrip.Value.Currency;
+        var current = _collectibleWindowHandler.GetScripCount(currencyId);
         var remaining = 4000 - current;
 
-        if (h.item.CollectablesShopRewardScrip.Value.HighReward > remaining)
+        if (h.item.CollectablesShopRewardScrip.Value.HighReward > remaining) 
         {
             Log.Debug("Scrip cap reached, cancelling");
             return StepResult.Success();

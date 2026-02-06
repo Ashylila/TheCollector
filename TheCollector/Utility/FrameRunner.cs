@@ -111,7 +111,10 @@ public sealed class FrameRunner
         if (result.Status == StepStatus.Continue) return;
         _onDone(_cur.Name, result.Status, result.Error);
         if(result.Status == StepStatus.Failed)
+        {
             _onError(result.Error ?? "Failed");
+            Stop(false);
+        }
 
         Next();
     }
