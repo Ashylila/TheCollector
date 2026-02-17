@@ -13,6 +13,7 @@ namespace TheCollector.Data.Models;
 public class CollectableShop
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [Newtonsoft.Json.JsonIgnore]
     public string? Name {get; set;}
     public uint TerritoryId {get; set;}
     public Vector3 Location { get; set; }
@@ -21,12 +22,13 @@ public class CollectableShop
     public bool IsLifestreamRequired { get; set; } = false;
     public string LifestreamCommand { get; set; } = "";
     [JsonIgnore]
+    [Newtonsoft.Json.JsonIgnore]
     public string DisplayName =>
         Svc.Data.GetExcelSheet<TerritoryType>()
             .GetRow(TerritoryId)
             .PlaceName.Value.Name.ExtractText();
     private Vector3? _scripShopLocation;
-    
+    [Newtonsoft.Json.JsonIgnore]
     [JsonPropertyName("ScripShopLocation")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public Vector3 ScripShopLocation
