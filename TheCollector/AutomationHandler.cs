@@ -70,6 +70,11 @@ public class AutomationHandler : IDisposable
     }
     public void Invoke()
     {
+        if(_config.PreferredCollectableShop.TerritoryId == default)
+        {
+            _chatGui.PrintError("Please configure your preferred collectable shop in the settings tab!", "TheCollector");
+            return;
+        }
         _collectableAutomationHandler.Start();
     }
 

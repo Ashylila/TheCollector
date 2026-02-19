@@ -24,9 +24,12 @@ public class CollectableShop
     [JsonIgnore]
     [Newtonsoft.Json.JsonIgnore]
     public string DisplayName =>
-        Svc.Data.GetExcelSheet<TerritoryType>()
-            .GetRow(TerritoryId)
-            .PlaceName.Value.Name.ExtractText();
+        Svc.Data.GetExcelSheet<TerritoryType>()?
+            .GetRowOrDefault(TerritoryId)?
+            .PlaceName
+            .Value
+            .Name
+            .ExtractText() ?? "None";
     private Vector3? _scripShopLocation;
     [Newtonsoft.Json.JsonIgnore]
     [JsonPropertyName("ScripShopLocation")]
