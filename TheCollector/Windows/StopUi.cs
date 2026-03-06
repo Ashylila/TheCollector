@@ -1,5 +1,3 @@
-﻿using System;
-using System.Linq;
 using System.Numerics;
 using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Windowing;
@@ -27,10 +25,9 @@ public class StopUi : Window
 
         SizeConstraints = new WindowSizeConstraints
         {
-            MinimumSize = new Vector2(350, 140),
+            MinimumSize = new Vector2(350, 0),
             MaximumSize = new Vector2(350, 800)
         };
-
     }
 
     public override void PreOpenCheck()
@@ -51,55 +48,75 @@ public class StopUi : Window
         DrawStopButton();
     }
 
-    private void DrawStopButton()
-    {
-        if (ImGui.Button("Stop", new Vector2(ImGui.GetContentRegionAvail().X, 100)))
-            _automation?.ForceStop("Stopped by user");
-
-    }
     private void DrawStatusInfo()
     {
-        switch (Plugin.State)
+        var (color, label) = Plugin.State switch
         {
-            case PluginState.Idle:
-                ImGui.TextUnformatted("Idle...");
-                break;
-            case PluginState.Teleporting:
-                ImGui.TextUnformatted("Teleporting...");
-                break;
-            case PluginState.MovingToCollectableVendor:
-                ImGui.TextUnformatted("Moving to vendor...");
-                break;
-            case PluginState.ExchangingItems:
-                ImGui.TextUnformatted("Turning in items:");
-                var q = _collectableHandler.TurnInQueue;
-                if (q != null || q.Length != 0)
+            PluginState.Teleporting               => (new Vector4(0.95f, 0.75f, 0.10f, 1f), "Teleporting"),
+            PluginState.MovingToCollectableVendor => (new Vector4(0.95f, 0.75f, 0.10f, 1f), "Moving to vendor"),
+            PluginState.ExchangingItems           => (new Vector4(0.30f, 0.85f, 0.30f, 1f), "Exchanging items"),
+            PluginState.SpendingScrip             => (new Vector4(0.30f, 0.85f, 0.30f, 1f), "Spending scrip"),
+            PluginState.AutoRetainer              => (new Vector4(0.40f, 0.65f, 1.00f, 1f), "AutoRetainer running"),
+            _                                     => (new Vector4(0.55f, 0.55f, 0.55f, 1f), "Idle")
+        };
+
+        ImGui.PushStyleColor(ImGuiCol.Text, color);
+        ImGui.TextUnformatted($"● {label}");
+        ImGui.PopStyleColor();
+
+        if (Plugin.State == PluginState.ExchangingItems)
+        {
+            var q = _collectableHandler.TurnInQueue;
+            if (q != null && q.Count != 0)
+            {
+                ImGui.Spacing();
+                ImGui.TextDisabled("Turn-in queue:");
+                ImGui.Separator();
+                ImGui.Spacing();
+
+                for (int i = 0; i < q.Count; i++)
                 {
-                    for (int i = 0; i < q.Length; i++)
+                    var (_, name, left, _) = q[i];
+                    bool isCurrent = _collectableHandler.CurrentItemName is not null &&
+                                     _collectableHandler.CurrentItemName == name;
+
+                    if (isCurrent)
                     {
-                        var item = q[i];
-                        if (_collectableHandler.CurrentItemName is not null && _collectableHandler.CurrentItemName == item.name)
-                        {
-                            ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(0f, 1f, 0f, 1f)); //green
-                            ImGui.TextUnformatted("Current item: ");
-                            ImGui.PopStyleColor();
-                            ImGui.SameLine();
-
-                        }
-
-                        ImGui.TextUnformatted($"{item.name} : {item.left}");
+                        ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(0.30f, 0.90f, 0.30f, 1f));
+                        ImGui.TextUnformatted("▶");
+                        ImGui.PopStyleColor();
                     }
-                }
-                break;
-            case PluginState.SpendingScrip:
-                ImGui.TextUnformatted("Spending scrip...");
-                break;
-            case PluginState.AutoRetainer:
-                ImGui.TextUnformatted("Turning in ventures...");
-                break;
+                    else
+                    {
+                        ImGui.TextDisabled(" ");
+                    }
 
+                    ImGui.SameLine();
+
+                    if (isCurrent)
+                        ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(0.30f, 0.90f, 0.30f, 1f));
+
+                    ImGui.TextUnformatted(name);
+
+                    if (isCurrent)
+                        ImGui.PopStyleColor();
+
+                    ImGui.SameLine();
+                    ImGui.TextDisabled($"({left} left)");
+                }
+            }
         }
     }
 
+    private void DrawStopButton()
+    {
+        ImGui.PushStyleColor(ImGuiCol.Button,        new Vector4(0.65f, 0.10f, 0.10f, 0.90f));
+        ImGui.PushStyleColor(ImGuiCol.ButtonHovered, new Vector4(0.85f, 0.15f, 0.15f, 1.00f));
+        ImGui.PushStyleColor(ImGuiCol.ButtonActive,  new Vector4(1.00f, 0.20f, 0.20f, 1.00f));
 
+        if (ImGui.Button("Stop", new Vector2(ImGui.GetContentRegionAvail().X, 50)))
+            _automation?.ForceStop("Stopped by user");
+
+        ImGui.PopStyleColor(3);
+    }
 }
