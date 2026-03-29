@@ -1,6 +1,7 @@
 ﻿
 using Newtonsoft.Json;
-using TheCollector.Data.Models;
+
+namespace TheCollector.Data.Models;
 
 public class ItemToPurchase
 {
@@ -8,4 +9,6 @@ public class ItemToPurchase
     public string Name => Item.Name;
     public int Quantity { get; set; }
     public int AmountPurchased { get; set; } = 0;
+
+    public void ResetQuantity() => AmountPurchased = 0;
 }

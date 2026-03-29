@@ -6,7 +6,7 @@ namespace TheCollector.CollectableManager;
 
 public static class CollectableNpcLocations
 {
-    public static List<CollectableShop> CollectableShops = new()
+    public static IReadOnlyList<CollectableShop> CollectableShops { get; } = new List<CollectableShop>()
     {
         new CollectableShop()
         {
@@ -33,5 +33,4 @@ public static class CollectableNpcLocations
             RetainerBellLoc = new Vector3(171f, 15.48f, -101.48f)
         }
     };
-    
 }

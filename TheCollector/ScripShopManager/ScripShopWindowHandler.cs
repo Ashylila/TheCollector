@@ -16,7 +16,6 @@ namespace TheCollector.ScripShopManager;
 
 public unsafe class ScripShopWindowHandler
 {
-    private IFramework _framework;
     private readonly PlogonLog _log;
     private bool _forceSearchActive;
     private bool _waitingForTabChange;
@@ -33,7 +32,6 @@ public unsafe class ScripShopWindowHandler
     private static readonly TimeSpan UiDelay = TimeSpan.FromMilliseconds(150);
     public ScripShopWindowHandler(IFramework framework, PlogonLog log)
     {
-        _framework = framework;
         _log = log;
     }
     public void OpenShop()

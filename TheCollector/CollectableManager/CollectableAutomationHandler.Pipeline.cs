@@ -18,6 +18,7 @@ public partial class CollectableAutomationHandler : FrameRunnerPipelineBase
     public override string Key => "collectables";
     private Dictionary<uint, CollectablesShopItem> _collectableByItemId = new();
     private readonly IPlayerState _player;
+    private const int ScripCap = 4000;
     private readonly TimeSpan _uiLoadDelay = TimeSpan.FromSeconds(2);
     private readonly TimeSpan _uiInteractDelay = TimeSpan.FromMilliseconds(500);
     private DateTime _uiLoadWaitUntil;
@@ -224,7 +225,7 @@ public partial class CollectableAutomationHandler : FrameRunnerPipelineBase
         }
         return StepResult.Success();
     }
-    public (CollectablesShopItem item, string name, int left, int jobIndex)[]? TurnInQueue { get; private set; } = null;
+    public List<(CollectablesShopItem item, string name, int left, int jobIndex)>? TurnInQueue { get; private set; } = null;
     private DateTime _lastTurnIn;
     private int _turnInPhase;
 
@@ -234,10 +235,10 @@ public partial class CollectableAutomationHandler : FrameRunnerPipelineBase
                                 .Where(i => i.IsCollectable && _collectableByItemId.ContainsKey(i.RowId))
                                 .GroupBy(i => i.RowId)
                                 .Select(g => (_collectableByItemId[g.Key], _collectableByItemId[g.Key].Item.Value.Name.ExtractText(), g.Count(), int.MinValue))
-                                .ToArray();
+                                .ToList();
 
 
-        for (var i = 0; i < TurnInQueue.Length; i++)
+        for (var i = 0; i < TurnInQueue.Count; i++)
         {
             var item = TurnInQueue[i];
             var jobId = ItemJobResolver.GetJobIdForItem(item.name, _dataManager);
@@ -257,7 +258,7 @@ public partial class CollectableAutomationHandler : FrameRunnerPipelineBase
     private StepResult MakeTurnInTick()
     {
         Plugin.State = PluginState.ExchangingItems;
-        if (TurnInQueue == null || TurnInQueue.Length == 0)
+        if (TurnInQueue == null || TurnInQueue.Count == 0)
         {
             Plugin.State = PluginState.Idle;
             return StepResult.Success();
@@ -292,7 +293,7 @@ public partial class CollectableAutomationHandler : FrameRunnerPipelineBase
         }
         var currencyId = h.item.CollectablesShopRewardScrip.Value.Currency;
         var current = _collectibleWindowHandler.GetScripCount(currencyId);
-        var remaining = 4000 - current;
+        var remaining = ScripCap - current;
 
         if (h.item.CollectablesShopRewardScrip.Value.HighReward > remaining) 
         {
@@ -308,7 +309,7 @@ public partial class CollectableAutomationHandler : FrameRunnerPipelineBase
         h.left--;
         if (h.left <= 0)
         {
-            TurnInQueue = TurnInQueue.Skip(1).ToArray();
+            TurnInQueue.RemoveAt(0);
             CurrentItemName = null;
         }
         else

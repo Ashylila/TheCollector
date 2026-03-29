@@ -3,7 +3,7 @@ using ECommons.EzIpcManager;
 
 namespace TheCollector.Ipc;
 
-public class Artisan_IPCSubscriber
+public class Artisan_IPCSubscriber : IDisposable
 {
     private readonly EzIPCDisposalToken[] _disposalTokens;
     

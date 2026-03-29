@@ -8,6 +8,7 @@ using TheCollector.Utility;
 namespace TheCollector.ScripShopManager;
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using TheCollector.Data;
@@ -32,6 +33,14 @@ public partial class ScripShopAutomationHandler : FrameRunnerPipelineBase
         var steps = new[]
         {
             FrameRunner.Delay("InitialDelay", TimeSpan.FromSeconds(1)),
+
+            new FrameRunner.Step(
+                "InventoryCheck",
+                () => ItemHelper.GetFreeInventorySlots() > 0
+                    ? StepResult.Success()
+                    : StepResult.Fail("No free inventory slots available for purchases."),
+                TimeSpan.FromSeconds(2)
+            ),
 
             new FrameRunner.Step(
                 "MoveToShop",
@@ -107,8 +116,7 @@ public partial class ScripShopAutomationHandler : FrameRunnerPipelineBase
         base.OnCanceledOrFailed(error);
         Plugin.State = PluginState.Idle;
     }
-    private (int page, int subPage, int remaining, int cost, uint itemId, uint currencyId)[] _buyQueue =
-        Array.Empty<(int, int, int, int, uint, uint)>();
+    private List<(int page, int subPage, int remaining, int cost, uint itemId, uint currencyId)> _buyQueue = new();
 
     private DateTime _lastBuy;
     private int _currentPurchaseAmount;
@@ -129,7 +137,7 @@ public partial class ScripShopAutomationHandler : FrameRunnerPipelineBase
                  currencyId: s.CurrencyId
 
              ))
-            .ToArray();
+            .ToList();
 
         _lastBuy = DateTime.MinValue;
         _cooldownUntil = DateTime.MinValue;
@@ -139,7 +147,7 @@ public partial class ScripShopAutomationHandler : FrameRunnerPipelineBase
 
     private StepResult MakeBuyTick()
     {
-        if (_buyQueue.Length == 0) return StepResult.Success();
+        if (_buyQueue.Count == 0) return StepResult.Success();
         if (DateTime.UtcNow < _cooldownUntil) return StepResult.Continue();
 
         var h = _buyQueue[0];
@@ -162,12 +170,12 @@ public partial class ScripShopAutomationHandler : FrameRunnerPipelineBase
                 {
                     
                     var scrips = _scripShopWindowHandler.ScripCount(h.currencyId);
-                    _log.Debug($"Scripcount: {scrips}");
+                    Log.Debug($"Scripcount: {scrips}");
                     var maxByScrip = h.cost > 0 ? (scrips / h.cost) : h.remaining;
                     var amount = Math.Min(h.remaining, Math.Min(maxByScrip, 99));
                     if (amount <= 0)
                     {
-                        _buyQueue = _buyQueue.Skip(1).ToArray();
+                        _buyQueue.RemoveAt(0);
                         _buyPhase = 0;
                         return StepResult.Continue();
                     }
@@ -175,10 +183,10 @@ public partial class ScripShopAutomationHandler : FrameRunnerPipelineBase
 
                     _currentPurchaseAmount = (int)amount;
                     _cooldownUntil = DateTime.UtcNow + _uiInteractDelay;
-                    _buyPhase = 69;
+                    _buyPhase = 3;
                     return StepResult.Continue();
                 }
-            case 69:
+            case 3:
                 {
                     var r = _scripShopWindowHandler.SelectItem(h.itemId, _currentPurchaseAmount);
 
@@ -189,10 +197,10 @@ public partial class ScripShopAutomationHandler : FrameRunnerPipelineBase
                         return r;
 
                     _cooldownUntil = DateTime.UtcNow + _uiInteractDelay;
-                    _buyPhase = 3;
+                    _buyPhase = 4;
                     return StepResult.Continue();
                 }
-            case 3:
+            case 4:
                 {
                     _scripShopWindowHandler.PurchaseItem();
                     _lastBuy = DateTime.UtcNow;
@@ -211,7 +219,7 @@ public partial class ScripShopAutomationHandler : FrameRunnerPipelineBase
                     _currentPurchaseAmount = 0;
 
                     if (h.remaining <= 0)
-                        _buyQueue = _buyQueue.Skip(1).ToArray();
+                        _buyQueue.RemoveAt(0);
                     else
                         _buyQueue[0] = h;
 
@@ -229,18 +237,20 @@ public partial class ScripShopAutomationHandler : FrameRunnerPipelineBase
         
         var shop = _configuration.PreferredCollectableShop;
 
-        if (shop.ScripShopLocation == shop.Location)
+        if (shop.ScripShopLocation == null)
             return StepResult.Success();
+
+        var scripLoc = shop.EffectiveScripShopLocation;
 
         if ((DateTime.UtcNow - _lastMove).TotalMilliseconds >= 200)
         {
             if (!VNavmesh_IPCSubscriber.Path_IsRunning())
-                VNavmesh_IPCSubscriber.SimpleMove_PathfindAndMoveTo(shop.ScripShopLocation, false);
+                VNavmesh_IPCSubscriber.SimpleMove_PathfindAndMoveTo(scripLoc, false);
 
             _lastMove = DateTime.UtcNow;
         }
 
-        if (PlayerHelper.GetDistanceToPlayer(shop.ScripShopLocation) <= 0.4f)
+        if (PlayerHelper.GetDistanceToPlayer(scripLoc) <= 0.4f)
         {
             VNavmesh_IPCSubscriber.Path_Stop();
             return StepResult.Success();

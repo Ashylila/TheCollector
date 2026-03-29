@@ -25,9 +25,9 @@ public static class TeleportHelper
                 var aetheryteName = ServiceWrapper.Get<IDataManager>().GetExcelSheet<Aetheryte>()
                     .FirstOrDefault(x => x.RowId == tpInfo.AetheryteId).PlaceName.ValueNullable?.Name
                     .ToString();
-                
-                var result = aetheryteName.Contains(name, StringComparison.OrdinalIgnoreCase);
-                if (!result && !aetheryteName.Contains(name, StringComparison.OrdinalIgnoreCase))
+
+                if (string.IsNullOrEmpty(aetheryteName)) continue;
+                if (!aetheryteName.Contains(name, StringComparison.OrdinalIgnoreCase))
                     continue;
                 info = tpInfo;
                 aetherName = aetheryteName;

@@ -1,6 +1,5 @@
 using System;
 using ECommons.EzIpcManager;
-using FFXIVClientStructs;
 
 namespace TheCollector.Ipc;
 
@@ -12,7 +11,7 @@ public static class Autoretainer_IPCSubscriber
     internal static readonly Func<bool> GetMultiModeEnabled;
 
     [EzIPC("AutoRetainer.SetMultiModeEnabled")]
-    internal static readonly Func<bool> SetMultiModeEnabled;
+    internal static readonly Action<bool> SetMultiModeEnabled;
     [EzIPC] 
     internal static readonly Func<bool> AreAnyRetainersAvailableForCurrentChara;
     [EzIPC] 

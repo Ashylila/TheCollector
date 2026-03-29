@@ -8,19 +8,17 @@ public class IpcProvider : IDisposable
 {
     private readonly AutomationHandler _automationHandler;
     private readonly Plugin _plugin;
-    
+    private readonly EzIPCDisposalToken[] _disposalTokens;
+
     public IpcProvider(AutomationHandler handler, Plugin plugin)
     {
         _automationHandler = handler;
         _plugin = plugin;
-        EzIPC.Init(this, Plugin.InternalName);
+        _disposalTokens = EzIPC.Init(this, Plugin.InternalName);
     }
 
-    public void Init() =>
-        EzIPC.Init(this, Plugin.InternalName);
-    
     [EzIPC]
-    public void Collect() => 
+    public void Collect() =>
         _automationHandler.Invoke();
     [EzIPC]
     public string GetStateText() =>
@@ -32,8 +30,6 @@ public class IpcProvider : IDisposable
 
     public void Dispose()
     {
-        
+        IPCSubscriber_Common.DisposeAll(_disposalTokens);
     }
-    
-    
 }

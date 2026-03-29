@@ -35,7 +35,7 @@ public static class PlayerHelper
                 || Svc.Condition[ConditionFlag.Occupied39]
                 || Svc.Condition[ConditionFlag.Unconscious]
                 || Svc.Condition[ConditionFlag.ExecutingGatheringAction]
-                || Svc.Condition[85] && !Svc.Condition[ConditionFlag.Gathering]
+                || (Svc.Condition[85] && !Svc.Condition[ConditionFlag.Gathering])
                 || Svc.ClientState.LocalPlayer.IsDead
                 || Player.IsAnimationLocked
                 || Svc.Condition[ConditionFlag.Crafting]

@@ -102,11 +102,23 @@ public sealed class FrameRunner
         if (_cur.Timeout > TimeSpan.Zero && DateTime.UtcNow - _started > _cur.Timeout)
         {
             _onDone(_cur.Name, StepStatus.Failed, "Timeout");
-            Next();
+            _onError($"{_cur.Name} timed out");
+            Stop(false);
             return;
         }
 
-        var result = _cur.Tick();
+        StepResult result;
+        try
+        {
+            result = _cur.Tick();
+        }
+        catch (Exception ex)
+        {
+            _onDone(_cur.Name, StepStatus.Failed, ex.Message);
+            _onError($"Unhandled exception in step {_cur.Name}: {ex.Message}");
+            Stop(false);
+            return;
+        }
 
         if (result.Status == StepStatus.Continue) return;
         _onDone(_cur.Name, result.Status, result.Error);
@@ -114,6 +126,7 @@ public sealed class FrameRunner
         {
             _onError(result.Error ?? "Failed");
             Stop(false);
+            return;
         }
 
         Next();

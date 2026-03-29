@@ -34,9 +34,13 @@ public class CollectableShop
     [Newtonsoft.Json.JsonIgnore]
     [JsonPropertyName("ScripShopLocation")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public Vector3 ScripShopLocation
+    public Vector3? ScripShopLocation
     {
-        get => _scripShopLocation ?? Location;
+        get => _scripShopLocation;
         set => _scripShopLocation = value;
     }
+
+    [JsonIgnore]
+    [Newtonsoft.Json.JsonIgnore]
+    public Vector3 EffectiveScripShopLocation => _scripShopLocation ?? Location;
 }

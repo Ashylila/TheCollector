@@ -2,7 +2,7 @@
 <Project Sdk="Dalamud.Net.SDK/14.0.1">
   <PropertyGroup>
     <TargetFramework>net10.0-windows7.0</TargetFramework>
-    <Version>0.5.0</Version>
+    <Version>0.5.4</Version>
     <Description>TheCollector</Description>
     <PackageProjectUrl>https://github.com/Ashylila/TheCollector</PackageProjectUrl>
     <PackageLicenseExpression>AGPL-3.0-or-later</PackageLicenseExpression>
@@ -30,9 +30,6 @@
             <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
             <Visible>false</Visible>
         </Content>
-    </ItemGroup>
-    <ItemGroup>
-        <ProjectReference Include="..\ECommons\ECommons\ECommons.csproj" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\OtterGui\OtterGui.csproj" />

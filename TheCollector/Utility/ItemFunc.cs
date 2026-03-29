@@ -1,3 +1,5 @@
+using TheCollector.Data.Models;
+
 namespace TheCollector.Utility;
 
 public static class ItemFunc

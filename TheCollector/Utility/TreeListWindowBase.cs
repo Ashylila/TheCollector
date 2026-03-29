@@ -18,6 +18,8 @@ public unsafe abstract class TreeListWindowBase
     {
         Addon = addon;
         TreeList = FindTreeList(addon);
+        if (TreeList == null)
+            throw new InvalidOperationException("Could not find TreeList node in addon.");
         ItemCount = (int)TreeList->Items.Count;
         Items = TreeList->Items;
         Labels = new string[ItemCount];

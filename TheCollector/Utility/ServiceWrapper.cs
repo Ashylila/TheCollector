@@ -3,7 +3,6 @@ using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
 using ECommons.Automation.NeoTaskManager;
 using ECommons.DalamudServices;
-using FFXIVClientStructs.Havok.Animation.Rig;
 using Microsoft.Extensions.DependencyInjection;
 using TheCollector.CollectableManager;
 using TheCollector.Ipc;
@@ -14,7 +13,7 @@ namespace TheCollector.Utility;
 
 public static class ServiceWrapper
 {
-    public static IServiceProvider ServiceProvider;
+    public static IServiceProvider ServiceProvider { get; private set; } = null!;
 
     public static void Init(Plugin plugin)
     {

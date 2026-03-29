@@ -6,6 +6,7 @@ using ECommons.DalamudServices;
 using ECommons.GameHelpers;
 using TheCollector.CollectableManager;
 using TheCollector.Data;
+using TheCollector.Data.Models;
 using TheCollector.Ipc;
 using TheCollector.ScripShopManager;
 using TheCollector.Utility;
@@ -75,6 +76,16 @@ public class AutomationHandler : IDisposable
             _chatGui.PrintError("Please configure your preferred collectable shop in the settings tab!", "TheCollector");
             return;
         }
+        if (PlayerHelper.InCombat)
+        {
+            _chatGui.PrintError("Cannot start automation while in combat.", "TheCollector");
+            return;
+        }
+        if (PlayerHelper.IsInDuty)
+        {
+            _chatGui.PrintError("Cannot start automation while in a duty.", "TheCollector");
+            return;
+        }
         _collectableAutomationHandler.Start();
     }
 
@@ -111,7 +122,9 @@ public class AutomationHandler : IDisposable
             _scripShopAutomationHandler.Start();
             return;
         }
-        if(_config.CheckForVenturesBetweenRuns && Autoretainer_IPCSubscriber.AreAnyRetainersAvailableForCurrentChara())
+        if(_config.CheckForVenturesBetweenRuns
+            && IPCSubscriber_Common.IsReady("AutoRetainer")
+            && Autoretainer_IPCSubscriber.AreAnyRetainersAvailableForCurrentChara())
         {
             _autoretainerManager.Start();
             return;
@@ -131,8 +144,9 @@ public class AutomationHandler : IDisposable
             _collectableAutomationHandler.Start();
             return;
         }
-        _log.Debug(_config.CheckForVenturesBetweenRuns.ToString() + " " + Autoretainer_IPCSubscriber.GetClosestRetainerVentureSecondsRemaining(Svc.PlayerState.ContentId) );
-        if (_config.CheckForVenturesBetweenRuns && Autoretainer_IPCSubscriber.AreAnyRetainersAvailableForCurrentChara())
+        if (_config.CheckForVenturesBetweenRuns
+            && IPCSubscriber_Common.IsReady("AutoRetainer")
+            && Autoretainer_IPCSubscriber.AreAnyRetainersAvailableForCurrentChara())
         {
             _autoretainerManager.Start();
             return;
@@ -146,7 +160,7 @@ public class AutomationHandler : IDisposable
 
     private void OnError(Exception ex)
     {
-        _chatGui.Print($"Automation threw an error, {ex.Message}", "TheCollector");
+        _chatGui.PrintError($"Automation threw an error: {ex.Message}", "TheCollector");
     }
     private void OnScripCapped(bool capped)
     {

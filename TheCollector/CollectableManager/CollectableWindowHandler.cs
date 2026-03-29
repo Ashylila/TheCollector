@@ -11,7 +11,12 @@ namespace TheCollector.CollectableManager;
  {
      public unsafe bool IsReady => GenericHelpers.TryGetAddonByName<AtkUnitBase>("CollectablesShop", out var addon) &&
                                    GenericHelpers.IsAddonReady(addon);
-     private readonly PlogonLog _log = new();
+     private readonly PlogonLog _log;
+
+     public CollectableWindowHandler(PlogonLog log)
+     {
+         _log = log;
+     }
      public unsafe void SelectJob(uint id)
      {
          if (GenericHelpers.TryGetAddonByName<AtkUnitBase>("CollectablesShop", out var addon) &&
@@ -33,7 +38,7 @@ namespace TheCollector.CollectableManager;
         {
             var turnIn = new TurninWindow(addon);
             var index = turnIn.GetItemIndexOf(itemName);
-            if (turnIn.GetItemIndexOf(itemName) == -1)
+            if (index == -1)
             {
                 return false;
             }
@@ -43,7 +48,7 @@ namespace TheCollector.CollectableManager;
                 new(){Type = ValueType.UInt, UInt = (uint)index}
             };
             addon->FireCallback(2, selectItem);
-            _log.Debug(turnIn.GetItemIndexOf(itemName).ToString());
+            _log.Debug(index.ToString());
             return true;
         }
         return false;

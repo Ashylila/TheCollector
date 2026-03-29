@@ -25,8 +25,6 @@ public sealed class Plugin : IDalamudPlugin
     [PluginService]
     internal static IPlayerState PlayerState { get; private set; } = null!;
     
-    private readonly CollectableWindowHandler _collectableWindowHandler;
-
     private const string CommandName = "/collector";
     public const string InternalName = "TheCollector";
     public Configuration Configuration { get; init; }
@@ -47,8 +45,8 @@ public sealed class Plugin : IDalamudPlugin
         ECommonsMain.Init(PluginInterface, this, Module.DalamudReflector);
         ServiceWrapper.Init(this);
         
-        ServiceWrapper.Get<IpcProvider>().Init();
-        
+        ServiceWrapper.Get<IpcProvider>();
+
         ConfigWindow = ServiceWrapper.Get<ConfigWindow>();
         MainWindow = ServiceWrapper.Get<MainWindow>();
         ChangelogUi = ServiceWrapper.Get<ChangelogUi>();
@@ -71,7 +69,6 @@ public sealed class Plugin : IDalamudPlugin
         
         PluginInterface.UiBuilder.OpenMainUi += ToggleMainUI;
         
-        _collectableWindowHandler = new();
         _automationHandler = ServiceWrapper.Get<AutomationHandler>();
         _log = ServiceWrapper.Get<PlogonLog>();
         Configuration.Migrate();

@@ -31,7 +31,7 @@ public unsafe class AutoRetainerManager : FrameRunnerPipelineBase
     protected override void OnFinished(bool ok)
     {
         base.OnFinished(ok);
-        OnRetainerFinish?.Invoke();
+        if (ok) OnRetainerFinish?.Invoke();
     }
     protected override void OnStart()
     {
@@ -50,7 +50,7 @@ public unsafe class AutoRetainerManager : FrameRunnerPipelineBase
             new FrameRunner.Step("InteractWithBell", InteractWithBell, TimeSpan.FromSeconds(1)),
             new FrameRunner.Step("EngageRetainer", EngageRetainer, TimeSpan.FromSeconds(1)),
             FrameRunner.Delay("StartDelay", TimeSpan.FromSeconds(1)),
-            new FrameRunner.Step("WaitAutoRetainerFinish", WaitAutoRetainerFinish, TimeSpan.FromSeconds(15)),
+            new FrameRunner.Step("WaitAutoRetainerFinish", WaitAutoRetainerFinish, TimeSpan.FromMinutes(10)),
             FrameRunner.Delay("PostDelay", TimeSpan.FromSeconds(1)),
             new FrameRunner.Step("CloseAllAddons", CloseAllAddons, TimeSpan.FromSeconds(5)),
         };
@@ -72,8 +72,11 @@ public unsafe class AutoRetainerManager : FrameRunnerPipelineBase
     }
     private StepResult InteractWithBell()
     {
+        var bellId = SummoningBellDataIds(Player.Territory.RowId);
+        if (bellId == uint.MaxValue) return StepResult.Fail($"Unsupported territory for summoning bell: {Player.Territory.RowId}");
+
         var target = _objects
-            .Where(o => o.BaseId == SummoningBellDataIds(Player.Territory.RowId))
+            .Where(o => o.BaseId == bellId)
             .OrderBy(o => Vector3.DistanceSquared(Player.Position, o.Position))
             .FirstOrDefault();
         if (target == null) return StepResult.Fail("Could not find SummoningBell GameObject");
@@ -129,7 +132,7 @@ public unsafe class AutoRetainerManager : FrameRunnerPipelineBase
             963 => 2000441, //Radz_at_Han
             1185 => 2000441, //Tuliyollal
             1186 => 2000441, //Nexus_Arcade
-            _ => 0
+            _ => uint.MaxValue
         };
     }
 }

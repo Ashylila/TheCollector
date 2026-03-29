@@ -42,7 +42,7 @@ public class Configuration : IPluginConfiguration
             changed |= Migrate_TerritoryId(PreferredCollectableShop);
             Version = 3;
         }
-        Save();
+        if (changed) Save();
         return changed;
     }
 

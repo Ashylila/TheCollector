@@ -26,14 +26,22 @@ public static class ItemHelper
         }
         return inventoryItems;
     }
+    public static int GetFreeInventorySlots()
+    {
+        const int SlotsPerPage = 35;
+        const int TotalSlots = SlotsPerPage * 4;
+        return TotalSlots - GetCurrentInventoryItems().Count;
+    }
+
     public static List<Item> GetLuminaItemsFromInventory()
     {
         List<Item>? luminaItems = new List<Item>();
         var inventoryItems = GetCurrentInventoryItems();
     
+        var itemSheet = Svc.Data.GetExcelSheet<Item>();
         foreach (var invItem in inventoryItems)
         {
-            var luminaItem = Svc.Data.GetExcelSheet<Item>().FirstOrDefault(i => i.RowId == invItem.BaseItemId);
+            var luminaItem = itemSheet.GetRow(invItem.BaseItemId);
             if (luminaItem.NotNull(out var t))
                 luminaItems.Add(luminaItem);
         }
