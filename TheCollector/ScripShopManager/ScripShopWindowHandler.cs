@@ -1,17 +1,11 @@
 ﻿
 using System;
 using ECommons;
-using ECommons.DalamudServices;
 using ValueType = FFXIVClientStructs.FFXIV.Component.GUI.ValueType;
-using Lumina.Data.Parsing.Uld;
-using Lumina.Excel.Sheets;
 using FFXIVClientStructs.FFXIV.Component.GUI;
-using Dalamud.Plugin.Services;
-using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using TheCollector.Utility;
 using FFXIVClientStructs.FFXIV.Client.Game;
-using ECommons.Commands;
-
+using FFXIVClientStructs.FFXIV.Client.UI;
 namespace TheCollector.ScripShopManager;
 
 public unsafe class ScripShopWindowHandler
@@ -30,7 +24,7 @@ public unsafe class ScripShopWindowHandler
 
     private const int DropdownNodeId = 9;
     private static readonly TimeSpan UiDelay = TimeSpan.FromMilliseconds(150);
-    public ScripShopWindowHandler(IFramework framework, PlogonLog log)
+    public ScripShopWindowHandler(PlogonLog log)
     {
         _log = log;
     }
@@ -208,17 +202,28 @@ public unsafe class ScripShopWindowHandler
     }
 
 
-    public void PurchaseItem()
+    public void ConfirmPurchaseDialog()
     {
-        if (GenericHelpers.TryGetAddonByName("ShopExchangeItemDialog", out AtkUnitBase* addon))
+        if (GenericHelpers.TryGetAddonByName("ShopExchangeItemDialog", out AtkUnitBase* shopAddon))
         {
             var purchaseItem = stackalloc AtkValue[]
             {
                 new() { Type = ValueType.Int, Int = 0 }
             };
-            addon->FireCallback(1, purchaseItem);
-            addon->Close(true);
+            shopAddon->FireCallback(1, purchaseItem);
+            shopAddon->Close(true);
         }
+    }
+
+    public bool ConfirmYesNo()
+    {
+        if (GenericHelpers.TryGetAddonByName("SelectYesno", out AtkUnitBase* yesnoAddon))
+        {
+            var addonMaster = new ECommons.UIHelpers.AddonMasterImplementations.AddonMaster.SelectYesno(yesnoAddon);
+            addonMaster.Yes();
+            return true;
+        }
+        return false;
     }
 
     public uint ScripCount(uint curType)

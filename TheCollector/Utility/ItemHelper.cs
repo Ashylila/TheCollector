@@ -6,6 +6,7 @@ using ECommons;
 using ECommons.DalamudServices;
 using ECommons.Logging;
 using Lumina.Excel.Sheets;
+using Serilog;
 using TheCollector.CollectableManager;
 
 namespace TheCollector.Utility;
@@ -30,14 +31,16 @@ public static class ItemHelper
     {
         const int SlotsPerPage = 35;
         const int TotalSlots = SlotsPerPage * 4;
-        return TotalSlots - GetCurrentInventoryItems().Count;
+        var items = GetCurrentInventoryItems();
+        var count = items.Count(i => !i.IsEmpty);
+        return TotalSlots - count;
     }
 
     public static List<Item> GetLuminaItemsFromInventory()
     {
         List<Item>? luminaItems = new List<Item>();
         var inventoryItems = GetCurrentInventoryItems();
-    
+
         var itemSheet = Svc.Data.GetExcelSheet<Item>();
         foreach (var invItem in inventoryItems)
         {
@@ -47,5 +50,5 @@ public static class ItemHelper
         }
         return luminaItems;
     }
-    
+
 }

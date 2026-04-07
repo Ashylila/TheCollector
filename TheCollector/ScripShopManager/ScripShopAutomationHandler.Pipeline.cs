@@ -36,9 +36,7 @@ public partial class ScripShopAutomationHandler : FrameRunnerPipelineBase
 
             new FrameRunner.Step(
                 "InventoryCheck",
-                () => ItemHelper.GetFreeInventorySlots() > 0
-                    ? StepResult.Success()
-                    : StepResult.Fail("No free inventory slots available for purchases."),
+                () => InventoryCheck(),
                 TimeSpan.FromSeconds(2)
             ),
 
@@ -144,6 +142,12 @@ public partial class ScripShopAutomationHandler : FrameRunnerPipelineBase
         _buyPhase = 0;
         _currentPurchaseAmount = 0;
     }
+    private StepResult InventoryCheck()
+    {
+        return ItemHelper.GetFreeInventorySlots() > 0
+                    ? StepResult.Success()
+                    : StepResult.Fail("No free inventory slots available for purchases.");
+    }
 
     private StepResult MakeBuyTick()
     {
@@ -202,7 +206,16 @@ public partial class ScripShopAutomationHandler : FrameRunnerPipelineBase
                 }
             case 4:
                 {
-                    _scripShopWindowHandler.PurchaseItem();
+                    _scripShopWindowHandler.ConfirmPurchaseDialog();
+                    _cooldownUntil = DateTime.UtcNow + _uiInteractDelay;
+                    _buyPhase = 5;
+                    return StepResult.Continue();
+                }
+            case 5:
+                {
+                    if (!_scripShopWindowHandler.ConfirmYesNo())
+                        return StepResult.Continue();
+
                     _lastBuy = DateTime.UtcNow;
                     _cooldownUntil = _lastBuy + _uiInteractDelay;
                     _buyPhase = 0;

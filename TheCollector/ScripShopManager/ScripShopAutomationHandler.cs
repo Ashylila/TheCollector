@@ -17,6 +17,7 @@ public partial class ScripShopAutomationHandler
     private readonly Configuration _configuration;
     private readonly IObjectTable _objectTable;
     private readonly ScripShopWindowHandler _scripShopWindowHandler;
+    private readonly IDataManager _data;
 
     public event Action? OnFinishedTrading;
 
@@ -26,12 +27,14 @@ public partial class ScripShopAutomationHandler
         IFramework framework,
         Configuration configuration,
         IObjectTable objectTable,
-        ScripShopWindowHandler handler) : base(log, framework)
+        ScripShopWindowHandler handler,
+        IDataManager data) : base(log, framework)
     {
         _targetManager = targetManager;
         _configuration = configuration;
         _objectTable = objectTable;
         _scripShopWindowHandler = handler;
+        _data = data;
     }
 
 }

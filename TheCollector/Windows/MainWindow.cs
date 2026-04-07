@@ -84,7 +84,16 @@ public class MainWindow : Window, IDisposable
             ImGui.Separator();
             ImGui.Spacing();
 
-            ImGui.PushItemWidth(-ImGui.GetFrameHeightWithSpacing() * 2);
+            bool alreadyAdded = SelectedScripItem != null &&
+                                configuration.ItemsToPurchase.Any(i => i.Item.ItemId == SelectedScripItem.ItemId);
+
+            var style = ImGui.GetStyle();
+            float buttonWidth = ImGui.CalcTextSize("+").X + style.FramePadding.X * 2;
+            float textWidth = alreadyAdded ? ImGui.CalcTextSize("Already in list").X + style.ItemSpacing.X : 0;
+            float reservedWidth = buttonWidth + textWidth + style.ItemSpacing.X;
+            float comboWidth = Math.Min(200f, ImGui.GetContentRegionAvail().X - reservedWidth);
+
+            ImGui.PushItemWidth(comboWidth);
             if (ImGui.BeginCombo("##ItemCombo", SelectedScripItem?.Name ?? "Select an item..."))
             {
                 ImGui.InputTextWithHint("##ComboFilter", "Filter...", ref comboFilter, 100);
@@ -113,8 +122,6 @@ public class MainWindow : Window, IDisposable
 
             ImGui.SameLine();
 
-            bool alreadyAdded = SelectedScripItem != null &&
-                                configuration.ItemsToPurchase.Any(i => i.Item == SelectedScripItem);
             ImGui.BeginDisabled(SelectedScripItem == null || alreadyAdded);
             if (ImGui.Button("+##AddBtn"))
             {
@@ -204,14 +211,23 @@ public class MainWindow : Window, IDisposable
                     done
                         ? new Vector4(0.20f, 0.70f, 0.20f, 0.85f)
                         : new Vector4(0.20f, 0.50f, 0.85f, 0.85f));
-                ImGui.ProgressBar(progress, new Vector2(-1, 20), $"{item.AmountPurchased}/{item.Quantity}");
+                ImGui.ProgressBar(progress, new Vector2(-1, ImGui.GetFrameHeight()), $"{item.AmountPurchased}/{item.Quantity}");
                 ImGui.PopStyleColor();
 
                 // Quantity
                 ImGui.TableSetColumnIndex(3);
+                bool isEquippable = item.Item.Item.EquipSlotCategory.RowId != 0;
                 int qty = item.Quantity;
                 ImGui.PushItemWidth(52);
-                if (ImGui.InputInt($"##Qty{i}", ref qty, 0, 0))
+                if (isEquippable)
+                {
+                    ImGui.BeginDisabled();
+                    ImGui.InputInt($"##Qty{i}", ref qty, 0, 0);
+                    ImGui.EndDisabled();
+                    if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
+                        ImGui.SetTooltip("Equippable items can only be purchased one at a time");
+                }
+                else if (ImGui.InputInt($"##Qty{i}", ref qty, 0, 0))
                 {
                     item.Quantity = Math.Max(0, qty);
                     configuration.ItemsToPurchase[i] = item;
