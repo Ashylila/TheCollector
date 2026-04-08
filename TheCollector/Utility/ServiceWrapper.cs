@@ -51,6 +51,7 @@ public static class ServiceWrapper
         collection.AddSingleton<PlogonLog>();
         collection.AddSingleton<ScripShopItemManager>();
         collection.AddSingleton<CraftingHandler>();
+        collection.AddSingleton<ScripPlannerService>();
 
         collection.AddSingleton<CollectableAutomationHandler>();
         collection.AddSingleton<IPipeline>(sp => sp.GetRequiredService<CollectableAutomationHandler>());
@@ -60,6 +61,9 @@ public static class ServiceWrapper
 
         collection.AddSingleton<AutoRetainerManager>();
         collection.AddSingleton<IPipeline>(sp => sp.GetRequiredService<AutoRetainerManager>());
+
+        collection.AddSingleton<DeliverooManager>();
+        collection.AddSingleton<IPipeline>(sp => sp.GetRequiredService<DeliverooManager>());
 
         collection.AddSingleton<PipelineRegistry>();
 

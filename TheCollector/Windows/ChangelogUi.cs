@@ -36,7 +36,20 @@ public class ChangelogUi : IUiService
         Add_0_5_0(Changelog);
         Add_0_5_1(Changelog);
         Add_0_5_3(Changelog);
+        Add_0_5_5(Changelog);
     }
+    private void Add_0_5_5(Changelog log)
+    {
+        log.NextVersion("Version 0.5.5 testing")
+            .RegisterHighlight("Added Deliveroo integration — can now check for Deliveroo between runs")
+            .RegisterHighlight("Added a Planner tab for setting scrip goals and stopping automation when complete")
+            .RegisterEntry("Merged settings into the main window — config window now just opens main window")
+            .RegisterEntry("Reorganized the UI into tabs (Main, Planner, Settings)")
+            .RegisterEntry("Added collapsible panels and session stats tracking")
+            .RegisterEntry("Added handling for equippable items")
+            .RegisterEntry("General code cleanup and bug fixes");
+    }
+
         private void Add_0_5_3(Changelog log)
     {
         log.NextVersion("Version 0.5.3")

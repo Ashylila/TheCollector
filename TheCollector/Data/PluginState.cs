@@ -7,5 +7,6 @@ public enum PluginState
     ExchangingItems,
     SpendingScrip,
     Idle,
-    AutoRetainer
+    AutoRetainer,
+    Deliveroo
 }

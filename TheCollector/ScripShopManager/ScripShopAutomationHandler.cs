@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Dalamud.Game.ClientState.Objects;
 using Dalamud.Plugin.Services;
@@ -19,7 +20,7 @@ public partial class ScripShopAutomationHandler
     private readonly ScripShopWindowHandler _scripShopWindowHandler;
     private readonly IDataManager _data;
 
-    public event Action? OnFinishedTrading;
+    public event Action<Dictionary<uint, int>>? OnFinishedTrading;
 
     public ScripShopAutomationHandler(
         PlogonLog log,

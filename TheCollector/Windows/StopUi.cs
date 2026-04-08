@@ -57,6 +57,7 @@ public class StopUi : Window
             PluginState.ExchangingItems           => (new Vector4(0.30f, 0.85f, 0.30f, 1f), "Exchanging items"),
             PluginState.SpendingScrip             => (new Vector4(0.30f, 0.85f, 0.30f, 1f), "Spending scrip"),
             PluginState.AutoRetainer              => (new Vector4(0.40f, 0.65f, 1.00f, 1f), "AutoRetainer running"),
+            PluginState.Deliveroo                => (new Vector4(0.40f, 0.65f, 1.00f, 1f), "Deliveroo running"),
             _                                     => (new Vector4(0.55f, 0.55f, 0.55f, 1f), "Idle")
         };
 

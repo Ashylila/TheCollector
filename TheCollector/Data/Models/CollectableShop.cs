@@ -31,7 +31,6 @@ public class CollectableShop
             .Name
             .ExtractText() ?? "None";
     private Vector3? _scripShopLocation;
-    [Newtonsoft.Json.JsonIgnore]
     [JsonPropertyName("ScripShopLocation")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public Vector3? ScripShopLocation

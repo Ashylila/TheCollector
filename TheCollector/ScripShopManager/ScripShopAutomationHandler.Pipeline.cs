@@ -107,17 +107,18 @@ public partial class ScripShopAutomationHandler : FrameRunnerPipelineBase
     {
         base.OnFinished(ok);
         Plugin.State = PluginState.Idle;
-        if(ok) OnFinishedTrading?.Invoke();
+        if(ok) OnFinishedTrading?.Invoke(_scripsSpentThisCycle);
     }
     protected override void OnCanceledOrFailed(string? error)
     {
         base.OnCanceledOrFailed(error);
         Plugin.State = PluginState.Idle;
     }
-    private List<(int page, int subPage, int remaining, int cost, uint itemId, uint currencyId)> _buyQueue = new();
+    private List<(int page, int subPage, int remaining, int cost, uint itemId, uint currencyId, bool isEquippable)> _buyQueue = new();
 
     private DateTime _lastBuy;
     private int _currentPurchaseAmount;
+    private readonly Dictionary<uint, int> _scripsSpentThisCycle = new();
 
     private void PrimeBuy()
     {
@@ -132,8 +133,8 @@ public partial class ScripShopAutomationHandler : FrameRunnerPipelineBase
                  remaining: remaining,
                  cost: (int)s.ItemCost,
                  itemId: s.ItemId,
-                 currencyId: s.CurrencyId
-
+                 currencyId: s.CurrencyId,
+                 isEquippable: s.Item.EquipSlotCategory.RowId != 0
              ))
             .ToList();
 
@@ -141,6 +142,7 @@ public partial class ScripShopAutomationHandler : FrameRunnerPipelineBase
         _cooldownUntil = DateTime.MinValue;
         _buyPhase = 0;
         _currentPurchaseAmount = 0;
+        _scripsSpentThisCycle.Clear();
     }
     private StepResult InventoryCheck()
     {
@@ -176,7 +178,9 @@ public partial class ScripShopAutomationHandler : FrameRunnerPipelineBase
                     var scrips = _scripShopWindowHandler.ScripCount(h.currencyId);
                     Log.Debug($"Scripcount: {scrips}");
                     var maxByScrip = h.cost > 0 ? (scrips / h.cost) : h.remaining;
-                    var amount = Math.Min(h.remaining, Math.Min(maxByScrip, 99));
+                    var amount = h.isEquippable
+                        ? Math.Min(1, maxByScrip)
+                        : Math.Min(h.remaining, Math.Min(maxByScrip, 99));
                     if (amount <= 0)
                     {
                         _buyQueue.RemoveAt(0);
@@ -213,14 +217,20 @@ public partial class ScripShopAutomationHandler : FrameRunnerPipelineBase
                 }
             case 5:
                 {
-                    if (!_scripShopWindowHandler.ConfirmYesNo())
-                        return StepResult.Continue();
-
+                    _scripShopWindowHandler.ConfirmYesNo();
+                    _cooldownUntil = DateTime.UtcNow + _uiInteractDelay;
+                    _buyPhase = 6;
+                    return StepResult.Continue();
+                }
+            case 6:
+                {
                     _lastBuy = DateTime.UtcNow;
                     _cooldownUntil = _lastBuy + _uiInteractDelay;
                     _buyPhase = 0;
 
                     h.remaining -= _currentPurchaseAmount;
+                    _scripsSpentThisCycle.TryGetValue(h.currencyId, out var prev);
+                    _scripsSpentThisCycle[h.currencyId] = prev + h.cost * _currentPurchaseAmount;
 
                     var cfgItem = _configuration.ItemsToPurchase.FirstOrDefault(x => x.Item.ItemId == h.itemId);
                     if (cfgItem != null)

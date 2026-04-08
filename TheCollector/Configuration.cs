@@ -26,8 +26,11 @@ public class Configuration : IPluginConfiguration
     public int ArtisanListId { get; set; } = 0;
     public int LastSeenVersion { get; set; } = ChangelogUi.LastChangelogVersion;
     public bool CheckForVenturesBetweenRuns { get; set; } = false;
+    public bool CheckForDeliverooBetweenRuns { get; set; } = false;
     public ChangeLogDisplayType ChangeLogDisplayType { get; set; } = ChangeLogDisplayType.New;
     public CollectableShop PreferredCollectableShop { get; set; } = new();
+    public ScripGoal Goal { get; set; } = new();
+    public Dictionary<uint, int> TotalScripsSpent { get; set; } = new();
 
     public void Save()
     {

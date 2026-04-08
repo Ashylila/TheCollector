@@ -24,15 +24,20 @@ public class AutomationHandler : IDisposable
     private readonly ArtisanWatcher _artisanWatcher;
     private readonly IFramework _framework;
     private readonly FishingWatcher _fishingWatcher;
-    private readonly CraftingHandler  _craftingHandler;
+    private readonly CraftingHandler _craftingHandler;
     private readonly PipelineRegistry _pipelineRegistry;
     private readonly AutoRetainerManager _autoretainerManager;
+    private readonly DeliverooManager _deliverooManager;
+    private readonly ScripPlannerService _plannerService;
     public bool IsRunning => _pipelineRegistry.All.Any(p => p.IsRunning);
-    
-    
-    
+
+    public int SessionCollectablesTurnedIn { get; private set; }
+    public int SessionItemsPurchased { get; private set; }
+    public Dictionary<uint, int> SessionScripsSpent { get; } = new();
+    public DateTime? SessionStarted { get; private set; }
+
     public AutomationHandler(
-        PlogonLog log,CollectableAutomationHandler collectableAutomationHandler, Configuration config, ScripShopAutomationHandler scripShopAutomationHandler, IChatGui chatGui, GatherbuddyReborn_IPCSubscriber gatherbuddyReborn_IPCSubscriber, ArtisanWatcher artisanWatcher, IFramework framework, FishingWatcher fishingWatcher, CraftingHandler craftingHandler, PipelineRegistry registry, AutoRetainerManager retainer)
+        PlogonLog log, CollectableAutomationHandler collectableAutomationHandler, Configuration config, ScripShopAutomationHandler scripShopAutomationHandler, IChatGui chatGui, GatherbuddyReborn_IPCSubscriber gatherbuddyReborn_IPCSubscriber, ArtisanWatcher artisanWatcher, IFramework framework, FishingWatcher fishingWatcher, CraftingHandler craftingHandler, PipelineRegistry registry, AutoRetainerManager retainer, DeliverooManager deliveroo, ScripPlannerService plannerService)
     {
         _log = log;
         _gatherbuddyReborn_IPCSubscriber = gatherbuddyReborn_IPCSubscriber;
@@ -46,6 +51,8 @@ public class AutomationHandler : IDisposable
         _craftingHandler = craftingHandler;
         _pipelineRegistry = registry;
         _autoretainerManager = retainer;
+        _deliverooManager = deliveroo;
+        _plannerService = plannerService;
     }
 
     public void Init()
@@ -60,6 +67,8 @@ public class AutomationHandler : IDisposable
         _fishingWatcher.OnFishingFinished += OnFinishedWatching;
         _autoretainerManager.OnRetainerFinish += OnAutoRetainerFinish;
         _autoretainerManager.OnError += OnError;
+        _deliverooManager.OnDeliverooFinish += OnDeliverooFinish;
+        _deliverooManager.OnError += OnError;
     }
 
     private void OnAutoGatherStatusChanged(bool enabled)
@@ -71,7 +80,7 @@ public class AutomationHandler : IDisposable
     }
     public void Invoke()
     {
-        if(_config.PreferredCollectableShop.TerritoryId == default)
+        if (_config.PreferredCollectableShop.TerritoryId == default)
         {
             _chatGui.PrintError("Please configure your preferred collectable shop in the settings tab!", "TheCollector");
             return;
@@ -86,6 +95,7 @@ public class AutomationHandler : IDisposable
             _chatGui.PrintError("Cannot start automation while in a duty.", "TheCollector");
             return;
         }
+        SessionStarted ??= DateTime.UtcNow;
         _collectableAutomationHandler.Start();
     }
 
@@ -94,16 +104,30 @@ public class AutomationHandler : IDisposable
         switch (watchType)
         {
             case WatchType.Crafting:
-                if(_config.CollectOnFinishCraftingList) Invoke();
+                if (_config.CollectOnFinishCraftingList) Invoke();
                 break;
             case WatchType.Fishing:
-                if(_config.CollectOnFinishedFishing) Invoke();
+                if (_config.CollectOnFinishedFishing) Invoke();
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(watchType), watchType, null);
         }
     }
     public void OnAutoRetainerFinish()
+    {
+        if (_config.CheckForDeliverooBetweenRuns
+            && IPCSubscriber_Common.IsReady("Deliveroo"))
+        {
+            _deliverooManager.Start();
+            return;
+        }
+        if (_config.EnableAutogatherOnFinish)
+        {
+            _gatherbuddyReborn_IPCSubscriber.SetAutoGatherEnabled(true);
+        }
+    }
+
+    public void OnDeliverooFinish()
     {
         if (_config.EnableAutogatherOnFinish)
         {
@@ -117,28 +141,54 @@ public class AutomationHandler : IDisposable
 
     private void OnFinishedCollecting()
     {
+        SessionCollectablesTurnedIn++;
+
         if (_config.BuyAfterEachCollect)
         {
             _scripShopAutomationHandler.Start();
             return;
         }
-        if(_config.CheckForVenturesBetweenRuns
+        if (_config.CheckForVenturesBetweenRuns
             && IPCSubscriber_Common.IsReady("AutoRetainer")
             && Autoretainer_IPCSubscriber.AreAnyRetainersAvailableForCurrentChara())
         {
             _autoretainerManager.Start();
             return;
         }
+        if (_config.CheckForDeliverooBetweenRuns
+            && IPCSubscriber_Common.IsReady("Deliveroo"))
+        {
+            _deliverooManager.Start();
+            return;
+        }
 
-        if (_config.EnableAutogatherOnFinish){
+        if (_config.EnableAutogatherOnFinish)
+        {
             _gatherbuddyReborn_IPCSubscriber.SetAutoGatherEnabled(true);
             return;
         }
     }
-    private void OnFinishedTrading()
+    private void OnFinishedTrading(Dictionary<uint, int> scripsSpent)
     {
+        SessionItemsPurchased++;
+        foreach (var (currencyId, amount) in scripsSpent)
+        {
+            SessionScripsSpent.TryGetValue(currencyId, out var prev);
+            SessionScripsSpent[currencyId] = prev + amount;
+
+            _config.TotalScripsSpent.TryGetValue(currencyId, out var totalPrev);
+            _config.TotalScripsSpent[currencyId] = totalPrev + amount;
+        }
+        _config.Save();
         if (_config.ResetEachQuantityAfterCompletingList)
             ResetIfAllComplete(_config.ItemsToPurchase);
+        if (_config.Goal.StopGatheringWhenComplete && _plannerService.IsGoalComplete())
+        {
+            _chatGui.Print("Purchase list complete! Stopping automation.", "TheCollector");
+            _log.Debug("Goal complete — all items purchased. Stopping.");
+            return;
+        }
+
         if (_collectableAutomationHandler.HasCollectible)
         {
             _collectableAutomationHandler.Start();
@@ -151,11 +201,17 @@ public class AutomationHandler : IDisposable
             _autoretainerManager.Start();
             return;
         }
+        if (_config.CheckForDeliverooBetweenRuns
+            && IPCSubscriber_Common.IsReady("Deliveroo"))
+        {
+            _deliverooManager.Start();
+            return;
+        }
         if (_config.EnableAutogatherOnFinish)
         {
             _gatherbuddyReborn_IPCSubscriber.SetAutoGatherEnabled(true);
         }
-        
+
     }
 
     private void OnError(Exception ex)
@@ -196,5 +252,7 @@ public class AutomationHandler : IDisposable
         _collectableAutomationHandler.OnFinishCollecting -= OnFinishedCollecting;
         _autoretainerManager.OnError -= OnError;
         _autoretainerManager.OnRetainerFinish -= OnAutoRetainerFinish;
+        _deliverooManager.OnDeliverooFinish -= OnDeliverooFinish;
+        _deliverooManager.OnError -= OnError;
     }
 }

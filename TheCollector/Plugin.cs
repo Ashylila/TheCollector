@@ -47,12 +47,11 @@ public sealed class Plugin : IDalamudPlugin
         
         ServiceWrapper.Get<IpcProvider>();
 
-        ConfigWindow = ServiceWrapper.Get<ConfigWindow>();
         MainWindow = ServiceWrapper.Get<MainWindow>();
+        ConfigWindow = ServiceWrapper.Get<ConfigWindow>();
         ChangelogUi = ServiceWrapper.Get<ChangelogUi>();
         StopUi = ServiceWrapper.Get<StopUi>();
 
-        WindowSystem.AddWindow(ConfigWindow);
         WindowSystem.AddWindow(MainWindow);
         WindowSystem.AddWindow(ChangelogUi.Changelog);
         WindowSystem.AddWindow(StopUi);
