@@ -14,9 +14,14 @@ public class DeliverooManager : FrameRunnerPipelineBase
     public override string Key => "deliveroo";
     public event Action? OnDeliverooFinish;
 
-    public DeliverooManager(PlogonLog log, IFramework framework)
+    private const uint LimsaRootAetheryteId = 8;
+    private const uint AftcastleAethernetId = 41;
+    private readonly Lifestream_IPCSubscriber _lifestreamIpc;
+
+    public DeliverooManager(PlogonLog log, IFramework framework, Lifestream_IPCSubscriber lifestreamIpc)
         : base(log, framework)
     {
+        _lifestreamIpc = lifestreamIpc;
     }
 
     protected override void OnFinished(bool ok)
@@ -50,7 +55,21 @@ public class DeliverooManager : FrameRunnerPipelineBase
             FrameRunner.Delay("InitDelay", TimeSpan.FromSeconds(1)),
         };
 
-        if (needsTeleport)
+        if (gc == 1) // Maelstrom — Lifestream handles teleport + aethernet to Upper Decks
+        {
+            steps.Add(new FrameRunner.Step("LifestreamToUpperDecks", () =>
+            {
+                if (PlayerHelper.GetDistanceToPlayer(destination) < 40f)
+                    return StepResult.Success();
+                _lifestreamIpc.ExecuteCommand($"debug TaskAetheryteAethernetTeleport {LimsaRootAetheryteId} {AftcastleAethernetId}");
+                return StepResult.Success();
+            }, TimeSpan.FromSeconds(1)));
+            steps.Add(new FrameRunner.Step("WaitForLifestream", () =>
+                _lifestreamIpc.IsBusy() ? StepResult.Continue() : StepResult.Success(),
+                TimeSpan.FromSeconds(30)));
+            steps.Add(FrameRunner.Delay("PostLifestreamDelay", TimeSpan.FromSeconds(2)));
+        }
+        else if (needsTeleport)
         {
             steps.Add(new FrameRunner.Step("TeleportToGC", () => TeleportToGrandCompany(gcTerritory), TimeSpan.FromSeconds(1)));
             steps.Add(new FrameRunner.Step("WaitForTeleport", () => WaitForTeleport(gcTerritory), TimeSpan.FromSeconds(30)));

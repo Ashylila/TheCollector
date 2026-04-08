@@ -20,7 +20,8 @@ public class CollectableShop
     public Vector3 RetainerBellLoc {get; set;}
     public bool Disabled { get; set; } = false;
     public bool IsLifestreamRequired { get; set; } = false;
-    public string LifestreamCommand { get; set; } = "";
+    public uint? LifestreamRootAetheryteId { get; set; }
+    public uint? LifestreamAethernetId { get; set; }
     [JsonIgnore]
     [Newtonsoft.Json.JsonIgnore]
     public string DisplayName =>

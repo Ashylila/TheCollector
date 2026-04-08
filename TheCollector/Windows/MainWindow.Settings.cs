@@ -233,7 +233,10 @@ public partial class MainWindow
         ImGui.Spacing();
 
         bool deliverooReady = IPCSubscriber_Common.IsReady("Deliveroo");
-        ImGui.BeginDisabled(!deliverooReady);
+        bool isMaelstrom = PlayerHelper.GetGrandCompany() == 1;
+        bool lifestreamReady = IPCSubscriber_Common.IsReady("Lifestream");
+        bool deliverooDisabled = !deliverooReady || (isMaelstrom && !lifestreamReady);
+        ImGui.BeginDisabled(deliverooDisabled);
 
         var checkDeliveroo = configuration.CheckForDeliverooBetweenRuns;
         if (ImGui.Checkbox("Run Deliveroo GC turn-ins between runs", ref checkDeliveroo))
@@ -241,8 +244,13 @@ public partial class MainWindow
             configuration.CheckForDeliverooBetweenRuns = checkDeliveroo;
             configuration.Save();
         }
-        if (!deliverooReady && ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
-            ImGui.SetTooltip("Deliveroo is not installed or not ready.");
+        if (deliverooDisabled && ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
+        {
+            if (!deliverooReady)
+                ImGui.SetTooltip("Deliveroo is not installed or not ready.");
+            else
+                ImGui.SetTooltip("Lifestream plugin is required for Maelstrom GC turn-ins.");
+        }
 
         ImGui.EndDisabled();
     }

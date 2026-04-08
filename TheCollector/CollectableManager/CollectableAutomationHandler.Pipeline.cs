@@ -145,7 +145,9 @@ public partial class CollectableAutomationHandler : FrameRunnerPipelineBase
         Plugin.State = PluginState.Teleporting;
         var terSheet = _dataManager.GetExcelSheet<TerritoryType>();
         
-        if (_clientState.TerritoryType == territoryId || _configuration.PreferredCollectableShop.IsLifestreamRequired)
+        var shopDef = CollectableNpcLocations.CollectableShops
+            .FirstOrDefault(s => s.TerritoryId == _configuration.PreferredCollectableShop.TerritoryId);
+        if (_clientState.TerritoryType == territoryId || shopDef is { IsLifestreamRequired: true })
             return StepResult.Success();
 
         var territory = terSheet.GetRow(territoryId);
@@ -210,15 +212,19 @@ public partial class CollectableAutomationHandler : FrameRunnerPipelineBase
     private StepResult LifestreamCheck()
     {
         if (IsNearShop(_configuration.PreferredCollectableShop.Location)) return StepResult.Success();
-        if (_configuration.PreferredCollectableShop.IsLifestreamRequired)
+        var shop = CollectableNpcLocations.CollectableShops
+            .FirstOrDefault(s => s.TerritoryId == _configuration.PreferredCollectableShop.TerritoryId);
+        if (shop is { IsLifestreamRequired: true, LifestreamRootAetheryteId: { } rootId, LifestreamAethernetId: { } aethernetId })
         {
-            _lifestreamIpc.ExecuteCommand(_configuration.PreferredCollectableShop.LifestreamCommand);
+            _lifestreamIpc.ExecuteCommand($"debug TaskAetheryteAethernetTeleport {rootId} {aethernetId}");
         }
         return StepResult.Success();
     }
     private StepResult WaitForLifestream()
     {
-        if (_configuration.PreferredCollectableShop.IsLifestreamRequired)
+        var shopDef = CollectableNpcLocations.CollectableShops
+            .FirstOrDefault(s => s.TerritoryId == _configuration.PreferredCollectableShop.TerritoryId);
+        if (shopDef is { IsLifestreamRequired: true })
         {
             if (_lifestreamIpc.IsBusy())
                 return StepResult.Continue();

@@ -15,7 +15,8 @@ public static class CollectableNpcLocations
             ScripShopLocation = new Vector3(-161.84605f, 0.921f, -42.06536f),
             RetainerBellLoc = new Vector3(-151.598f, 0.59f, -15.30f),
             IsLifestreamRequired = true,
-            LifestreamCommand = "Nexus Arcade"
+            LifestreamRootAetheryteId = 217,
+            LifestreamAethernetId = 235
             
         },
         new CollectableShop()
@@ -29,7 +30,8 @@ public static class CollectableNpcLocations
             TerritoryId = 132,
             Location = new Vector3(143.62454f, 13.74769f, -105.33799f),
             IsLifestreamRequired = true,
-            LifestreamCommand = "Leatherworkers",
+            LifestreamRootAetheryteId = 2,
+            LifestreamAethernetId = 26,
             RetainerBellLoc = new Vector3(171f, 15.48f, -101.48f)
         }
     };
