@@ -63,7 +63,7 @@ public partial class MainWindow
 
             DrawPluginStatus("vnavmesh",          "vnavmesh",          required: true);
             ImGui.SameLine(ImGui.GetWindowContentRegionMax().X / 2f);
-            DrawPluginStatus("GatherbuddyReborn", "GatherbuddyReborn", required: false);
+            DrawPluginStatus("GatherBuddyReborn", "GatherBuddyReborn", required: false);
 
             DrawPluginStatus("Artisan",           "Artisan",           required: false);
             ImGui.SameLine(ImGui.GetWindowContentRegionMax().X / 2f);
@@ -142,7 +142,7 @@ public partial class MainWindow
             configuration.Save();
         }
 
-        bool gbrReady = IPCSubscriber_Common.IsReady("GatherbuddyReborn");
+        bool gbrReady = IPCSubscriber_Common.IsReady("GatherBuddyReborn");
         ImGui.BeginDisabled(!gbrReady);
 
         var autogatherOnFinish = configuration.EnableAutogatherOnFinish;
