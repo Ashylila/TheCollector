@@ -170,7 +170,7 @@ public partial class MainWindow
         ImGui.Separator();
         ImGui.Spacing();
 
-        bool artisanGbrReady = IPCSubscriber_Common.IsReady("GatherbuddyReborn");
+        bool artisanGbrReady = IPCSubscriber_Common.IsReady("GatherBuddyReborn");
         bool artisanReady = IPCSubscriber_Common.IsReady("Artisan");
         bool artisanSectionReady = artisanGbrReady && artisanReady;
         string? artisanDisabledReason = !artisanReady && !artisanGbrReady
