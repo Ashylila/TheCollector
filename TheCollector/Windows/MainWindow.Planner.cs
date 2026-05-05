@@ -213,19 +213,16 @@ public partial class MainWindow
                     ImGui.TextUnformatted($"{turnIns}");
 
                     ImGui.TableSetColumnIndex(4);
-                    if (!col.IsFish)
+                    var recipeSheet = Svc.Data.GetExcelSheet<Recipe>();
+                    var recipe = recipeSheet?.FirstOrDefault(r => r.ItemResult.RowId == col.ItemId);
+                    if (recipe is { RowId: > 0 })
                     {
                         if (ImGui.SmallButton($"Recipe##{col.ItemId}"))
                         {
-                            var recipeSheet = Svc.Data.GetExcelSheet<Recipe>();
-                            var recipe = recipeSheet?.FirstOrDefault(r => r.ItemResult.RowId == col.ItemId);
-                            if (recipe.HasValue)
+                            unsafe
                             {
-                                unsafe
-                                {
-                                    var agent = AgentRecipeNote.Instance();
-                                    agent->OpenRecipeByRecipeId(recipe.Value.RowId);
-                                }
+                                var agent = AgentRecipeNote.Instance();
+                                agent->OpenRecipeByRecipeId(recipe.Value.RowId);
                             }
                         }
                     }

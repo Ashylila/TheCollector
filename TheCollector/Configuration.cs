@@ -32,6 +32,9 @@ public class Configuration : IPluginConfiguration
     public ScripGoal Goal { get; set; } = new();
     public Dictionary<uint, int> TotalScripsSpent { get; set; } = new();
 
+    public const int DefaultUiDelayMs = 300;
+    public int UiDelayMs { get; set; } = DefaultUiDelayMs;
+
     public void Save()
     {
         Svc.PluginInterface.SavePluginConfig(this);
@@ -64,6 +67,6 @@ public class Configuration : IPluginConfiguration
         }
         return false;
     }
-    
+
 
 }

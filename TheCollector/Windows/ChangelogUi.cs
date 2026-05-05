@@ -37,6 +37,12 @@ public class ChangelogUi : IUiService
         Add_0_5_1(Changelog);
         Add_0_5_3(Changelog);
         Add_0_5_5(Changelog);
+        Add_0_5_8(Changelog);
+    }
+    private void Add_0_5_8(Changelog log)
+    {
+        log.NextVersion("Version 0.5.8")
+            .RegisterEntry("Updated for API15");
     }
     private void Add_0_5_5(Changelog log)
     {

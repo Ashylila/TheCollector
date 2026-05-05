@@ -40,6 +40,13 @@ public partial class MainWindow
                 ImGui.EndTabItem();
             }
 
+            if (ImGui.BeginTabItem("Timing"))
+            {
+                ImGui.Spacing();
+                DrawSettingsTiming();
+                ImGui.EndTabItem();
+            }
+
             ImGui.EndTabBar();
         }
 
@@ -253,6 +260,32 @@ public partial class MainWindow
         }
 
         ImGui.EndDisabled();
+    }
+
+    private void DrawSettingsTiming()
+    {
+        ImGui.TextDisabled("UI Delay");
+        ImGui.Separator();
+        ImGui.Spacing();
+
+        ImGui.TextWrapped("Delay between UI interactions during automation. Lower values run faster but may misbehave on slower machines or with high latency.");
+        ImGui.Spacing();
+
+        var delay = configuration.UiDelayMs;
+        ImGui.PushItemWidth(160);
+        if (ImGui.SliderInt("ms##UiDelay", ref delay, 50, 1500))
+        {
+            configuration.UiDelayMs = delay;
+            configuration.Save();
+        }
+        ImGui.PopItemWidth();
+
+        ImGui.SameLine();
+        if (ImGui.Button($"Reset to default ({Configuration.DefaultUiDelayMs} ms)"))
+        {
+            configuration.UiDelayMs = Configuration.DefaultUiDelayMs;
+            configuration.Save();
+        }
     }
 
     private void DrawSettingsGoal()

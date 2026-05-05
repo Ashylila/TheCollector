@@ -19,9 +19,7 @@ public partial class CollectableAutomationHandler : FrameRunnerPipelineBase
     private Dictionary<uint, CollectablesShopItem> _collectableByItemId = new();
     private readonly IPlayerState _player;
     private const int ScripCap = 4000;
-    private readonly TimeSpan _uiLoadDelay = TimeSpan.FromSeconds(2);
-    private readonly TimeSpan _uiInteractDelay = TimeSpan.FromMilliseconds(500);
-    private DateTime _uiLoadWaitUntil;
+    private TimeSpan UiInteractDelay => TimeSpan.FromMilliseconds(_configuration.UiDelayMs);
     private DateTime _cooldownUntil;
     public string? CurrentItemName { get; private set; }
     private int _currentJobIndex = int.MinValue;
@@ -100,7 +98,6 @@ public partial class CollectableAutomationHandler : FrameRunnerPipelineBase
                 },
                 TimeSpan.FromSeconds(5)
             ),
-            FrameRunner.Delay("UiBuffer", _uiLoadDelay),
 
             new FrameRunner.Step(
                 "TurnInAllCollectables",
@@ -279,7 +276,7 @@ public partial class CollectableAutomationHandler : FrameRunnerPipelineBase
             {
                 _collectibleWindowHandler.SelectJob((uint)h.jobIndex);
                 _currentJobIndex = h.jobIndex;
-                _cooldownUntil = DateTime.UtcNow + _uiInteractDelay;
+                _cooldownUntil = DateTime.UtcNow + UiInteractDelay;
                 _turnInPhase = 1;
                 return StepResult.Continue();
             }
@@ -288,12 +285,12 @@ public partial class CollectableAutomationHandler : FrameRunnerPipelineBase
             {
                 if(!_collectibleWindowHandler.SelectItem(h.name)) return StepResult.Fail($"Could not select item {h.name}");
                 CurrentItemName = h.name;
-                _cooldownUntil = DateTime.UtcNow + _uiInteractDelay;
+                _cooldownUntil = DateTime.UtcNow + UiInteractDelay;
                 _turnInPhase = 2;
                 return StepResult.Continue();
             }
 
-            _cooldownUntil = DateTime.UtcNow + _uiInteractDelay;
+            _cooldownUntil = DateTime.UtcNow + UiInteractDelay;
             _turnInPhase = 2;
             return StepResult.Continue();
         }
@@ -309,7 +306,7 @@ public partial class CollectableAutomationHandler : FrameRunnerPipelineBase
 
         _collectibleWindowHandler.SubmitItem();
         _lastTurnIn = DateTime.UtcNow;
-        _cooldownUntil = _lastTurnIn + _uiInteractDelay;
+        _cooldownUntil = _lastTurnIn + UiInteractDelay;
         _turnInPhase = 0;
 
         h.left--;

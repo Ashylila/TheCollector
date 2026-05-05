@@ -19,7 +19,7 @@ public static class PlayerHelper
     {
         get
         {
-            if (Svc.ClientState.LocalPlayer == null)
+            if (Svc.Objects.LocalPlayer == null)
                 return false;
             if (Svc.Condition[ConditionFlag.BetweenAreas]
                 || Svc.Condition[ConditionFlag.BetweenAreas51]
@@ -36,7 +36,7 @@ public static class PlayerHelper
                 || Svc.Condition[ConditionFlag.Unconscious]
                 || Svc.Condition[ConditionFlag.ExecutingGatheringAction]
                 || (Svc.Condition[85] && !Svc.Condition[ConditionFlag.Gathering])
-                || Svc.ClientState.LocalPlayer.IsDead
+                || Svc.Objects.LocalPlayer.IsDead
                 || Player.IsAnimationLocked
                 || Svc.Condition[ConditionFlag.Crafting]
                 || Svc.Condition[ConditionFlag.ExecutingCraftingAction]
@@ -51,7 +51,7 @@ public static class PlayerHelper
     {
         get
         {
-            if (Svc.ClientState.LocalPlayer == null)
+            if (Svc.Objects.LocalPlayer == null)
                 return false;
             if (Player.TerritoryIntendedUseEnum.EqualsAny(TerritoryIntendedUseEnum.City_Area,
                                                       TerritoryIntendedUseEnum.Open_World,
@@ -137,6 +137,6 @@ public static class PlayerHelper
 
     internal static bool HasStatus(uint statusID)
     {
-        return Svc.ClientState.LocalPlayer != null && Player.Object.StatusList.Any(x => x.StatusId == statusID);
+        return Svc.Objects.LocalPlayer != null && Player.Object.StatusList.Any(x => x.StatusId == statusID);
     }
 }

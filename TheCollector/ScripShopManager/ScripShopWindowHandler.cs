@@ -1,7 +1,7 @@
 ﻿
 using System;
 using ECommons;
-using ValueType = FFXIVClientStructs.FFXIV.Component.GUI.ValueType;
+using ValueType = FFXIVClientStructs.FFXIV.Component.GUI.AtkValueType;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using TheCollector.Utility;
 using FFXIVClientStructs.FFXIV.Client.Game;
@@ -11,6 +11,7 @@ namespace TheCollector.ScripShopManager;
 public unsafe class ScripShopWindowHandler
 {
     private readonly PlogonLog _log;
+    private readonly Configuration _configuration;
     private bool _forceSearchActive;
     private bool _waitingForTabChange;
 
@@ -23,10 +24,11 @@ public unsafe class ScripShopWindowHandler
     private DateTime _cooldownUntil;
 
     private const int DropdownNodeId = 9;
-    private static readonly TimeSpan UiDelay = TimeSpan.FromMilliseconds(150);
-    public ScripShopWindowHandler(PlogonLog log)
+    private TimeSpan UiDelay => TimeSpan.FromMilliseconds(_configuration.UiDelayMs);
+    public ScripShopWindowHandler(PlogonLog log, Configuration configuration)
     {
         _log = log;
+        _configuration = configuration;
     }
     public void OpenShop()
     {

@@ -16,10 +16,8 @@ using TheCollector.Data;
 public partial class ScripShopAutomationHandler : FrameRunnerPipelineBase
 {
 
-    private readonly TimeSpan _uiLoadDelay = TimeSpan.FromSeconds(2);
-    private readonly TimeSpan _uiInteractDelay = TimeSpan.FromMilliseconds(300);
+    private TimeSpan UiInteractDelay => TimeSpan.FromMilliseconds(_configuration.UiDelayMs);
 
-    private DateTime _uiLoadWaitUntil;
     private DateTime _cooldownUntil;
     private int _buyPhase;
 
@@ -78,8 +76,6 @@ public partial class ScripShopAutomationHandler : FrameRunnerPipelineBase
                 },
                 TimeSpan.FromSeconds(10)
             ),
-
-            FrameRunner.Delay("WaitForUI", _uiLoadDelay),
 
             new FrameRunner.Step(
                 "BuyConfigured",
@@ -162,13 +158,13 @@ public partial class ScripShopAutomationHandler : FrameRunnerPipelineBase
         {
             case 0:
                 _scripShopWindowHandler.SelectPage(h.page);
-                _cooldownUntil = DateTime.UtcNow + _uiInteractDelay;
+                _cooldownUntil = DateTime.UtcNow + UiInteractDelay;
                 _buyPhase = 1;
                 return StepResult.Continue();
 
             case 1:
                 _scripShopWindowHandler.SelectSubPage(h.subPage);
-                _cooldownUntil = DateTime.UtcNow + _uiInteractDelay;
+                _cooldownUntil = DateTime.UtcNow + UiInteractDelay;
                 _buyPhase = 2;
                 return StepResult.Continue();
 
@@ -190,7 +186,7 @@ public partial class ScripShopAutomationHandler : FrameRunnerPipelineBase
 
 
                     _currentPurchaseAmount = (int)amount;
-                    _cooldownUntil = DateTime.UtcNow + _uiInteractDelay;
+                    _cooldownUntil = DateTime.UtcNow + UiInteractDelay;
                     _buyPhase = 3;
                     return StepResult.Continue();
                 }
@@ -204,28 +200,28 @@ public partial class ScripShopAutomationHandler : FrameRunnerPipelineBase
                     if (r.Status == StepStatus.Failed)
                         return r;
 
-                    _cooldownUntil = DateTime.UtcNow + _uiInteractDelay;
+                    _cooldownUntil = DateTime.UtcNow + UiInteractDelay;
                     _buyPhase = 4;
                     return StepResult.Continue();
                 }
             case 4:
                 {
                     _scripShopWindowHandler.ConfirmPurchaseDialog();
-                    _cooldownUntil = DateTime.UtcNow + _uiInteractDelay;
+                    _cooldownUntil = DateTime.UtcNow + UiInteractDelay;
                     _buyPhase = 5;
                     return StepResult.Continue();
                 }
             case 5:
                 {
                     _scripShopWindowHandler.ConfirmYesNo();
-                    _cooldownUntil = DateTime.UtcNow + _uiInteractDelay;
+                    _cooldownUntil = DateTime.UtcNow + UiInteractDelay;
                     _buyPhase = 6;
                     return StepResult.Continue();
                 }
             case 6:
                 {
                     _lastBuy = DateTime.UtcNow;
-                    _cooldownUntil = _lastBuy + _uiInteractDelay;
+                    _cooldownUntil = _lastBuy + UiInteractDelay;
                     _buyPhase = 0;
 
                     h.remaining -= _currentPurchaseAmount;
