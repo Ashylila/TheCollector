@@ -59,7 +59,8 @@ public static class PlayerHelper
                                                       TerritoryIntendedUseEnum.Barracks,
                                                       TerritoryIntendedUseEnum.Gold_Saucer,
                                                       TerritoryIntendedUseEnum.Island_Sanctuary,
-                                                      TerritoryIntendedUseEnum.Housing_Instances
+                                                      TerritoryIntendedUseEnum.Housing_Instances,
+                                                      TerritoryIntendedUseEnum.Residential_Area
                 ))
                 return false;
             return true;
