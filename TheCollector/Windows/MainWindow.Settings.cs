@@ -1,3 +1,4 @@
+using System;
 using System.Numerics;
 using Dalamud.Bindings.ImGui;
 using TheCollector.CollectableManager;
@@ -156,6 +157,20 @@ public partial class MainWindow
             configuration.CollectOnFinishedFishing = collectOnFishing;
             configuration.Save();
         }
+
+        ImGui.Spacing();
+        ImGui.TextUnformatted("Reserve scrips:");
+        ImGui.SameLine();
+        var reserve = configuration.ReserveScripAmount;
+        ImGui.PushItemWidth(160);
+        if (ImGui.SliderInt("##ReserveScrip", ref reserve, 0, Configuration.ScripCeiling))
+        {
+            configuration.ReserveScripAmount = Math.Clamp(reserve, 0, Configuration.ScripCeiling);
+            configuration.Save();
+        }
+        ImGui.PopItemWidth();
+        if (ImGui.IsItemHovered())
+            ImGui.SetTooltip("Purchases will leave at least this many scrips of each currency unspent.");
     }
 
     private void DrawSettingsIntegrations()

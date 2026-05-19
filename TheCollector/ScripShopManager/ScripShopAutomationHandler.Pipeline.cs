@@ -170,10 +170,11 @@ public partial class ScripShopAutomationHandler : FrameRunnerPipelineBase
 
             case 2:
                 {
-                    
+
                     var scrips = _scripShopWindowHandler.ScripCount(h.currencyId);
                     Log.Debug($"Scripcount: {scrips}");
-                    var maxByScrip = h.cost > 0 ? (scrips / h.cost) : h.remaining;
+                    var spendable  = Math.Max(0, scrips - _configuration.ReserveScripAmount);
+                    var maxByScrip = h.cost > 0 ? (spendable / h.cost) : h.remaining;
                     var amount = h.isEquippable
                         ? Math.Min(1, maxByScrip)
                         : Math.Min(h.remaining, Math.Min(maxByScrip, 99));

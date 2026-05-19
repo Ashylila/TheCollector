@@ -35,6 +35,9 @@ public class Configuration : IPluginConfiguration
     public const int DefaultUiDelayMs = 300;
     public int UiDelayMs { get; set; } = DefaultUiDelayMs;
 
+    public const int ScripCeiling = 4000;
+    public int ReserveScripAmount { get; set; } = 0;
+
     public void Save()
     {
         Svc.PluginInterface.SavePluginConfig(this);
