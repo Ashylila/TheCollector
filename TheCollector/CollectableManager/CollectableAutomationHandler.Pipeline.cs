@@ -22,6 +22,7 @@ public partial class CollectableAutomationHandler : FrameRunnerPipelineBase
     private TimeSpan UiInteractDelay => TimeSpan.FromMilliseconds(_configuration.UiDelayMs);
     private DateTime _cooldownUntil;
     public string? CurrentItemName { get; private set; }
+    public uint? LastEarnedCurrency { get; private set; }
     private int _currentJobIndex = int.MinValue;
 
 
@@ -255,6 +256,7 @@ public partial class CollectableAutomationHandler : FrameRunnerPipelineBase
         _cooldownUntil = DateTime.MinValue;
         _turnInPhase = 0;
         CurrentItemName = null;
+        LastEarnedCurrency = null;
         _currentJobIndex = int.MinValue;
     }
 
@@ -305,6 +307,7 @@ public partial class CollectableAutomationHandler : FrameRunnerPipelineBase
         }
 
         _collectibleWindowHandler.SubmitItem();
+        LastEarnedCurrency = CurrencyHelper.SpecialIdToItemId(currencyId);
         _lastTurnIn = DateTime.UtcNow;
         _cooldownUntil = _lastTurnIn + UiInteractDelay;
         _turnInPhase = 0;

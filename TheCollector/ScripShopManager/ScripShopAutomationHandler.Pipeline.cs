@@ -118,11 +118,13 @@ public partial class ScripShopAutomationHandler : FrameRunnerPipelineBase
 
     private void PrimeBuy()
     {
+        var activeSource = _configuration.ActiveRunSource;
         _buyQueue =
             (from i in _configuration.ItemsToPurchase
              join s in ScripShopItemManager.ShopItems on i.Item.ItemId equals s.ItemId
              let remaining = i.Quantity - i.AmountPurchased
              where i.Quantity > 0 && remaining > 0
+                && CurrencyHelper.GetRunSource(s.CurrencyId) == activeSource
              select (
                  page: s.Page,
                  subPage: s.SubPage,

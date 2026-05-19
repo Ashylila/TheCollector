@@ -7,6 +7,7 @@ using System.Text.Json.Serialization;
 using ECommons.DalamudServices;
 using OtterGui.Widgets;
 using TheCollector.CollectableManager;
+using TheCollector.Data;
 using TheCollector.Data.Models;
 using TheCollector.Windows;
 
@@ -39,6 +40,8 @@ public class Configuration : IPluginConfiguration
     public int ReserveScripAmount { get; set; } = 0;
 
     public string? HardFailReason { get; set; }
+
+    public RunSource ActiveRunSource { get; set; } = RunSource.Gathering;
 
     public void Save()
     {

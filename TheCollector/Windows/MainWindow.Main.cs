@@ -12,13 +12,33 @@ public partial class MainWindow
 {
     private void DrawMainTab()
     {
-        DrawAddItem();
-        DrawItemsList();
+        if (ImGui.BeginTabBar("##PurchaseListTabs", ImGuiTabBarFlags.NoTooltip))
+        {
+            DrawPurchaseListTab("Gathering##GatherList", RunSource.Gathering);
+            DrawPurchaseListTab("Crafting##CraftList",   RunSource.Crafting);
+            ImGui.EndTabBar();
+        }
     }
 
-    private void DrawAddItem()
+    private void DrawPurchaseListTab(string label, RunSource source)
     {
-        ImGuiHelper.Panel("AddItem", () =>
+        if (!ImGui.BeginTabItem(label)) return;
+
+        if (configuration.ActiveRunSource != source)
+        {
+            configuration.ActiveRunSource = source;
+            configuration.Save();
+        }
+
+        ImGui.Spacing();
+        DrawAddItem(source);
+        DrawItemsList(source);
+        ImGui.EndTabItem();
+    }
+
+    private void DrawAddItem(RunSource source)
+    {
+        ImGuiHelper.Panel($"AddItem_{source}", () =>
         {
             ImGuiHelper.SectionHeader("Add Item");
 
@@ -38,6 +58,7 @@ public partial class MainWindow
                 ImGui.Separator();
 
                 foreach (var item in ScripShopItemManager.ShopItems
+                             .Where(i => CurrencyHelper.GetRunSource(i.CurrencyId) == source)
                              .Where(i => string.IsNullOrEmpty(comboFilter) ||
                                          i.Name.Contains(comboFilter, StringComparison.OrdinalIgnoreCase)))
                 {
@@ -80,20 +101,25 @@ public partial class MainWindow
         });
     }
 
-    private void DrawItemsList()
+    private void DrawItemsList(RunSource source)
     {
-        if (configuration.ItemsToPurchase.Count == 0)
+        var rows = configuration.ItemsToPurchase
+            .Select((item, index) => (item, index))
+            .Where(t => CurrencyHelper.GetRunSource(CurrencyHelper.GetCurrencyIdForItem(t.item.Item.ItemId)) == source)
+            .ToList();
+
+        if (rows.Count == 0)
         {
             ImGui.TextDisabled("No items added yet.");
             return;
         }
 
-        ImGuiHelper.Panel("ItemsList", () =>
+        ImGuiHelper.Panel($"ItemsList_{source}", () =>
         {
             ImGuiHelper.SectionHeader("Purchase List");
 
             var tableFlags = ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.PadOuterX;
-            if (!ImGui.BeginTable("##ItemsTable", 5, tableFlags))
+            if (!ImGui.BeginTable($"##ItemsTable_{source}", 5, tableFlags))
                 return;
 
             ImGui.TableSetupColumn("##Remove",  ImGuiTableColumnFlags.WidthFixed,   22f);
@@ -103,21 +129,19 @@ public partial class MainWindow
             ImGui.TableSetupColumn("##Reset",   ImGuiTableColumnFlags.WidthFixed,   58f);
             ImGui.TableHeadersRow();
 
-            for (int i = 0; i < configuration.ItemsToPurchase.Count; i++)
+            foreach (var (item, originalIndex) in rows)
             {
-                var item = configuration.ItemsToPurchase[i];
                 bool done = item.Quantity > 0 && item.AmountPurchased >= item.Quantity;
 
                 ImGui.TableNextRow();
 
                 // Remove
                 ImGui.TableSetColumnIndex(0);
-                if (ImGuiHelper.DangerButton($"x##Remove{i}", new Vector2(22, 22)))
+                if (ImGuiHelper.DangerButton($"x##Remove{originalIndex}", new Vector2(22, 22)))
                 {
-                    configuration.ItemsToPurchase.RemoveAt(i);
+                    configuration.ItemsToPurchase.RemoveAt(originalIndex);
                     configuration.Save();
-                    i--;
-                    continue;
+                    break;
                 }
 
                 // Icon + Name
@@ -156,22 +180,22 @@ public partial class MainWindow
                 if (isUnique)
                 {
                     ImGui.BeginDisabled();
-                    ImGui.InputInt($"##Qty{i}", ref qty, 0, 0);
+                    ImGui.InputInt($"##Qty{originalIndex}", ref qty, 0, 0);
                     ImGui.EndDisabled();
                     if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
                         ImGui.SetTooltip("Unique items can only be owned one at a time");
                 }
-                else if (ImGui.InputInt($"##Qty{i}", ref qty, 0, 0))
+                else if (ImGui.InputInt($"##Qty{originalIndex}", ref qty, 0, 0))
                 {
                     item.Quantity = Math.Max(0, qty);
-                    configuration.ItemsToPurchase[i] = item;
+                    configuration.ItemsToPurchase[originalIndex] = item;
                     configuration.Save();
                 }
                 ImGui.PopItemWidth();
 
                 // Reset
                 ImGui.TableSetColumnIndex(4);
-                if (ImGui.Button($"Reset##R{i}", new Vector2(56, 0)))
+                if (ImGui.Button($"Reset##R{originalIndex}", new Vector2(56, 0)))
                 {
                     item.ResetQuantity();
                     configuration.Save();

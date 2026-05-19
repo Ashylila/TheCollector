@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Dalamud.Plugin.Services;
 using Lumina.Excel.Sheets;
+using TheCollector.Data;
 using TheCollector.Data.Models;
 
 namespace TheCollector.Utility;
@@ -80,9 +81,15 @@ public class ScripPlannerService
     }
 
     public bool IsGoalComplete()
+        => IsGoalComplete(_config.ActiveRunSource);
+
+    public bool IsGoalComplete(RunSource source)
     {
-        if (_config.ItemsToPurchase.Count == 0) return false;
-        return _config.ItemsToPurchase.All(i => i.Quantity > 0 && i.AmountPurchased >= i.Quantity);
+        var items = _config.ItemsToPurchase
+            .Where(i => CurrencyHelper.GetRunSource(CurrencyHelper.GetCurrencyIdForItem(i.Item.ItemId)) == source)
+            .ToList();
+        if (items.Count == 0) return false;
+        return items.All(i => i.Quantity > 0 && i.AmountPurchased >= i.Quantity);
     }
 
     private void EnsureCollectablesLoaded()

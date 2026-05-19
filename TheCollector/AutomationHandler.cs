@@ -169,6 +169,16 @@ public class AutomationHandler : IDisposable
     {
         SessionCollectablesTurnedIn++;
 
+        if (_collectableAutomationHandler.LastEarnedCurrency is { } earned)
+        {
+            var source = CurrencyHelper.GetRunSource(earned);
+            if (_config.ActiveRunSource != source)
+            {
+                _config.ActiveRunSource = source;
+                _config.Save();
+            }
+        }
+
         if (_config.BuyAfterEachCollect)
         {
             _scripShopAutomationHandler.Start();
@@ -272,13 +282,18 @@ public class AutomationHandler : IDisposable
     {
         if (items == null || items.Count == 0) return false;
 
-        for (int i = 0; i < items.Count; i++)
-            if (items[i].AmountPurchased < items[i].Quantity) return false;
+        var activeSource = _config.ActiveRunSource;
+        var subset = items
+            .Where(i => CurrencyHelper.GetRunSource(CurrencyHelper.GetCurrencyIdForItem(i.Item.ItemId)) == activeSource)
+            .ToList();
+        if (subset.Count == 0) return false;
 
-        for (int i = 0; i < items.Count; i++)
-            items[i].AmountPurchased = 0;
+        if (subset.Any(i => i.AmountPurchased < i.Quantity)) return false;
+
+        foreach (var item in subset)
+            item.AmountPurchased = 0;
         _config.Save();
-        _log.Debug("Reset all quantities since the list is complete.");
+        _log.Debug("Reset all quantities for the active source since its list is complete.");
         return true;
     }
 
