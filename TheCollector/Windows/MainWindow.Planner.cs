@@ -74,7 +74,7 @@ public partial class MainWindow
             foreach (var group in grouped)
             {
                 var currencyName = GetCurrencyName(group.Key);
-                ImGui.TextColored(new Vector4(0.80f, 0.70f, 0.30f, 1f), currencyName);
+                ImGuiHelper.Chip(currencyName, UiTheme.Accent);
                 ImGui.Spacing();
 
                 var tableFlags = ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.PadOuterX | ImGuiTableFlags.RowBg;
@@ -200,11 +200,17 @@ public partial class MainWindow
                     ImGui.TextDisabled($"{col.Level}");
 
                     ImGui.TableSetColumnIndex(1);
-                    if (isBest) ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(0.30f, 0.85f, 0.30f, 1f));
+                    ImGui.AlignTextToFramePadding();
+                    if (isBest) ImGui.PushStyleColor(ImGuiCol.Text, UiTheme.Success);
                     ImGui.TextUnformatted(col.Name);
                     if (isBest) ImGui.PopStyleColor();
-                    if (isBest && ImGui.IsItemHovered())
-                        ImGui.SetTooltip("Most efficient collectable for this currency.");
+                    if (isBest)
+                    {
+                        ImGui.SameLine();
+                        ImGuiHelper.Chip("best", UiTheme.Success);
+                        if (ImGui.IsItemHovered())
+                            ImGui.SetTooltip("Most efficient collectable for this currency.");
+                    }
 
                     ImGui.TableSetColumnIndex(2);
                     ImGui.TextUnformatted($"{col.HighReward}");
@@ -272,8 +278,7 @@ public partial class MainWindow
         {
             ImGuiHelper.Panel("AllTimeScrips", () =>
             {
-                ImGui.TextDisabled("All-Time Scrips Spent");
-                ImGui.Separator();
+                ImGuiHelper.SectionHeader("All-Time Scrips Spent");
                 foreach (var (currencyId, amount) in configuration.TotalScripsSpent)
                     ImGui.TextUnformatted($"{GetCurrencyName(currencyId)}: {amount:N0}");
             });

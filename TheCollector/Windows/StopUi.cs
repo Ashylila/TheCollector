@@ -25,8 +25,8 @@ public class StopUi : Window
 
         SizeConstraints = new WindowSizeConstraints
         {
-            MinimumSize = new Vector2(350, 0),
-            MaximumSize = new Vector2(350, 800)
+            MinimumSize = new Vector2(360, 0),
+            MaximumSize = new Vector2(360, 800)
         };
     }
 
@@ -37,9 +37,16 @@ public class StopUi : Window
 
     public override void PreDraw()
     {
+        UiTheme.Push();
+
         var io = ImGui.GetIO();
         var center = io.DisplaySize / 2f;
         ImGui.SetNextWindowPos(center, ImGuiCond.Always, new Vector2(0.5f, 0.5f));
+    }
+
+    public override void PostDraw()
+    {
+        UiTheme.Pop();
     }
 
     public override void Draw()
@@ -50,19 +57,22 @@ public class StopUi : Window
 
     private void DrawStatusInfo()
     {
-        var (color, label) = Plugin.State switch
+        var (color, label, isActive) = Plugin.State switch
         {
-            PluginState.Teleporting               => (new Vector4(0.95f, 0.75f, 0.10f, 1f), "Teleporting"),
-            PluginState.MovingToCollectableVendor => (new Vector4(0.95f, 0.75f, 0.10f, 1f), "Moving to vendor"),
-            PluginState.ExchangingItems           => (new Vector4(0.30f, 0.85f, 0.30f, 1f), "Exchanging items"),
-            PluginState.SpendingScrip             => (new Vector4(0.30f, 0.85f, 0.30f, 1f), "Spending scrip"),
-            PluginState.AutoRetainer              => (new Vector4(0.40f, 0.65f, 1.00f, 1f), "AutoRetainer running"),
-            PluginState.Deliveroo                => (new Vector4(0.40f, 0.65f, 1.00f, 1f), "Deliveroo running"),
-            _                                     => (new Vector4(0.55f, 0.55f, 0.55f, 1f), "Idle")
+            PluginState.Teleporting               => (UiTheme.Warning, "Teleporting",            true),
+            PluginState.MovingToCollectableVendor => (UiTheme.Warning, "Moving to vendor",       true),
+            PluginState.ExchangingItems           => (UiTheme.Success, "Exchanging items",       true),
+            PluginState.SpendingScrip             => (UiTheme.Success, "Spending scrip",         true),
+            PluginState.AutoRetainer              => (UiTheme.Info,    "AutoRetainer running",   true),
+            PluginState.Deliveroo                 => (UiTheme.Info,    "Deliveroo running",      true),
+            _                                     => (UiTheme.Idle,   "Idle",                   false)
         };
 
+        ImGuiHelper.StatusDot(color, pulse: isActive);
+        ImGui.SameLine();
+        ImGui.AlignTextToFramePadding();
         ImGui.PushStyleColor(ImGuiCol.Text, color);
-        ImGui.TextUnformatted($"● {label}");
+        ImGui.TextUnformatted(label);
         ImGui.PopStyleColor();
 
         if (Plugin.State == PluginState.ExchangingItems)
@@ -71,9 +81,7 @@ public class StopUi : Window
             if (q != null && q.Count != 0)
             {
                 ImGui.Spacing();
-                ImGui.TextDisabled("Turn-in queue:");
-                ImGui.Separator();
-                ImGui.Spacing();
+                ImGuiHelper.SectionHeader("Turn-in queue");
 
                 for (int i = 0; i < q.Count; i++)
                 {
@@ -83,8 +91,8 @@ public class StopUi : Window
 
                     if (isCurrent)
                     {
-                        ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(0.30f, 0.90f, 0.30f, 1f));
-                        ImGui.TextUnformatted("▶");
+                        ImGui.PushStyleColor(ImGuiCol.Text, UiTheme.Success);
+                        ImGui.TextUnformatted(">");
                         ImGui.PopStyleColor();
                     }
                     else
@@ -95,7 +103,7 @@ public class StopUi : Window
                     ImGui.SameLine();
 
                     if (isCurrent)
-                        ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(0.30f, 0.90f, 0.30f, 1f));
+                        ImGui.PushStyleColor(ImGuiCol.Text, UiTheme.Success);
 
                     ImGui.TextUnformatted(name);
 
@@ -111,13 +119,7 @@ public class StopUi : Window
 
     private void DrawStopButton()
     {
-        ImGui.PushStyleColor(ImGuiCol.Button,        new Vector4(0.65f, 0.10f, 0.10f, 0.90f));
-        ImGui.PushStyleColor(ImGuiCol.ButtonHovered, new Vector4(0.85f, 0.15f, 0.15f, 1.00f));
-        ImGui.PushStyleColor(ImGuiCol.ButtonActive,  new Vector4(1.00f, 0.20f, 0.20f, 1.00f));
-
-        if (ImGui.Button("Stop", new Vector2(ImGui.GetContentRegionAvail().X, 50)))
+        if (ImGuiHelper.DangerButton("Stop", new Vector2(ImGui.GetContentRegionAvail().X, 50)))
             _automation?.ForceStop("Stopped by user");
-
-        ImGui.PopStyleColor(3);
     }
 }

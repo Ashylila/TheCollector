@@ -32,7 +32,7 @@ public partial class MainWindow : Window, IDisposable
     {
         SizeConstraints = new WindowSizeConstraints
         {
-            MinimumSize = new Vector2(420, 0),
+            MinimumSize = new Vector2(460, 0),
             MaximumSize = new Vector2(float.MaxValue, float.MaxValue)
         };
         _log = log;
@@ -44,7 +44,15 @@ public partial class MainWindow : Window, IDisposable
 
     public void Dispose() { }
 
-    public override void PreDraw() { }
+    public override void PreDraw()
+    {
+        UiTheme.Push();
+    }
+
+    public override void PostDraw()
+    {
+        UiTheme.Pop();
+    }
 
     public override void Draw()
     {
@@ -54,10 +62,12 @@ public partial class MainWindow : Window, IDisposable
             return;
         }
 
-        DrawSupportButton();
-        DrawStatusBar();
+        DrawHero();
+        DrawStatusRow();
 
-        if (ImGui.BeginTabBar("##MainTabs"))
+        ImGui.Dummy(new Vector2(0, 4f));
+
+        if (ImGui.BeginTabBar("##MainTabs", ImGuiTabBarFlags.NoTooltip))
         {
             if (ImGui.BeginTabItem("Main"))
             {
@@ -88,45 +98,53 @@ public partial class MainWindow : Window, IDisposable
         }
     }
 
-    private void DrawStatusBar()
+    private void DrawHero()
+    {
+        ImGuiHelper.HeroBanner(
+            "The Collector",
+            "Scrip turn-ins, purchases, and gathering loops",
+            DrawSupportButton);
+    }
+
+    private void DrawStatusRow()
     {
         ImGuiHelper.Panel("StatusBar", () =>
         {
-            var (color, label) = Plugin.State switch
+            var (color, label, isActive) = Plugin.State switch
             {
-                PluginState.Teleporting              => (new Vector4(0.95f, 0.75f, 0.10f, 1f), "Teleporting..."),
-                PluginState.MovingToCollectableVendor => (new Vector4(0.95f, 0.75f, 0.10f, 1f), "Moving to vendor..."),
-                PluginState.ExchangingItems           => (new Vector4(0.30f, 0.85f, 0.30f, 1f), "Exchanging items..."),
-                PluginState.SpendingScrip             => (new Vector4(0.30f, 0.85f, 0.30f, 1f), "Spending scrip..."),
-                PluginState.AutoRetainer              => (new Vector4(0.40f, 0.65f, 1.00f, 1f), "AutoRetainer running..."),
-                PluginState.Deliveroo                => (new Vector4(0.40f, 0.65f, 1.00f, 1f), "Deliveroo running..."),
-                _                                     => (new Vector4(0.55f, 0.55f, 0.55f, 1f), "Idle")
+                PluginState.Teleporting               => (UiTheme.Warning, "Teleporting",            true),
+                PluginState.MovingToCollectableVendor => (UiTheme.Warning, "Moving to vendor",       true),
+                PluginState.ExchangingItems           => (UiTheme.Success, "Exchanging items",       true),
+                PluginState.SpendingScrip             => (UiTheme.Success, "Spending scrip",         true),
+                PluginState.AutoRetainer              => (UiTheme.Info,    "AutoRetainer running",   true),
+                PluginState.Deliveroo                 => (UiTheme.Info,    "Deliveroo running",      true),
+                _                                     => (UiTheme.Idle,   "Idle",                   false)
             };
 
+            ImGuiHelper.StatusDot(color, pulse: isActive);
+            ImGui.SameLine();
+            ImGui.AlignTextToFramePadding();
             ImGui.PushStyleColor(ImGuiCol.Text, color);
-            ImGui.TextUnformatted($"● {label}");
+            ImGui.TextUnformatted(label);
             ImGui.PopStyleColor();
 
             if (configuration.ItemsToPurchase.Count > 0)
             {
                 int completed = configuration.ItemsToPurchase.Count(i => i.Quantity > 0 && i.AmountPurchased >= i.Quantity);
-                ImGui.SameLine();
-                ImGui.TextDisabled($"   {completed}/{configuration.ItemsToPurchase.Count} items done");
-            }
+                int total     = configuration.ItemsToPurchase.Count;
+                var chipColor = completed == total ? UiTheme.Success : UiTheme.Accent;
 
+                var summary = $"{completed}/{total} done";
+                var chipW   = ImGui.CalcTextSize(summary).X + 16f;
+                ImGui.SameLine(ImGui.GetContentRegionAvail().X + ImGui.GetCursorPosX() - chipW);
+                ImGuiHelper.Chip(summary, chipColor);
+            }
         });
     }
 
     private static void DrawSupportButton()
     {
-        ImGui.PushStyleColor(ImGuiCol.Button,        new Vector4(0.20f, 0.60f, 0.86f, 1.00f));
-        ImGui.PushStyleColor(ImGuiCol.ButtonHovered, new Vector4(0.30f, 0.70f, 0.96f, 1.00f));
-        ImGui.PushStyleColor(ImGuiCol.ButtonActive,  new Vector4(0.10f, 0.50f, 0.76f, 1.00f));
-
-        float buttonWidth = ImGui.CalcTextSize("Support Me").X + ImGui.GetStyle().FramePadding.X * 2;
-        float windowWidth = ImGui.GetWindowContentRegionMax().X;
-        ImGui.SetCursorPosX(windowWidth - buttonWidth);
-        if (ImGui.Button("Support Me"))
+        if (ImGuiHelper.AccentButton("Support Me", new Vector2(110, 28)))
         {
             Process.Start(new ProcessStartInfo
             {
@@ -134,7 +152,5 @@ public partial class MainWindow : Window, IDisposable
                 UseShellExecute = true
             });
         }
-
-        ImGui.PopStyleColor(3);
     }
 }

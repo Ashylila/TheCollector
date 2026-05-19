@@ -57,9 +57,7 @@ public partial class MainWindow
     {
         ImGuiHelper.Panel("InstalledPlgs", () =>
         {
-            ImGui.TextDisabled("Required & Optional Plugins");
-            ImGui.Separator();
-            ImGui.Spacing();
+            ImGuiHelper.SectionHeader("Required & Optional Plugins");
 
             DrawPluginStatus("vnavmesh",          "vnavmesh",          required: true);
             ImGui.SameLine(ImGui.GetWindowContentRegionMax().X / 2f);
@@ -77,22 +75,20 @@ public partial class MainWindow
 
     private static void DrawPluginStatus(string pluginKey, string displayName, bool required)
     {
-        bool ready = IPCSubscriber_Common.IsReady(pluginKey);
-        var dotColor = ready ? new Vector4(0.20f, 0.85f, 0.20f, 1f) : new Vector4(0.85f, 0.20f, 0.20f, 1f);
-        var label = required ? $"{displayName} (required)" : $"{displayName} (optional)";
+        bool ready    = IPCSubscriber_Common.IsReady(pluginKey);
+        var dotColor  = ready ? UiTheme.Success : UiTheme.Danger;
 
-        ImGui.PushStyleColor(ImGuiCol.Text, dotColor);
-        ImGui.TextUnformatted("●");
-        ImGui.PopStyleColor();
+        ImGuiHelper.StatusDot(dotColor);
         ImGui.SameLine();
-        ImGui.TextUnformatted(label);
+        ImGui.AlignTextToFramePadding();
+        ImGui.TextUnformatted(displayName);
+        ImGui.SameLine();
+        ImGuiHelper.Chip(required ? "required" : "optional", required ? UiTheme.Accent : UiTheme.TextDim);
     }
 
     private void DrawSettingsGeneral()
     {
-        ImGui.TextDisabled("Collectable Shop");
-        ImGui.Separator();
-        ImGui.Spacing();
+        ImGuiHelper.SectionHeader("Collectable Shop");
 
         string currentShopName = configuration.PreferredCollectableShop.DisplayName ?? "Select a shop";
         ImGui.PushItemWidth(-1);
@@ -124,9 +120,7 @@ public partial class MainWindow
         ImGui.PopItemWidth();
 
         ImGui.Spacing();
-        ImGui.TextDisabled("Automation");
-        ImGui.Separator();
-        ImGui.Spacing();
+        ImGuiHelper.SectionHeader("Automation");
 
         var buyAfterEach = configuration.BuyAfterEachCollect;
         if (ImGui.Checkbox("Buy items after each trade instead of on capping scrips", ref buyAfterEach))
@@ -166,9 +160,7 @@ public partial class MainWindow
 
     private void DrawSettingsIntegrations()
     {
-        ImGui.TextDisabled("Artisan");
-        ImGui.Separator();
-        ImGui.Spacing();
+        ImGuiHelper.SectionHeader("Artisan");
 
         bool artisanGbrReady = IPCSubscriber_Common.IsReady("GatherBuddyReborn");
         bool artisanReady = IPCSubscriber_Common.IsReady("Artisan");
@@ -216,9 +208,7 @@ public partial class MainWindow
         ImGui.EndDisabled();
 
         ImGui.Spacing();
-        ImGui.TextDisabled("AutoRetainer");
-        ImGui.Separator();
-        ImGui.Spacing();
+        ImGuiHelper.SectionHeader("AutoRetainer");
 
         bool arReady = IPCSubscriber_Common.IsReady("AutoRetainer");
         ImGui.BeginDisabled(!arReady);
@@ -235,9 +225,7 @@ public partial class MainWindow
         ImGui.EndDisabled();
 
         ImGui.Spacing();
-        ImGui.TextDisabled("Deliveroo");
-        ImGui.Separator();
-        ImGui.Spacing();
+        ImGuiHelper.SectionHeader("Deliveroo");
 
         bool deliverooReady = IPCSubscriber_Common.IsReady("Deliveroo");
         bool isMaelstrom = PlayerHelper.GetGrandCompany() == 1;
@@ -264,9 +252,7 @@ public partial class MainWindow
 
     private void DrawSettingsTiming()
     {
-        ImGui.TextDisabled("UI Delay");
-        ImGui.Separator();
-        ImGui.Spacing();
+        ImGuiHelper.SectionHeader("UI Delay");
 
         ImGui.TextWrapped("Delay between UI interactions during automation. Lower values run faster but may misbehave on slower machines or with high latency.");
         ImGui.Spacing();
@@ -290,9 +276,7 @@ public partial class MainWindow
 
     private void DrawSettingsGoal()
     {
-        ImGui.TextDisabled("Goal Automation");
-        ImGui.Separator();
-        ImGui.Spacing();
+        ImGuiHelper.SectionHeader("Goal Automation");
 
         var stopOnComplete = configuration.Goal.StopGatheringWhenComplete;
         if (ImGui.Checkbox("Stop gathering when purchase list is complete", ref stopOnComplete))
@@ -304,9 +288,7 @@ public partial class MainWindow
             ImGui.SetTooltip("When enabled, automation will stop instead of\nre-enabling autogather once all items are purchased.");
 
         ImGui.Spacing();
-        ImGui.TextDisabled("Planner");
-        ImGui.Separator();
-        ImGui.Spacing();
+        ImGuiHelper.SectionHeader("Planner");
 
         var hideFish = configuration.Goal.HideFishingCollectables;
         if (ImGui.Checkbox("Hide fishing collectables from planner", ref hideFish))

@@ -20,9 +20,7 @@ public partial class MainWindow
     {
         ImGuiHelper.Panel("AddItem", () =>
         {
-            ImGui.TextDisabled("Add Item");
-            ImGui.Separator();
-            ImGui.Spacing();
+            ImGuiHelper.SectionHeader("Add Item");
 
             bool alreadyAdded = SelectedScripItem != null &&
                                 configuration.ItemsToPurchase.Any(i => i.Item.ItemId == SelectedScripItem.ItemId);
@@ -92,9 +90,7 @@ public partial class MainWindow
 
         ImGuiHelper.Panel("ItemsList", () =>
         {
-            ImGui.TextDisabled("Purchase List");
-            ImGui.Separator();
-            ImGui.Spacing();
+            ImGuiHelper.SectionHeader("Purchase List");
 
             var tableFlags = ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.PadOuterX;
             if (!ImGui.BeginTable("##ItemsTable", 5, tableFlags))
@@ -116,18 +112,13 @@ public partial class MainWindow
 
                 // Remove
                 ImGui.TableSetColumnIndex(0);
-                ImGui.PushStyleColor(ImGuiCol.Button,        new Vector4(0.55f, 0.10f, 0.10f, 0.70f));
-                ImGui.PushStyleColor(ImGuiCol.ButtonHovered, new Vector4(0.80f, 0.15f, 0.15f, 1.00f));
-                ImGui.PushStyleColor(ImGuiCol.ButtonActive,  new Vector4(1.00f, 0.20f, 0.20f, 1.00f));
-                if (ImGui.Button($"-##Remove{i}", new Vector2(22, 22)))
+                if (ImGuiHelper.DangerButton($"x##Remove{i}", new Vector2(22, 22)))
                 {
                     configuration.ItemsToPurchase.RemoveAt(i);
                     configuration.Save();
-                    ImGui.PopStyleColor(3);
                     i--;
                     continue;
                 }
-                ImGui.PopStyleColor(3);
 
                 // Icon + Name
                 ImGui.TableSetColumnIndex(1);
@@ -147,12 +138,15 @@ public partial class MainWindow
                 float progress = item.Quantity > 0
                     ? Math.Clamp((float)item.AmountPurchased / item.Quantity, 0f, 1f)
                     : 0f;
-                ImGui.PushStyleColor(ImGuiCol.PlotHistogram,
-                    done
-                        ? new Vector4(0.20f, 0.70f, 0.20f, 0.85f)
-                        : new Vector4(0.20f, 0.50f, 0.85f, 0.85f));
-                ImGui.ProgressBar(progress, new Vector2(-1, ImGui.GetFrameHeight()), $"{item.AmountPurchased}/{item.Quantity}");
-                ImGui.PopStyleColor();
+                var barW = ImGui.GetContentRegionAvail().X;
+                if (barW < 1f) barW = 100f;
+                var fromCol = done ? UiTheme.WithAlpha(UiTheme.Success, 0.55f) : UiTheme.WithAlpha(UiTheme.Accent, 0.55f);
+                var toCol   = done ? UiTheme.Success                          : UiTheme.AccentHover;
+                ImGuiHelper.GradientProgressBar(
+                    progress,
+                    new Vector2(barW, ImGui.GetFrameHeight()),
+                    $"{item.AmountPurchased}/{item.Quantity}",
+                    fromCol, toCol);
 
                 // Quantity
                 ImGui.TableSetColumnIndex(3);
