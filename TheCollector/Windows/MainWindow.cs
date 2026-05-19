@@ -63,6 +63,7 @@ public partial class MainWindow : Window, IDisposable
         }
 
         DrawHero();
+        DrawHardFailBanner();
         DrawStatusRow();
 
         ImGui.Dummy(new Vector2(0, 4f));
@@ -104,6 +105,25 @@ public partial class MainWindow : Window, IDisposable
             "The Collector",
             "Scrip turn-ins, purchases, and gathering loops",
             DrawSupportButton);
+    }
+
+    private void DrawHardFailBanner()
+    {
+        if (configuration.HardFailReason == null) return;
+
+        ImGuiHelper.Panel("HardFail", () =>
+        {
+            ImGui.PushStyleColor(ImGuiCol.Text, UiTheme.Danger);
+            ImGui.TextUnformatted("Automation halted");
+            ImGui.PopStyleColor();
+            ImGui.SameLine();
+            ImGui.TextDisabled("•");
+            ImGui.SameLine();
+            ImGui.TextWrapped(configuration.HardFailReason);
+            ImGui.Spacing();
+            if (ImGuiHelper.DangerButton("Acknowledge", new Vector2(120, 26)))
+                _automationHandler.AcknowledgeHardFail();
+        });
     }
 
     private void DrawStatusRow()

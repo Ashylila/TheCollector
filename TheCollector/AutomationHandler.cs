@@ -36,6 +36,9 @@ public class AutomationHandler : IDisposable
     public Dictionary<uint, int> SessionScripsSpent { get; } = new();
     public DateTime? SessionStarted { get; private set; }
 
+    private int _consecutiveEmptyBuyCycles;
+    private const int HardFailThreshold = 2;
+
     public AutomationHandler(
         PlogonLog log, CollectableAutomationHandler collectableAutomationHandler, Configuration config, ScripShopAutomationHandler scripShopAutomationHandler, IChatGui chatGui, GatherbuddyReborn_IPCSubscriber gatherbuddyReborn_IPCSubscriber, ArtisanWatcher artisanWatcher, IFramework framework, FishingWatcher fishingWatcher, CraftingHandler craftingHandler, PipelineRegistry registry, AutoRetainerManager retainer, DeliverooManager deliveroo, ScripPlannerService plannerService)
     {
@@ -80,6 +83,11 @@ public class AutomationHandler : IDisposable
     }
     public void Invoke()
     {
+        if (_config.HardFailReason != null)
+        {
+            _chatGui.PrintError($"Automation halted: {_config.HardFailReason}. Acknowledge it in the main window before retrying.", "TheCollector");
+            return;
+        }
         if (_config.PreferredCollectableShop.TerritoryId == default)
         {
             _chatGui.PrintError("Please configure your preferred collectable shop in the settings tab!", "TheCollector");
@@ -96,7 +104,25 @@ public class AutomationHandler : IDisposable
             return;
         }
         SessionStarted ??= DateTime.UtcNow;
+        _consecutiveEmptyBuyCycles = 0;
         _collectableAutomationHandler.Start();
+    }
+
+    public void AcknowledgeHardFail()
+    {
+        if (_config.HardFailReason == null) return;
+        _config.HardFailReason = null;
+        _config.Save();
+        _consecutiveEmptyBuyCycles = 0;
+    }
+
+    private void TripHardFail(string reason)
+    {
+        if (_config.HardFailReason != null) return;
+        _config.HardFailReason = reason;
+        _config.Save();
+        _chatGui.PrintError($"Automation stopped: {reason}", "TheCollector");
+        ForceStop(reason);
     }
 
     public void OnFinishedWatching(WatchType watchType)
@@ -171,6 +197,7 @@ public class AutomationHandler : IDisposable
     private void OnFinishedTrading(Dictionary<uint, int> scripsSpent)
     {
         SessionItemsPurchased++;
+        int totalSpent = 0;
         foreach (var (currencyId, amount) in scripsSpent)
         {
             SessionScripsSpent.TryGetValue(currencyId, out var prev);
@@ -178,6 +205,7 @@ public class AutomationHandler : IDisposable
 
             _config.TotalScripsSpent.TryGetValue(currencyId, out var totalPrev);
             _config.TotalScripsSpent[currencyId] = totalPrev + amount;
+            totalSpent += amount;
         }
         _config.Save();
         if (_config.ResetEachQuantityAfterCompletingList)
@@ -191,9 +219,24 @@ public class AutomationHandler : IDisposable
 
         if (_collectableAutomationHandler.HasCollectible)
         {
+            if (totalSpent == 0)
+            {
+                _consecutiveEmptyBuyCycles++;
+                if (_consecutiveEmptyBuyCycles >= HardFailThreshold)
+                {
+                    TripHardFail("Scrip-cap recovery spent nothing twice in a row — purchase list cannot drain the current currency.");
+                    return;
+                }
+            }
+            else
+            {
+                _consecutiveEmptyBuyCycles = 0;
+            }
+
             _collectableAutomationHandler.Start();
             return;
         }
+        _consecutiveEmptyBuyCycles = 0;
         if (_config.CheckForVenturesBetweenRuns
             && IPCSubscriber_Common.IsReady("AutoRetainer")
             && Autoretainer_IPCSubscriber.AreAnyRetainersAvailableForCurrentChara())
