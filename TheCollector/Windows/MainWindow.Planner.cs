@@ -154,10 +154,10 @@ public partial class MainWindow
                     continue;
 
                 ImGui.TableSetupColumn("Lv",                ImGuiTableColumnFlags.WidthFixed,   25f);
-                ImGui.TableSetupColumn("Collectable",       ImGuiTableColumnFlags.WidthFixed, 200f);
+                ImGui.TableSetupColumn("Collectable",       ImGuiTableColumnFlags.WidthStretch, 2.5f);
                 ImGui.TableSetupColumn("Scrips / Turn-in",  ImGuiTableColumnFlags.WidthStretch | ImGuiTableColumnFlags.DefaultSort | ImGuiTableColumnFlags.PreferSortDescending, 1f);
                 ImGui.TableSetupColumn("Turn-ins Needed",   ImGuiTableColumnFlags.WidthStretch, 1f);
-                ImGui.TableSetupColumn("##Recipe",          ImGuiTableColumnFlags.WidthFixed | ImGuiTableColumnFlags.NoSort, 50f);
+                ImGui.TableSetupColumn("##Recipe",          ImGuiTableColumnFlags.WidthFixed | ImGuiTableColumnFlags.NoSort, 60f);
                 ImGui.TableHeadersRow();
 
                 var filtered = cs.Collectables

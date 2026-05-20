@@ -60,17 +60,23 @@ public partial class MainWindow
         {
             ImGuiHelper.SectionHeader("Required & Optional Plugins");
 
-            DrawPluginStatus("vnavmesh",          "vnavmesh",          required: true);
-            ImGui.SameLine(ImGui.GetWindowContentRegionMax().X / 2f);
-            DrawPluginStatus("GatherBuddyReborn", "GatherBuddyReborn", required: false);
+            if (!ImGui.BeginTable("##PluginGrid", 2, ImGuiTableFlags.SizingStretchSame))
+                return;
 
-            DrawPluginStatus("Artisan",           "Artisan",           required: false);
-            ImGui.SameLine(ImGui.GetWindowContentRegionMax().X / 2f);
-            DrawPluginStatus("AutoRetainer",      "AutoRetainer",      required: false);
+            void Cell(string key, string label, bool required)
+            {
+                ImGui.TableNextColumn();
+                DrawPluginStatus(key, label, required);
+            }
 
-            DrawPluginStatus("Deliveroo",         "Deliveroo",         required: false);
-            ImGui.SameLine(ImGui.GetWindowContentRegionMax().X / 2f);
-            DrawPluginStatus("Lifestream",        "Lifestream",        required: false);
+            Cell("vnavmesh",          "vnavmesh",          required: true);
+            Cell("GatherBuddyReborn", "GatherBuddyReborn", required: false);
+            Cell("Artisan",           "Artisan",           required: false);
+            Cell("AutoRetainer",      "AutoRetainer",      required: false);
+            Cell("Deliveroo",         "Deliveroo",         required: false);
+            Cell("Lifestream",        "Lifestream",        required: false);
+
+            ImGui.EndTable();
         });
     }
 
@@ -159,16 +165,16 @@ public partial class MainWindow
         }
 
         ImGui.Spacing();
+        ImGui.AlignTextToFramePadding();
         ImGui.TextUnformatted("Reserve scrips:");
         ImGui.SameLine();
         var reserve = configuration.ReserveScripAmount;
-        ImGui.PushItemWidth(160);
+        ImGui.SetNextItemWidth(-1);
         if (ImGui.SliderInt("##ReserveScrip", ref reserve, 0, Configuration.ScripCeiling))
         {
             configuration.ReserveScripAmount = Math.Clamp(reserve, 0, Configuration.ScripCeiling);
             configuration.Save();
         }
-        ImGui.PopItemWidth();
         if (ImGui.IsItemHovered())
             ImGui.SetTooltip("Purchases will leave at least this many scrips of each currency unspent.");
     }
@@ -273,15 +279,13 @@ public partial class MainWindow
         ImGui.Spacing();
 
         var delay = configuration.UiDelayMs;
-        ImGui.PushItemWidth(160);
-        if (ImGui.SliderInt("ms##UiDelay", ref delay, 50, 1500))
+        ImGui.SetNextItemWidth(-1);
+        if (ImGui.SliderInt("##UiDelay", ref delay, 50, 1500, "%d ms"))
         {
             configuration.UiDelayMs = delay;
             configuration.Save();
         }
-        ImGui.PopItemWidth();
 
-        ImGui.SameLine();
         if (ImGui.Button($"Reset to default ({Configuration.DefaultUiDelayMs} ms)"))
         {
             configuration.UiDelayMs = Configuration.DefaultUiDelayMs;

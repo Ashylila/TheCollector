@@ -156,7 +156,10 @@ public partial class MainWindow : Window, IDisposable
 
                 var summary = $"{completed}/{total} done";
                 var chipW   = ImGui.CalcTextSize(summary).X + 16f;
-                ImGui.SameLine(ImGui.GetContentRegionAvail().X + ImGui.GetCursorPosX() - chipW);
+                // Panel wraps content in BeginGroup, so SameLine offsets are biased by WindowPadding.X
+                // (the group offset). Subtract it so the chip lands flush with the panel's right edge.
+                var rightOffset = ImGui.GetContentRegionMax().X - chipW - ImGui.GetStyle().WindowPadding.X;
+                ImGui.SameLine(rightOffset);
                 ImGuiHelper.Chip(summary, chipColor);
             }
         });

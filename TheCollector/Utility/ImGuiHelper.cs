@@ -93,21 +93,23 @@ public static class ImGuiHelper
 
     public static void Chip(string label, Vector4 color)
     {
-        var dl    = ImGui.GetWindowDrawList();
-        var pos   = ImGui.GetCursorScreenPos();
-        var pad   = new Vector2(8f, 2f);
-        var size  = ImGui.CalcTextSize(label) + pad * 2f;
-        var min   = pos;
-        var max   = pos + size;
+        var dl     = ImGui.GetWindowDrawList();
+        var pos    = ImGui.GetCursorScreenPos();
+        var pad    = new Vector2(8f, 2f);
+        var size   = ImGui.CalcTextSize(label) + pad * 2f;
+        var frameH = ImGui.GetFrameHeight();
+        var yOff   = MathF.Max(0f, (frameH - size.Y) * 0.5f);
+        var min    = pos + new Vector2(0f, yOff);
+        var max    = min + size;
 
         dl.AddRectFilled(min, max, ImGui.GetColorU32(UiTheme.WithAlpha(color, 0.18f)), 4f);
         dl.AddRect(min, max, ImGui.GetColorU32(UiTheme.WithAlpha(color, 0.55f)), 4f);
-        dl.AddText(pos + pad, ImGui.GetColorU32(color), label);
+        dl.AddText(min + pad, ImGui.GetColorU32(color), label);
 
-        ImGui.Dummy(size);
+        ImGui.Dummy(new Vector2(size.X, MathF.Max(size.Y, frameH)));
     }
 
-    public static void HeroBanner(string title, string subtitle, Action? rightAction = null)
+    public static void HeroBanner(string title, string subtitle, Action? rightAction = null, float rightActionWidth = 120f)
     {
         var dl     = ImGui.GetWindowDrawList();
         var pos    = ImGui.GetCursorScreenPos();
@@ -133,12 +135,20 @@ public static class ImGuiHelper
             ImGui.GetColorU32(UiTheme.WithAlpha(UiTheme.Accent, 0.45f)),
             1f);
 
-        dl.AddText(new Vector2(pos.X + 16f, pos.Y + 10f),  ImGui.GetColorU32(UiTheme.Text),    title);
-        dl.AddText(new Vector2(pos.X + 16f, pos.Y + 30f),  ImGui.GetColorU32(UiTheme.TextDim), subtitle);
+        var reserve   = rightAction != null ? rightActionWidth : 0f;
+        var textLeft  = pos.X + 16f;
+        var textRight = pos.X + availW - reserve - 8f;
+        if (textRight > textLeft)
+        {
+            dl.PushClipRect(new Vector2(textLeft, pos.Y), new Vector2(textRight, pos.Y + height), true);
+            dl.AddText(new Vector2(textLeft, pos.Y + 10f), ImGui.GetColorU32(UiTheme.Text),    title);
+            dl.AddText(new Vector2(textLeft, pos.Y + 30f), ImGui.GetColorU32(UiTheme.TextDim), subtitle);
+            dl.PopClipRect();
+        }
 
         if (rightAction != null)
         {
-            ImGui.SetCursorScreenPos(new Vector2(pos.X + availW - 120f, pos.Y + 14f));
+            ImGui.SetCursorScreenPos(new Vector2(pos.X + availW - rightActionWidth, pos.Y + 14f));
             rightAction();
         }
 

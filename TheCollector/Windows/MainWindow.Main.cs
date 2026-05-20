@@ -49,7 +49,7 @@ public partial class MainWindow
             float buttonWidth = ImGui.CalcTextSize("+").X + style.FramePadding.X * 2;
             float textWidth = alreadyAdded ? ImGui.CalcTextSize("Already in list").X + style.ItemSpacing.X : 0;
             float reservedWidth = buttonWidth + textWidth + style.ItemSpacing.X;
-            float comboWidth = Math.Min(200f, ImGui.GetContentRegionAvail().X - reservedWidth);
+            float comboWidth = Math.Max(140f, ImGui.GetContentRegionAvail().X - reservedWidth);
 
             ImGui.PushItemWidth(comboWidth);
             if (ImGui.BeginCombo("##ItemCombo", SelectedScripItem?.Name ?? "Select an item..."))
@@ -96,6 +96,7 @@ public partial class MainWindow
             if (alreadyAdded)
             {
                 ImGui.SameLine();
+                ImGui.AlignTextToFramePadding();
                 ImGui.TextDisabled("Already in list");
             }
         });
