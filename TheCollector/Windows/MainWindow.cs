@@ -28,7 +28,8 @@ public partial class MainWindow : Window, IDisposable
     private ScripShopItem? SelectedScripItem = null;
 
     public MainWindow(Plugin plugin, IDalamudPluginInterface pluginInterface, PlogonLog log,
-        ScripPlannerService plannerService, AutomationHandler automationHandler, DiscordWebhookService discord)
+        ScripPlannerService plannerService, AutomationHandler automationHandler, DiscordWebhookService discord,
+        CharacterBalanceTracker balanceTracker)
         : base("The Collector##CollectorMain", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse)
     {
         SizeConstraints = new WindowSizeConstraints
@@ -40,6 +41,7 @@ public partial class MainWindow : Window, IDisposable
         _plannerService = plannerService;
         _automationHandler = automationHandler;
         _discord = discord;
+        _balanceTracker = balanceTracker;
         configuration = plugin.Configuration;
         this.pluginInterface = pluginInterface;
     }
@@ -87,6 +89,13 @@ public partial class MainWindow : Window, IDisposable
                     DrawPlannerTab();
                 }
                 ImGui.EndChild();
+                ImGui.EndTabItem();
+            }
+
+            if (ImGui.BeginTabItem("Characters"))
+            {
+                ImGui.Spacing();
+                DrawCharactersTab();
                 ImGui.EndTabItem();
             }
 

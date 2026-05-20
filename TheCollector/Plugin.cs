@@ -5,6 +5,7 @@ using Dalamud.Plugin;
 using Dalamud.Interface.Windowing;
 using Dalamud.Plugin.Services;
 using ECommons;
+using ECommons.DalamudServices;
 using TheCollector.CollectableManager;
 using TheCollector.Data;
 using TheCollector.Ipc;
@@ -80,6 +81,8 @@ public sealed class Plugin : IDalamudPlugin
         _automationHandler.Init();
         ServiceWrapper.Get<ArtisanWatcher>();
         _ = ServiceWrapper.Get<ScripShopItemManager>();
+        var tracker = ServiceWrapper.Get<CharacterBalanceTracker>();
+        if (Svc.ClientState.IsLoggedIn) tracker.SampleNow();
     }
     public void Dispose()
     {

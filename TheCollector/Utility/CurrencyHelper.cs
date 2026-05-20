@@ -8,29 +8,30 @@ namespace TheCollector.Utility;
 
 public static class CurrencyHelper
 {
-    public const uint WhiteCrafterScripItemId   = 33913;
-    public const uint WhiteGathererScripItemId  = 33914;
-    public const uint PurpleCrafterScripItemId  = 41784;
-    public const uint PurpleGathererScripItemId = 41785;
+
+    public const uint PurpleCrafterScripItemId  = 33913;
+    public const uint PurpleGathererScripItemId = 33914;
+    public const uint OrangeCrafterScripItemId  = 41784;
+    public const uint OrangeGathererScripItemId = 41785;
 
     private static readonly Dictionary<uint, uint> ScripIdAliases = new()
     {
-        [2] = WhiteCrafterScripItemId,
-        [4] = WhiteGathererScripItemId,
-        [6] = PurpleCrafterScripItemId,
-        [7] = PurpleGathererScripItemId,
-        [WhiteCrafterScripItemId]   = WhiteCrafterScripItemId,
-        [WhiteGathererScripItemId]  = WhiteGathererScripItemId,
+        [2] = PurpleCrafterScripItemId,
+        [4] = PurpleGathererScripItemId,
+        [6] = OrangeCrafterScripItemId,
+        [7] = OrangeGathererScripItemId,
         [PurpleCrafterScripItemId]  = PurpleCrafterScripItemId,
         [PurpleGathererScripItemId] = PurpleGathererScripItemId,
+        [OrangeCrafterScripItemId]  = OrangeCrafterScripItemId,
+        [OrangeGathererScripItemId] = OrangeGathererScripItemId,
     };
 
     private static readonly Dictionary<uint, RunSource> ScripRunSource = new()
     {
-        [WhiteCrafterScripItemId]   = RunSource.Crafting,
         [PurpleCrafterScripItemId]  = RunSource.Crafting,
-        [WhiteGathererScripItemId]  = RunSource.Gathering,
+        [OrangeCrafterScripItemId]  = RunSource.Crafting,
         [PurpleGathererScripItemId] = RunSource.Gathering,
+        [OrangeGathererScripItemId] = RunSource.Gathering,
     };
 
     public static unsafe uint SpecialIdToItemId(uint specialId)
@@ -40,7 +41,7 @@ public static class CurrencyHelper
         return cur->GetItemIdBySpecialId((byte)specialId);
     }
 
-    
+
     public static uint NormalizeScripCurrencyId(uint rawId)
         => ScripIdAliases.GetValueOrDefault(rawId, 0u);
 

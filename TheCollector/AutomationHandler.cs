@@ -30,6 +30,7 @@ public class AutomationHandler : IDisposable
     private readonly DeliverooManager _deliverooManager;
     private readonly ScripPlannerService _plannerService;
     private readonly DiscordWebhookService _discord;
+    private readonly CharacterBalanceTracker _balanceTracker;
     public bool IsRunning => _pipelineRegistry.All.Any(p => p.IsRunning);
 
     public int SessionCollectablesTurnedIn { get; private set; }
@@ -44,7 +45,7 @@ public class AutomationHandler : IDisposable
     private const int HardFailThreshold = 2;
 
     public AutomationHandler(
-        PlogonLog log, CollectableAutomationHandler collectableAutomationHandler, Configuration config, ScripShopAutomationHandler scripShopAutomationHandler, IChatGui chatGui, GatherbuddyReborn_IPCSubscriber gatherbuddyReborn_IPCSubscriber, ArtisanWatcher artisanWatcher, IFramework framework, FishingWatcher fishingWatcher, CraftingHandler craftingHandler, PipelineRegistry registry, AutoRetainerManager retainer, DeliverooManager deliveroo, ScripPlannerService plannerService, DiscordWebhookService discord)
+        PlogonLog log, CollectableAutomationHandler collectableAutomationHandler, Configuration config, ScripShopAutomationHandler scripShopAutomationHandler, IChatGui chatGui, GatherbuddyReborn_IPCSubscriber gatherbuddyReborn_IPCSubscriber, ArtisanWatcher artisanWatcher, IFramework framework, FishingWatcher fishingWatcher, CraftingHandler craftingHandler, PipelineRegistry registry, AutoRetainerManager retainer, DeliverooManager deliveroo, ScripPlannerService plannerService, DiscordWebhookService discord, CharacterBalanceTracker balanceTracker)
     {
         _log = log;
         _gatherbuddyReborn_IPCSubscriber = gatherbuddyReborn_IPCSubscriber;
@@ -61,6 +62,7 @@ public class AutomationHandler : IDisposable
         _deliverooManager = deliveroo;
         _plannerService = plannerService;
         _discord = discord;
+        _balanceTracker = balanceTracker;
     }
 
     public void Init()
@@ -214,6 +216,7 @@ public class AutomationHandler : IDisposable
     private void OnFinishedCollecting()
     {
         SessionCollectablesTurnedIn++;
+        _balanceTracker.SampleNow();
 
         if (_collectableAutomationHandler.LastEarnedCurrency is { } earned)
         {
@@ -255,6 +258,7 @@ public class AutomationHandler : IDisposable
     private void OnFinishedTrading(Dictionary<uint, int> scripsSpent)
     {
         SessionItemsPurchased++;
+        _balanceTracker.SampleNow();
         int totalSpent = 0;
         foreach (var (currencyId, amount) in scripsSpent)
         {

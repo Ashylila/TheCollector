@@ -50,6 +50,7 @@ public static class ServiceWrapper
         
         collection.AddSingleton<PlogonLog>();
         collection.AddSingleton<DiscordWebhookService>();
+        collection.AddSingleton<CharacterBalanceTracker>();
         collection.AddSingleton<ScripShopItemManager>();
         collection.AddSingleton<CraftingHandler>();
         collection.AddSingleton<ScripPlannerService>();

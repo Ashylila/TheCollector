@@ -37,6 +37,7 @@ public class Configuration : IPluginConfiguration
     public ScripGoal Goal { get; set; } = new();
     public StopConditions Stop { get; set; } = new();
     public DiscordNotificationSettings Discord { get; set; } = new();
+    public Dictionary<ulong, CharacterBalance> CharacterBalances { get; set; } = new();
     public Dictionary<uint, int> TotalScripsSpent { get; set; } = new();
 
     public const int DefaultUiDelayMs = 300;
