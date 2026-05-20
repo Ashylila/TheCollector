@@ -177,13 +177,15 @@ public partial class MainWindow
                 int sortCol = sortSpecs.Specs.ColumnIndex;
                 bool ascending = sortSpecs.Specs.SortDirection == ImGuiSortDirection.Ascending;
 
+                var scripsRemaining = Math.Max(0, cs.TotalScripsNeeded - cs.InventoryScripsValue);
+
                 var sorted = (sortCol switch
                 {
                     0 => ascending ? filtered.OrderBy(c => c.Level) : filtered.OrderByDescending(c => c.Level),
                     1 => ascending ? filtered.OrderBy(c => c.Name, StringComparer.OrdinalIgnoreCase) : filtered.OrderByDescending(c => c.Name, StringComparer.OrdinalIgnoreCase),
                     3 => ascending
-                        ? filtered.OrderBy(c => c.HighReward > 0 ? Math.Ceiling((double)cs.TotalScripsNeeded / c.HighReward) : double.MaxValue)
-                        : filtered.OrderByDescending(c => c.HighReward > 0 ? Math.Ceiling((double)cs.TotalScripsNeeded / c.HighReward) : 0),
+                        ? filtered.OrderBy(c => c.HighReward > 0 ? Math.Ceiling((double)scripsRemaining / c.HighReward) : double.MaxValue)
+                        : filtered.OrderByDescending(c => c.HighReward > 0 ? Math.Ceiling((double)scripsRemaining / c.HighReward) : 0),
                     _ => ascending ? filtered.OrderBy(c => c.HighReward) : filtered.OrderByDescending(c => c.HighReward),
                 }).ToList();
 
@@ -197,7 +199,7 @@ public partial class MainWindow
                 {
                     var col = sorted[i];
                     var turnIns = col.HighReward > 0
-                        ? (int)Math.Ceiling((double)cs.TotalScripsNeeded / col.HighReward)
+                        ? (int)Math.Ceiling((double)scripsRemaining / col.HighReward)
                         : 0;
 
                     bool isBest = col == cs.BestCollectable;
