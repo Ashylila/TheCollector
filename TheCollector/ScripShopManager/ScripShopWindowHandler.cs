@@ -228,15 +228,12 @@ public unsafe class ScripShopWindowHandler
         return false;
     }
 
-    public uint ScripCount(uint curType)
+    public uint ScripCount(uint currencyItemId)
     {
         if (GenericHelpers.TryGetAddonByName("InclusionShop", out AtkUnitBase* addon))
         {
             var cur = CurrencyManager.Instance();
-
-            var curAmount = cur->GetItemIdBySpecialId((byte)curType);
-
-            return cur->GetItemCount(curAmount);
+            return cur->GetItemCount(currencyItemId);
         }
         return uint.MinValue;
     }

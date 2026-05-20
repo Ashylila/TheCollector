@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
@@ -9,13 +8,13 @@ using Dalamud.Plugin;
 using ECommons.DalamudServices;
 using Lumina.Excel.Sheets;
 using TheCollector.Data.Models;
-using TheCollector.Data;
 
 namespace TheCollector.Utility;
 
 public class ScripShopItemManager
 {
 
+    private static readonly HttpClient _http = new();
     public static List<ScripShopItem> ShopItems = new();
     public static bool IsLoading { get; private set; }
     private readonly PlogonLog _log;
@@ -34,9 +33,8 @@ public class ScripShopItemManager
         try
         {
             _log.Debug($"Loading {_scripFileLink}");
-            using var http = new HttpClient();
 
-            var text = await http.GetStringAsync(_scripFileLink);
+            var text = await _http.GetStringAsync(_scripFileLink);
             ShopItems = JsonSerializer.Deserialize<List<ScripShopItem>>(text) ?? new();
         }
         catch (Exception ex)
@@ -102,8 +100,6 @@ public class ScripShopItemManager
 
         if (specialShopIds.Count == 0) return;
 
-        var counts = new Dictionary<uint, Dictionary<uint, int>>();
-
         foreach (var id in specialShopIds)
         {
             var ss = specialShopSheet.GetRow(id);
@@ -111,55 +107,26 @@ public class ScripShopItemManager
 
             foreach (var entry in ss.Item)
             {
-                var currencies = entry.ItemCosts
-                    .Select(x => x.ItemCost.RowId)
-                    .Where(x => x != 0)
-                    .Distinct()
-                    .ToArray();
-
-                if (currencies.Length == 0) continue;
-
-                var rewards = entry.ReceiveItems
-                    .Select(x => x.Item.RowId)
-                    .Where(x => x != 0 && targets.Contains(x))
-                    .Distinct()
-                    .ToArray();
-
-                if (rewards.Length == 0) continue;
-
-                foreach (var reward in rewards)
+                uint scripCurrency = 0;
+                foreach (var cost in entry.ItemCosts)
                 {
-                    if (!counts.TryGetValue(reward, out var byCur))
-                        counts[reward] = byCur = new Dictionary<uint, int>();
-
-                    foreach (var cur in currencies)
+                    var normalized = CurrencyHelper.NormalizeScripCurrencyId(cost.ItemCost.RowId);
+                    if (normalized != 0)
                     {
-                        byCur.TryGetValue(cur, out var n);
-                        byCur[cur] = n + 1;
+                        scripCurrency = normalized;
+                        break;
                     }
                 }
-            }
-        }
 
-        foreach (var kv in counts)
-        {
-            var reward = kv.Key;
-            var byCur = kv.Value;
+                if (scripCurrency == 0) continue;
 
-            uint bestCur = 0;
-            var bestHits = -1;
-
-            foreach (var c in byCur)
-            {
-                if (c.Value > bestHits || (c.Value == bestHits && c.Key < bestCur))
+                foreach (var received in entry.ReceiveItems)
                 {
-                    bestCur = c.Key;
-                    bestHits = c.Value;
+                    var rewardId = received.Item.RowId;
+                    if (rewardId == 0 || !targets.Contains(rewardId)) continue;
+                    resolved.TryAdd(rewardId, scripCurrency);
                 }
             }
-
-            if (bestCur != 0)
-                resolved[reward] = bestCur;
         }
     }
 

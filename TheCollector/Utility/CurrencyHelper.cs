@@ -8,7 +8,30 @@ namespace TheCollector.Utility;
 
 public static class CurrencyHelper
 {
-    private static Dictionary<uint, RunSource>? _runSourceByCurrency;
+    public const uint WhiteCrafterScripItemId   = 33913;
+    public const uint WhiteGathererScripItemId  = 33914;
+    public const uint PurpleCrafterScripItemId  = 41784;
+    public const uint PurpleGathererScripItemId = 41785;
+
+    private static readonly Dictionary<uint, uint> ScripIdAliases = new()
+    {
+        [2] = WhiteCrafterScripItemId,
+        [4] = WhiteGathererScripItemId,
+        [6] = PurpleCrafterScripItemId,
+        [7] = PurpleGathererScripItemId,
+        [WhiteCrafterScripItemId]   = WhiteCrafterScripItemId,
+        [WhiteGathererScripItemId]  = WhiteGathererScripItemId,
+        [PurpleCrafterScripItemId]  = PurpleCrafterScripItemId,
+        [PurpleGathererScripItemId] = PurpleGathererScripItemId,
+    };
+
+    private static readonly Dictionary<uint, RunSource> ScripRunSource = new()
+    {
+        [WhiteCrafterScripItemId]   = RunSource.Crafting,
+        [PurpleCrafterScripItemId]  = RunSource.Crafting,
+        [WhiteGathererScripItemId]  = RunSource.Gathering,
+        [PurpleGathererScripItemId] = RunSource.Gathering,
+    };
 
     public static unsafe uint SpecialIdToItemId(uint specialId)
     {
@@ -17,12 +40,15 @@ public static class CurrencyHelper
         return cur->GetItemIdBySpecialId((byte)specialId);
     }
 
-    public static string GetCurrencyName(uint specialId)
+    
+    public static uint NormalizeScripCurrencyId(uint rawId)
+        => ScripIdAliases.GetValueOrDefault(rawId, 0u);
+
+    public static string GetCurrencyName(uint currencyItemId)
     {
-        var itemId = SpecialIdToItemId(specialId);
-        if (itemId == 0) return $"Scrip Type {specialId}";
-        var item = Svc.Data.GetExcelSheet<Item>().GetRowOrDefault(itemId);
-        return item?.Name.ExtractText() ?? $"Scrip Type {specialId}";
+        if (currencyItemId == 0) return "Scrip";
+        var item = Svc.Data.GetExcelSheet<Item>().GetRowOrDefault(currencyItemId);
+        return item?.Name.ExtractText() ?? $"Item {currencyItemId}";
     }
 
     public static uint GetCurrencyIdForItem(uint shopItemId)
@@ -39,78 +65,5 @@ public static class CurrencyHelper
         => jobIndex >= 0 && jobIndex <= 7 ? RunSource.Crafting : RunSource.Gathering;
 
     public static RunSource GetRunSource(uint currencyId)
-    {
-        EnsureRunSourceMap();
-        return _runSourceByCurrency != null && _runSourceByCurrency.TryGetValue(currencyId, out var rs)
-            ? rs
-            : RunSource.Gathering;
-    }
-
-    public static void InvalidateRunSourceMap() => _runSourceByCurrency = null;
-
-    private static void EnsureRunSourceMap()
-    {
-        if (_runSourceByCurrency != null) return;
-
-        var map        = new Dictionary<uint, RunSource>();
-        var roleCounts = new Dictionary<uint, (int crafter, int gatherer)>();
-
-        var recipeSheet     = Svc.Data.GetExcelSheet<Recipe>();
-        var gatheringSheet  = Svc.Data.GetExcelSheet<GatheringItem>();
-        var fishSheet       = Svc.Data.GetExcelSheet<FishParameter>();
-        var spearSheet      = Svc.Data.GetExcelSheet<SpearfishingItem>();
-        var collectableShop = Svc.Data.GetSubrowExcelSheet<CollectablesShopItem>();
-        if (collectableShop == null)
-        {
-            _runSourceByCurrency = map;
-            return;
-        }
-
-        var crafterItemIds  = new HashSet<uint>();
-        var gathererItemIds = new HashSet<uint>();
-
-        if (recipeSheet != null)
-            foreach (var r in recipeSheet)
-                if (r.ItemResult.RowId != 0) crafterItemIds.Add(r.ItemResult.RowId);
-
-        if (gatheringSheet != null)
-            foreach (var g in gatheringSheet)
-                if (g.Item.RowId != 0) gathererItemIds.Add(g.Item.RowId);
-
-        if (fishSheet != null)
-            foreach (var f in fishSheet)
-                if (f.Item.RowId != 0) gathererItemIds.Add(f.Item.RowId);
-
-        if (spearSheet != null)
-            foreach (var s in spearSheet)
-                if (s.Item.RowId != 0) gathererItemIds.Add(s.Item.RowId);
-
-        foreach (var row in collectableShop)
-        foreach (var sub in row)
-        {
-            var rewardScrip = sub.CollectablesShopRewardScrip.ValueNullable;
-            if (rewardScrip == null) continue;
-
-            var specialId = rewardScrip.Value.Currency;
-            if (specialId == 0) continue;
-
-            var currencyItemId = SpecialIdToItemId(specialId);
-            if (currencyItemId == 0) continue;
-
-            var itemId = sub.Item.RowId;
-            if (itemId == 0) continue;
-
-            roleCounts.TryGetValue(currencyItemId, out var counts);
-            if (crafterItemIds.Contains(itemId))
-                counts.crafter++;
-            else if (gathererItemIds.Contains(itemId))
-                counts.gatherer++;
-            roleCounts[currencyItemId] = counts;
-        }
-
-        foreach (var (currency, counts) in roleCounts)
-            map[currency] = counts.crafter > counts.gatherer ? RunSource.Crafting : RunSource.Gathering;
-
-        _runSourceByCurrency = map;
-    }
+        => ScripRunSource.GetValueOrDefault(NormalizeScripCurrencyId(currencyId), RunSource.Gathering);
 }

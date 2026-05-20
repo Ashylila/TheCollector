@@ -111,7 +111,9 @@ public class ScripPlannerService
                 var highReward = reward.Value.HighReward;
                 if (highReward <= 0) continue;
 
-                var specialId = reward.Value.Currency;
+                var currencyItemId = CurrencyHelper.SpecialIdToItemId(reward.Value.Currency);
+                if (currencyItemId == 0) continue;
+
                 var itemName = sub.Item.Value.Name.ExtractText();
                 if (string.IsNullOrEmpty(itemName)) continue;
 
@@ -119,10 +121,10 @@ public class ScripPlannerService
                 if (!classLevelByItemId.TryGetValue(sub.Item.RowId, out var classLevel) || classLevel == 0)
                     continue;
 
-                if (!_collectablesByCurrency.TryGetValue(specialId, out var list))
+                if (!_collectablesByCurrency.TryGetValue(currencyItemId, out var list))
                 {
                     list = new List<CollectableInfo>();
-                    _collectablesByCurrency[specialId] = list;
+                    _collectablesByCurrency[currencyItemId] = list;
                 }
 
                 // Skip duplicates — keep the entry with the highest reward
@@ -150,7 +152,7 @@ public class ScripPlannerService
                     HighReward = highReward,
                     MidReward = reward.Value.MidReward,
                     LowReward = reward.Value.LowReward,
-                    CurrencyType = specialId,
+                    CurrencyType = currencyItemId,
                     IsFish = isFish,
                     Level = classLevel
                 });

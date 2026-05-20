@@ -9,6 +9,7 @@ using OtterGui.Widgets;
 using TheCollector.CollectableManager;
 using TheCollector.Data;
 using TheCollector.Data.Models;
+using TheCollector.Utility;
 using TheCollector.Windows;
 
 namespace TheCollector;
@@ -56,8 +57,32 @@ public class Configuration : IPluginConfiguration
             changed |= Migrate_TerritoryId(PreferredCollectableShop);
             Version = 3;
         }
+        if (Version < 4)
+        {
+            changed |= Migrate_ScripsSpentKeys();
+            Version = 4;
+        }
         if (changed) Save();
         return changed;
+    }
+
+    private bool Migrate_ScripsSpentKeys()
+    {
+        if (TotalScripsSpent.Count == 0) return false;
+
+        var migrated = new Dictionary<uint, int>(TotalScripsSpent.Count);
+        var changed = false;
+        foreach (var (key, value) in TotalScripsSpent)
+        {
+            var newKey = CurrencyHelper.NormalizeScripCurrencyId(key);
+            if (newKey == 0) newKey = key;
+            if (newKey != key) changed = true;
+            migrated.TryGetValue(newKey, out var prev);
+            migrated[newKey] = prev + value;
+        }
+        if (!changed) return false;
+        TotalScripsSpent = migrated;
+        return true;
     }
 
     private bool Migrate_TerritoryId(CollectableShop shop)
