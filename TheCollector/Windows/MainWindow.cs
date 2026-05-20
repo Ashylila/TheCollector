@@ -24,10 +24,11 @@ public partial class MainWindow : Window, IDisposable
     private readonly PlogonLog _log;
     private readonly ScripPlannerService _plannerService;
     private readonly AutomationHandler _automationHandler;
+    private readonly DiscordWebhookService _discord;
     private ScripShopItem? SelectedScripItem = null;
 
     public MainWindow(Plugin plugin, IDalamudPluginInterface pluginInterface, PlogonLog log,
-        ScripPlannerService plannerService, AutomationHandler automationHandler)
+        ScripPlannerService plannerService, AutomationHandler automationHandler, DiscordWebhookService discord)
         : base("The Collector##CollectorMain", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse)
     {
         SizeConstraints = new WindowSizeConstraints
@@ -38,6 +39,7 @@ public partial class MainWindow : Window, IDisposable
         _log = log;
         _plannerService = plannerService;
         _automationHandler = automationHandler;
+        _discord = discord;
         configuration = plugin.Configuration;
         this.pluginInterface = pluginInterface;
     }

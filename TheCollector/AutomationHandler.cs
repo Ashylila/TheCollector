@@ -29,6 +29,7 @@ public class AutomationHandler : IDisposable
     private readonly AutoRetainerManager _autoretainerManager;
     private readonly DeliverooManager _deliverooManager;
     private readonly ScripPlannerService _plannerService;
+    private readonly DiscordWebhookService _discord;
     public bool IsRunning => _pipelineRegistry.All.Any(p => p.IsRunning);
 
     public int SessionCollectablesTurnedIn { get; private set; }
@@ -43,7 +44,7 @@ public class AutomationHandler : IDisposable
     private const int HardFailThreshold = 2;
 
     public AutomationHandler(
-        PlogonLog log, CollectableAutomationHandler collectableAutomationHandler, Configuration config, ScripShopAutomationHandler scripShopAutomationHandler, IChatGui chatGui, GatherbuddyReborn_IPCSubscriber gatherbuddyReborn_IPCSubscriber, ArtisanWatcher artisanWatcher, IFramework framework, FishingWatcher fishingWatcher, CraftingHandler craftingHandler, PipelineRegistry registry, AutoRetainerManager retainer, DeliverooManager deliveroo, ScripPlannerService plannerService)
+        PlogonLog log, CollectableAutomationHandler collectableAutomationHandler, Configuration config, ScripShopAutomationHandler scripShopAutomationHandler, IChatGui chatGui, GatherbuddyReborn_IPCSubscriber gatherbuddyReborn_IPCSubscriber, ArtisanWatcher artisanWatcher, IFramework framework, FishingWatcher fishingWatcher, CraftingHandler craftingHandler, PipelineRegistry registry, AutoRetainerManager retainer, DeliverooManager deliveroo, ScripPlannerService plannerService, DiscordWebhookService discord)
     {
         _log = log;
         _gatherbuddyReborn_IPCSubscriber = gatherbuddyReborn_IPCSubscriber;
@@ -59,6 +60,7 @@ public class AutomationHandler : IDisposable
         _autoretainerManager = retainer;
         _deliverooManager = deliveroo;
         _plannerService = plannerService;
+        _discord = discord;
     }
 
     public void Init()
@@ -126,6 +128,7 @@ public class AutomationHandler : IDisposable
         _config.HardFailReason = reason;
         _config.Save();
         _chatGui.PrintError($"Automation stopped: {reason}", "TheCollector");
+        _discord.Notify(DiscordEvent.HardFail, $"❌ TheCollector hard-failed: {reason}");
         ForceStop(reason);
     }
 
@@ -203,6 +206,7 @@ public class AutomationHandler : IDisposable
         var reason = EvaluateStopConditions();
         if (reason == null) return false;
         _chatGui.Print($"Stop condition met: {reason}", "TheCollector");
+        _discord.Notify(DiscordEvent.StopCondition, $"🛑 TheCollector stopped: {reason}");
         ForceStop(reason);
         return true;
     }
@@ -268,6 +272,7 @@ public class AutomationHandler : IDisposable
         {
             _chatGui.Print("Purchase list complete! Stopping automation.", "TheCollector");
             _log.Debug("Goal complete — all items purchased. Stopping.");
+            _discord.Notify(DiscordEvent.GoalComplete, "✅ TheCollector: purchase list complete.");
             return;
         }
 
@@ -321,6 +326,7 @@ public class AutomationHandler : IDisposable
     {
         if (capped)
         {
+            _discord.Notify(DiscordEvent.ScripCap, "💰 TheCollector: scrip cap reached, moving to shop.");
             _scripShopAutomationHandler.Start();
         }
     }

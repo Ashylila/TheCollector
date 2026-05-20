@@ -269,6 +269,72 @@ public partial class MainWindow
         }
 
         ImGui.EndDisabled();
+
+        ImGui.Spacing();
+        DrawSettingsDiscord();
+    }
+
+    private void DrawSettingsDiscord()
+    {
+        ImGuiHelper.SectionHeader("Discord Webhook");
+
+        var enabled = configuration.Discord.Enabled;
+        if (ImGui.Checkbox("Send Discord notifications", ref enabled))
+        {
+            configuration.Discord.Enabled = enabled;
+            configuration.Save();
+        }
+
+        ImGui.BeginDisabled(!enabled);
+
+        ImGui.AlignTextToFramePadding();
+        ImGui.TextUnformatted("Webhook URL:");
+        ImGui.SameLine();
+        var url = configuration.Discord.WebhookUrl ?? "";
+        ImGui.SetNextItemWidth(-90);
+        if (ImGui.InputText("##discordurl", ref url, 256, ImGuiInputTextFlags.Password))
+        {
+            configuration.Discord.WebhookUrl = url;
+            configuration.Save();
+        }
+        ImGui.SameLine();
+        if (ImGui.Button("Test##discord", new Vector2(80, 0)))
+            _ = _discord.TestAsync();
+        if (ImGui.IsItemHovered())
+            ImGui.SetTooltip("Posts a test message to verify the webhook works.");
+
+        ImGui.Spacing();
+        ImGui.TextDisabled("Notify on:");
+
+        var notifyHardFail = configuration.Discord.NotifyOnHardFail;
+        if (ImGui.Checkbox("Hard fail", ref notifyHardFail))
+        {
+            configuration.Discord.NotifyOnHardFail = notifyHardFail;
+            configuration.Save();
+        }
+
+        var notifyGoal = configuration.Discord.NotifyOnGoalComplete;
+        if (ImGui.Checkbox("Goal complete (purchase list done)", ref notifyGoal))
+        {
+            configuration.Discord.NotifyOnGoalComplete = notifyGoal;
+            configuration.Save();
+        }
+
+        var notifyStop = configuration.Discord.NotifyOnStopCondition;
+        if (ImGui.Checkbox("Stop condition met", ref notifyStop))
+        {
+            configuration.Discord.NotifyOnStopCondition = notifyStop;
+            configuration.Save();
+        }
+
+        var notifyCap = configuration.Discord.NotifyOnScripCap;
+        if (ImGui.Checkbox("Scrip cap reached", ref notifyCap))
+        {
+            configuration.Discord.NotifyOnScripCap = notifyCap;
+            configuration.Save();
+        }
+
+        ImGui.EndDisabled();
     }
 
     private void DrawSettingsTiming()

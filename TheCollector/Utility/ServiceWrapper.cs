@@ -49,6 +49,7 @@ public static class ServiceWrapper
         collection.AddSingleton<FishingWatcher>();
         
         collection.AddSingleton<PlogonLog>();
+        collection.AddSingleton<DiscordWebhookService>();
         collection.AddSingleton<ScripShopItemManager>();
         collection.AddSingleton<CraftingHandler>();
         collection.AddSingleton<ScripPlannerService>();
