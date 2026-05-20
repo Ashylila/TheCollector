@@ -59,9 +59,11 @@ public class ScripPlannerService
                 _collectablesByCurrency.TryGetValue(summary.CurrencyId, out var collectables))
             {
                 summary.Collectables = collectables;
-                var filtered = _config.Goal.HideFishingCollectables
-                    ? collectables.Where(c => !c.IsFish)
-                    : collectables;
+                IEnumerable<CollectableInfo> filtered = collectables;
+                if (_config.Goal.HideFishingCollectables)
+                    filtered = filtered.Where(c => !c.IsFish);
+                if (_config.Goal.HideUnobtainableCollectables)
+                    filtered = filtered.Where(IsObtainable);
                 var best = filtered.OrderByDescending(c => c.HighReward).FirstOrDefault();
                 if (best != null && best.HighReward > 0)
                 {
@@ -97,7 +99,7 @@ public class ScripPlannerService
         if (_collectablesByCurrency != null) return;
         _collectablesByCurrency = new Dictionary<uint, List<CollectableInfo>>();
 
-        var classLevelByItemId = BuildClassLevelMap();
+        var classMap = BuildClassMap();
 
         var sheet = _dataManager.GetSubrowExcelSheet<CollectablesShopItem>();
         if (sheet == null) return;
@@ -118,7 +120,7 @@ public class ScripPlannerService
                 if (string.IsNullOrEmpty(itemName)) continue;
 
                 // Only include items with a resolved crafting/gathering level
-                if (!classLevelByItemId.TryGetValue(sub.Item.RowId, out var classLevel) || classLevel == 0)
+                if (!classMap.TryGetValue(sub.Item.RowId, out var classEntry) || classEntry.Level == 0)
                     continue;
 
                 if (!_collectablesByCurrency.TryGetValue(currencyItemId, out var list))
@@ -154,16 +156,42 @@ public class ScripPlannerService
                     LowReward = reward.Value.LowReward,
                     CurrencyType = currencyItemId,
                     IsFish = isFish,
-                    Level = classLevel
+                    Level = classEntry.Level,
+                    JobId = classEntry.JobId
                 });
             }
     }
 
-    private Dictionary<uint, ushort> BuildClassLevelMap()
+    private Dictionary<uint, ClassMapEntry> BuildClassMap()
     {
-        var map = new Dictionary<uint, ushort>();
+        var map = new Dictionary<uint, ClassMapEntry>();
 
-        // Crafted items: Recipe → RecipeLevelTable.ClassJobLevel
+        // Pre-resolve MIN/BTN job for each GatheringItem via GatheringPointBase → GatheringType
+        var gpbSheet = _dataManager.GetExcelSheet<GatheringPointBase>();
+        var gatherJobByGI = new Dictionary<uint, sbyte>();
+        if (gpbSheet != null)
+        {
+            foreach (var gpb in gpbSheet)
+            {
+                var typeId = gpb.GatheringType.RowId;
+                sbyte job = typeId switch
+                {
+                    0 or 1 or 6 => 8,  // MIN
+                    2 or 3 or 5 => 9,  // BTN
+                    4 or 7      => 10, // FSH
+                    _           => (sbyte)-1,
+                };
+                if (job < 0) continue;
+                for (int i = 0; i < gpb.Item.Count; i++)
+                {
+                    var giRowId = (uint)gpb.Item[i].RowId;
+                    if (giRowId == 0) continue;
+                    gatherJobByGI.TryAdd(giRowId, job);
+                }
+            }
+        }
+
+        // Crafted items: Recipe → RecipeLevelTable.ClassJobLevel + Recipe.CraftType
         var recipeSheet = _dataManager.GetExcelSheet<Recipe>();
         if (recipeSheet != null)
         {
@@ -172,11 +200,12 @@ public class ScripPlannerService
                 var resultId = recipe.ItemResult.RowId;
                 if (resultId == 0 || map.ContainsKey(resultId)) continue;
                 var lvl = recipe.RecipeLevelTable.Value.ClassJobLevel;
-                if (lvl > 0) map[resultId] = lvl;
+                if (lvl > 0)
+                    map[resultId] = new ClassMapEntry(lvl, (sbyte)recipe.CraftType.RowId);
             }
         }
 
-        // Gathered items: GatheringItem → GatheringItemLevel
+        // Gathered items: GatheringItem → GatheringItemLevel + job via gatherJobByGI
         var gatheringSheet = _dataManager.GetExcelSheet<GatheringItem>();
         if (gatheringSheet != null)
         {
@@ -187,11 +216,13 @@ public class ScripPlannerService
                 var levelData = gi.GatheringItemLevel.ValueNullable;
                 if (levelData == null) continue;
                 var lvl = levelData.Value.GatheringItemLevel;
-                if (lvl > 0) map[itemId] = (ushort)lvl;
+                if (lvl <= 0) continue;
+                var job = gatherJobByGI.TryGetValue(gi.RowId, out var j) ? j : (sbyte)-1;
+                map[itemId] = new ClassMapEntry((ushort)lvl, job);
             }
         }
 
-        // Fish: FishParameter → GatheringItemLevel
+        // Fish: FishParameter → GatheringItemLevel (FSH = 10)
         var fishSheet = _dataManager.GetExcelSheet<FishParameter>();
         if (fishSheet != null)
         {
@@ -202,11 +233,11 @@ public class ScripPlannerService
                 var levelData = fish.GatheringItemLevel.ValueNullable;
                 if (levelData == null) continue;
                 var lvl = levelData.Value.GatheringItemLevel;
-                if (lvl > 0) map[itemId] = (ushort)lvl;
+                if (lvl > 0) map[itemId] = new ClassMapEntry((ushort)lvl, 10);
             }
         }
 
-        // Spearfishing: SpearfishingItem → GatheringItemLevel
+        // Spearfishing: SpearfishingItem → GatheringItemLevel (FSH = 10)
         var spearSheet = _dataManager.GetExcelSheet<SpearfishingItem>();
         if (spearSheet != null)
         {
@@ -217,14 +248,33 @@ public class ScripPlannerService
                 var levelData = sf.GatheringItemLevel.ValueNullable;
                 if (levelData == null) continue;
                 var lvl = levelData.Value.GatheringItemLevel;
-                if (lvl > 0) map[itemId] = (ushort)lvl;
+                if (lvl > 0) map[itemId] = new ClassMapEntry((ushort)lvl, 10);
             }
         }
 
         return map;
     }
 
+    public static bool IsObtainable(CollectableInfo c)
+    {
+        if (c.JobId < 0) return true; // unknown job → don't gate
+        var playerLevel = PlayerHelper.GetLevelForCollectableJob(c.JobId);
+        if (playerLevel <= 0) return false;
+        return playerLevel >= c.Level;
+    }
+
     public void InvalidateCache() => _collectablesByCurrency = null;
+
+    private readonly struct ClassMapEntry
+    {
+        public readonly ushort Level;
+        public readonly sbyte JobId;
+        public ClassMapEntry(ushort level, sbyte jobId)
+        {
+            Level = level;
+            JobId = jobId;
+        }
+    }
 }
 
 public class PlanSummary
@@ -264,4 +314,6 @@ public class CollectableInfo
     public uint CurrencyType { get; set; }
     public bool IsFish { get; set; }
     public ushort Level { get; set; }
+    // 0-7 = DoH CraftType (CRP..CUL), 8 = MIN, 9 = BTN, 10 = FSH, -1 = unknown
+    public sbyte JobId { get; set; } = -1;
 }

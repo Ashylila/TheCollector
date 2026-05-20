@@ -160,8 +160,10 @@ public partial class MainWindow
                 ImGui.TableSetupColumn("##Recipe",          ImGuiTableColumnFlags.WidthFixed | ImGuiTableColumnFlags.NoSort, 60f);
                 ImGui.TableHeadersRow();
 
+                bool hideUnobtainable = configuration.Goal.HideUnobtainableCollectables;
                 var filtered = cs.Collectables
                     .Where(c => (!hideFish || !c.IsFish) &&
+                                (!hideUnobtainable || ScripPlannerService.IsObtainable(c)) &&
                                 (string.IsNullOrEmpty(_collectableFilter) ||
                                  c.Name.Contains(_collectableFilter, StringComparison.OrdinalIgnoreCase)));
 
@@ -197,7 +199,18 @@ public partial class MainWindow
                     ImGui.TableNextRow();
 
                     ImGui.TableSetColumnIndex(0);
-                    ImGui.TextDisabled($"{col.Level}");
+                    var playerLvl = PlayerHelper.GetLevelForCollectableJob(col.JobId);
+                    bool levelMet = col.JobId < 0 || (playerLvl > 0 && playerLvl >= col.Level);
+                    if (levelMet)
+                        ImGui.TextDisabled($"{col.Level}");
+                    else
+                    {
+                        ImGui.TextColored(UiTheme.Danger, $"{col.Level}");
+                        if (ImGui.IsItemHovered())
+                            ImGui.SetTooltip(playerLvl > 0
+                                ? $"Requires level {col.Level} (you are {playerLvl})."
+                                : $"Requires level {col.Level} on the matching job.");
+                    }
 
                     ImGui.TableSetColumnIndex(1);
                     ImGui.AlignTextToFramePadding();

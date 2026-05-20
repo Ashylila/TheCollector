@@ -315,5 +315,14 @@ public partial class MainWindow
             configuration.Goal.HideFishingCollectables = hideFish;
             configuration.Save();
         }
+
+        var hideUnobtainable = configuration.Goal.HideUnobtainableCollectables;
+        if (ImGui.Checkbox("Hide collectables above your job level", ref hideUnobtainable))
+        {
+            configuration.Goal.HideUnobtainableCollectables = hideUnobtainable;
+            configuration.Save();
+        }
+        if (ImGui.IsItemHovered())
+            ImGui.SetTooltip("Filters the planner to only show collectables you can\nactually gather or craft. Also gates the 'best' pick.");
     }
 }

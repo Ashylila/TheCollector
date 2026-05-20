@@ -10,6 +10,7 @@ using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Client.UI.Misc;
+using Lumina.Excel.Sheets;
 
 namespace TheCollector.Utility;
 
@@ -121,6 +122,31 @@ public static class PlayerHelper
     internal static unsafe float GetDesynthLevel(uint classJobId)
     {
         return PlayerState.Instance()->GetDesynthesisLevel(classJobId);
+    }
+
+    internal static unsafe short GetClassJobLevel(uint classJobRowId)
+    {
+        var sheet = Svc.Data.GetExcelSheet<ClassJob>();
+        if (sheet == null) return 0;
+        try
+        {
+            var row = sheet.GetRow(classJobRowId);
+            var idx = row.ExpArrayIndex;
+            if (idx < 0 || idx >= 32) return 0;
+            return PlayerState.Instance()->ClassJobLevels[idx];
+        }
+        catch
+        {
+            return 0;
+        }
+    }
+
+    // jobId convention: 0-7 = DoH CraftType (CRP..CUL), 8 = MIN, 9 = BTN, 10 = FSH.
+    // Maps to ClassJob.RowId = jobId + 8 (CRP=8 .. FSH=18).
+    internal static short GetLevelForCollectableJob(sbyte jobId)
+    {
+        if (jobId < 0) return 0;
+        return GetClassJobLevel((uint)(jobId + 8));
     }
     
 
