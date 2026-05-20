@@ -38,6 +38,15 @@ public class ChangelogUi : IUiService
         Add_0_5_3(Changelog);
         Add_0_5_5(Changelog);
         Add_0_5_8(Changelog);
+        Add_0_6_0(Changelog);
+    }
+    private void Add_0_6_0(Changelog log)
+    {
+        log.NextVersion("Version 0.6.0")
+            .RegisterHighlight("Refreshed the UI styling across the main, planner, and settings tabs")
+            .RegisterHighlight("Split the purchase list into separate Gathering and Crafting tabs")
+            .RegisterEntry("Added a hard-fail banner that halts automation when something goes wrong")
+            .RegisterEntry("Added a reserve scrip floor so purchases leave a configurable amount unspent");
     }
     private void Add_0_5_8(Changelog log)
     {
