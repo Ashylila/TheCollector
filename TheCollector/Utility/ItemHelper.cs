@@ -51,4 +51,17 @@ public static class ItemHelper
         return luminaItems;
     }
 
+    public static Dictionary<uint, int> GetCollectableInventoryCounts()
+    {
+        var map = new Dictionary<uint, int>();
+        foreach (var inv in GetCurrentInventoryItems())
+        {
+            if (!inv.IsCollectable) continue;
+            if (inv.BaseItemId == 0) continue;
+            map.TryGetValue(inv.BaseItemId, out var prev);
+            map[inv.BaseItemId] = prev + inv.Quantity;
+        }
+        return map;
+    }
+
 }

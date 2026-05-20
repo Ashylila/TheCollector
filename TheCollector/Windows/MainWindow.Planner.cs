@@ -56,6 +56,12 @@ public partial class MainWindow
                     ImGui.SameLine();
                     ImGui.TextDisabled($"(~{cs.EstimatedTurnIns} turn-ins via {cs.BestCollectable.Name})");
                 }
+                if (cs.InventoryScripsValue > 0)
+                {
+                    var carried = Math.Min(cs.InventoryScripsValue, cs.TotalScripsNeeded);
+                    ImGui.TextColored(UiTheme.Success,
+                        $"  {carried:N0} {currName} already covered by inventory collectables");
+                }
             }
         });
     }
@@ -223,6 +229,13 @@ public partial class MainWindow
                         ImGuiHelper.Chip("best", UiTheme.Success);
                         if (ImGui.IsItemHovered())
                             ImGui.SetTooltip("Most efficient collectable for this currency.");
+                    }
+                    if (plan.InventoryByItemId.TryGetValue(col.ItemId, out var invCount) && invCount > 0)
+                    {
+                        ImGui.SameLine();
+                        ImGuiHelper.Chip($"{invCount} in inv", UiTheme.Accent);
+                        if (ImGui.IsItemHovered())
+                            ImGui.SetTooltip($"{invCount} held — will be turned in before gathering more.");
                     }
 
                     ImGui.TableSetColumnIndex(2);

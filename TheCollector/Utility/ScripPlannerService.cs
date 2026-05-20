@@ -24,6 +24,7 @@ public class ScripPlannerService
     {
         EnsureCollectablesLoaded();
 
+        var inventory = ItemHelper.GetCollectableInventoryCounts();
         var byCurrency = new Dictionary<uint, CurrencySummary>();
         var itemBreakdowns = new List<ItemBreakdown>();
 
@@ -59,6 +60,16 @@ public class ScripPlannerService
                 _collectablesByCurrency.TryGetValue(summary.CurrencyId, out var collectables))
             {
                 summary.Collectables = collectables;
+
+                // Inventory holdings claimable for this currency, valued at each collectable's HighReward
+                int holdingsValue = 0;
+                foreach (var c in collectables)
+                {
+                    if (!inventory.TryGetValue(c.ItemId, out var count) || count <= 0) continue;
+                    holdingsValue += count * c.HighReward;
+                }
+                summary.InventoryScripsValue = holdingsValue;
+
                 IEnumerable<CollectableInfo> filtered = collectables;
                 if (_config.Goal.HideFishingCollectables)
                     filtered = filtered.Where(c => !c.IsFish);
@@ -68,7 +79,8 @@ public class ScripPlannerService
                 if (best != null && best.HighReward > 0)
                 {
                     summary.BestCollectable = best;
-                    summary.EstimatedTurnIns = (int)Math.Ceiling((double)summary.TotalScripsNeeded / best.HighReward);
+                    var remaining = Math.Max(0, summary.TotalScripsNeeded - holdingsValue);
+                    summary.EstimatedTurnIns = (int)Math.Ceiling((double)remaining / best.HighReward);
                 }
             }
         }
@@ -77,6 +89,7 @@ public class ScripPlannerService
         {
             CurrencySummaries = byCurrency.Values.ToList(),
             ItemBreakdowns = itemBreakdowns,
+            InventoryByItemId = inventory,
             IsListComplete = _config.ItemsToPurchase.Count > 0 &&
                              _config.ItemsToPurchase.All(i => i.Quantity > 0 && i.AmountPurchased >= i.Quantity)
         };
@@ -281,6 +294,7 @@ public class PlanSummary
 {
     public List<CurrencySummary> CurrencySummaries { get; set; } = new();
     public List<ItemBreakdown> ItemBreakdowns { get; set; } = new();
+    public Dictionary<uint, int> InventoryByItemId { get; set; } = new();
     public bool IsListComplete { get; set; }
 
     public int TotalScripsNeeded => CurrencySummaries.Sum(c => c.TotalScripsNeeded);
@@ -300,6 +314,7 @@ public class CurrencySummary
     public uint CurrencyId { get; set; }
     public int TotalScripsNeeded { get; set; }
     public int EstimatedTurnIns { get; set; }
+    public int InventoryScripsValue { get; set; }
     public CollectableInfo? BestCollectable { get; set; }
     public List<CollectableInfo> Collectables { get; set; } = new();
 }
