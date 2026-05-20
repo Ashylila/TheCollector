@@ -115,10 +115,40 @@ public class ScripPlannerService
         var classMap = BuildClassMap();
 
         var sheet = _dataManager.GetSubrowExcelSheet<CollectablesShopItem>();
-        if (sheet == null) return;
+        var shopSheet = _dataManager.GetExcelSheet<CollectablesShop>();
+        if (sheet == null || shopSheet == null) return;
 
-        foreach (var row in sheet)
-        foreach (var sub in row)
+        uint canonicalShopRowId = 0;
+        int maxCurrencyCount = 0;
+        foreach (var s in shopSheet)
+        {
+            var currencies = new HashSet<uint>();
+            foreach (var refr in s.ShopItems)
+            {
+                if (refr.RowId == 0) continue;
+                if (!sheet.TryGetRow(refr.RowId, out var refRow)) continue;
+                foreach (var sub in refRow)
+                {
+                    var r = sub.CollectablesShopRewardScrip.ValueNullable;
+                    if (r == null) continue;
+                    if (r.Value.Currency is 2 or 4 or 6 or 7)
+                        currencies.Add(r.Value.Currency);
+                }
+            }
+            if (currencies.Count > maxCurrencyCount)
+            {
+                maxCurrencyCount = currencies.Count;
+                canonicalShopRowId = s.RowId;
+            }
+        }
+        if (canonicalShopRowId == 0) return;
+        if (!shopSheet.TryGetRow(canonicalShopRowId, out var canonical)) return;
+
+        foreach (var refr in canonical.ShopItems)
+        {
+            if (refr.RowId == 0) continue;
+            if (!sheet.TryGetRow(refr.RowId, out var refRow)) continue;
+            foreach (var sub in refRow)
             {
                 var reward = sub.CollectablesShopRewardScrip.ValueNullable;
                 if (reward == null) continue;
@@ -126,15 +156,15 @@ public class ScripPlannerService
                 var highReward = reward.Value.HighReward;
                 if (highReward <= 0) continue;
 
-                var currencyItemId = CurrencyHelper.SpecialIdToItemId(reward.Value.Currency);
-                if (currencyItemId == 0) continue;
-
                 var itemName = sub.Item.Value.Name.ExtractText();
                 if (string.IsNullOrEmpty(itemName)) continue;
 
-                // Only include items with a resolved crafting/gathering level
                 if (!classMap.TryGetValue(sub.Item.RowId, out var classEntry) || classEntry.Level == 0)
                     continue;
+                if (classEntry.JobId < 0) continue;
+
+                var currencyItemId = CurrencyHelper.NormalizeScripCurrencyId(reward.Value.Currency);
+                if (currencyItemId == 0) continue;
 
                 if (!_collectablesByCurrency.TryGetValue(currencyItemId, out var list))
                 {
@@ -173,6 +203,7 @@ public class ScripPlannerService
                     JobId = classEntry.JobId
                 });
             }
+        }
     }
 
     private Dictionary<uint, ClassMapEntry> BuildClassMap()
