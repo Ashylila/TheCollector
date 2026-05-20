@@ -40,13 +40,11 @@ public unsafe class AutoRetainerManager : FrameRunnerPipelineBase
     }
     protected override FrameRunner.Step[] BuildSteps()
     {
-        var destination = _config.PreferredCollectableShop.RetainerBellLoc;
-
         return new[]
         {
             FrameRunner.Delay("InitDelay", TimeSpan.FromSeconds(1)),
-            new FrameRunner.Step("MoveToBell", () => MoveToBell(destination), TimeSpan.FromSeconds(1)),
-            new FrameRunner.Step("IsNearBellCheck", () => IsNearBell(destination), TimeSpan.FromSeconds(20)),
+            new FrameRunner.Step("MoveToBell", MoveToBell, TimeSpan.FromSeconds(1)),
+            new FrameRunner.Step("IsNearBellCheck", IsNearBell, TimeSpan.FromSeconds(20)),
             new FrameRunner.Step("InteractWithBell", InteractWithBell, TimeSpan.FromSeconds(1)),
             new FrameRunner.Step("EngageRetainer", EngageRetainer, TimeSpan.FromSeconds(1)),
             FrameRunner.Delay("StartDelay", TimeSpan.FromSeconds(1)),
@@ -55,15 +53,34 @@ public unsafe class AutoRetainerManager : FrameRunnerPipelineBase
             new FrameRunner.Step("CloseAllAddons", CloseAllAddons, TimeSpan.FromSeconds(5)),
         };
     }
-    private StepResult MoveToBell(Vector3 destination)
+
+    // Bell location used to be hand-coded per shop in Configuration. Now we
+    // discover the nearest summoning bell at runtime via the DataId table
+    // below — same identity used for InteractWithBell, so the move always
+    // ends up next to the bell we're about to ring.
+    private Vector3? GetNearestBellPosition()
     {
-        VNavmesh_IPCSubscriber.SimpleMove_PathfindAndMoveTo(destination, false);
+        var bellId = SummoningBellDataIds(Player.Territory.RowId);
+        if (bellId == uint.MaxValue) return null;
+        var bell = _objects
+            .Where(o => o.BaseId == bellId)
+            .OrderBy(o => Vector3.DistanceSquared(Player.Position, o.Position))
+            .FirstOrDefault();
+        return bell?.Position;
+    }
+
+    private StepResult MoveToBell()
+    {
+        if (GetNearestBellPosition() is not { } dest)
+            return StepResult.Fail($"No known summoning bell in territory {Player.Territory.RowId}.");
+        VNavmesh_IPCSubscriber.SimpleMove_PathfindAndMoveTo(dest, false);
         return StepResult.Success();
     }
 
-    private StepResult IsNearBell(Vector3 loc)
+    private StepResult IsNearBell()
     {
-        if (PlayerHelper.GetDistanceToPlayer(loc) < 1f)
+        if (GetNearestBellPosition() is not { } dest) return StepResult.Continue();
+        if (PlayerHelper.GetDistanceToPlayer(dest) < 1f)
         {
             VNavmesh_IPCSubscriber.Path_Stop();
             return StepResult.Success();

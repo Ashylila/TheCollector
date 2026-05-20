@@ -74,7 +74,7 @@ public partial class MainWindow
             Cell("Artisan",           "Artisan",           required: false);
             Cell("AutoRetainer",      "AutoRetainer",      required: false);
             Cell("Deliveroo",         "Deliveroo",         required: false);
-            Cell("Lifestream",        "Lifestream",        required: false);
+            Cell("Lifestream",        "Lifestream",        required: true);
 
             ImGui.EndTable();
         });
@@ -97,27 +97,31 @@ public partial class MainWindow
     {
         ImGuiHelper.SectionHeader("Collectable Shop");
 
-        string currentShopName = configuration.PreferredCollectableShop.DisplayName ?? "Select a shop";
+        var catalog = ServiceWrapper.Get<VendorCatalog>();
+        var currentTerritory = configuration.PreferredTerritoryId;
+        var currentLabel = currentTerritory == 0
+            ? "Select a territory"
+            : VendorCatalog.GetTerritoryDisplayName(currentTerritory);
+
         ImGui.PushItemWidth(-1);
-        if (ImGui.BeginCombo("##shopselection", currentShopName))
+        if (ImGui.BeginCombo("##shopselection", currentLabel))
         {
-            for (int i = 0; i < CollectableNpcLocations.CollectableShops.Count; i++)
+            foreach (var territoryId in catalog.ServedTerritoryIds)
             {
-                var shop = CollectableNpcLocations.CollectableShops[i];
-                bool lifestreamMissing = shop.IsLifestreamRequired && !IPCSubscriber_Common.IsReady("Lifestream");
-                ImGui.BeginDisabled(shop.Disabled || lifestreamMissing);
+                bool requiresLifestream = TerritoryRouting.RequiresAethernet(territoryId);
+                bool lifestreamMissing = requiresLifestream && !IPCSubscriber_Common.IsReady("Lifestream");
+                ImGui.BeginDisabled(lifestreamMissing);
 
-                string shopLabel = lifestreamMissing
-                    ? $"{shop.DisplayName} (Lifestream required)"
-                    : shop.DisplayName;
+                var label = VendorCatalog.GetTerritoryDisplayName(territoryId);
+                if (lifestreamMissing) label = $"{label} (Lifestream required)";
 
-                if (ImGui.Selectable(shopLabel))
+                if (ImGui.Selectable(label, territoryId == currentTerritory))
                 {
-                    configuration.PreferredCollectableShop = CollectableNpcLocations.CollectableShops[i];
+                    configuration.PreferredTerritoryId = territoryId;
                     configuration.Save();
                 }
                 if (lifestreamMissing && ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
-                    ImGui.SetTooltip("Lifestream plugin is required for this location.");
+                    ImGui.SetTooltip("Lifestream plugin is required to reach this territory.");
 
                 ImGui.EndDisabled();
             }

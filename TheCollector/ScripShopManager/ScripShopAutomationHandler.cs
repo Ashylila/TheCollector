@@ -19,6 +19,7 @@ public partial class ScripShopAutomationHandler
     private readonly IObjectTable _objectTable;
     private readonly ScripShopWindowHandler _scripShopWindowHandler;
     private readonly IDataManager _data;
+    private readonly VendorCatalog _vendorCatalog;
 
     public event Action<Dictionary<uint, int>>? OnFinishedTrading;
 
@@ -29,13 +30,15 @@ public partial class ScripShopAutomationHandler
         Configuration configuration,
         IObjectTable objectTable,
         ScripShopWindowHandler handler,
-        IDataManager data) : base(log, framework)
+        IDataManager data,
+        VendorCatalog vendorCatalog) : base(log, framework)
     {
         _targetManager = targetManager;
         _configuration = configuration;
         _objectTable = objectTable;
         _scripShopWindowHandler = handler;
         _data = data;
+        _vendorCatalog = vendorCatalog;
     }
 
 }

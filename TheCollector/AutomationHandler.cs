@@ -96,9 +96,9 @@ public class AutomationHandler : IDisposable
             _chatGui.PrintError($"Automation halted: {_config.HardFailReason}. Acknowledge it in the main window before retrying.", "TheCollector");
             return;
         }
-        if (_config.PreferredCollectableShop.TerritoryId == default)
+        if (_config.PreferredTerritoryId == 0)
         {
-            _chatGui.PrintError("Please configure your preferred collectable shop in the settings tab!", "TheCollector");
+            _chatGui.PrintError("Please configure your preferred shop territory in the Settings tab!", "TheCollector");
             return;
         }
         if (PlayerHelper.InCombat)

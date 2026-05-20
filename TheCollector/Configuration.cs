@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
 using ECommons.DalamudServices;
-using TheCollector.CollectableManager;
 using TheCollector.Data;
 using TheCollector.Data.Models;
 using TheCollector.Utility;
@@ -32,7 +31,13 @@ public class Configuration : IPluginConfiguration
     public bool CheckForVenturesBetweenRuns { get; set; } = false;
     public bool CheckForDeliverooBetweenRuns { get; set; } = false;
     public ChangeLogDisplayType ChangeLogDisplayType { get; set; } = ChangeLogDisplayType.New;
+
+    // Legacy field kept only so v5 configs can be read and migrated to
+    // PreferredTerritoryId in v6. New code reads PreferredTerritoryId.
     public CollectableShop PreferredCollectableShop { get; set; } = new();
+
+    public uint PreferredTerritoryId { get; set; } = 0;
+
     public ScripGoal Goal { get; set; } = new();
     public StopConditions Stop { get; set; } = new();
     public DiscordNotificationSettings Discord { get; set; } = new();
@@ -72,8 +77,21 @@ public class Configuration : IPluginConfiguration
             changed |= Migrate_MoveItemsToGoal();
             Version = 5;
         }
+        if (Version < 6)
+        {
+            changed |= Migrate_FlattenPreferredTerritoryId();
+            Version = 6;
+        }
         if (changed) Save();
         return changed;
+    }
+
+    private bool Migrate_FlattenPreferredTerritoryId()
+    {
+        if (PreferredTerritoryId != 0) return false;
+        if (PreferredCollectableShop?.TerritoryId is not (uint t and not 0)) return false;
+        PreferredTerritoryId = t;
+        return true;
     }
 
     private bool Migrate_MoveItemsToGoal()
@@ -104,21 +122,7 @@ public class Configuration : IPluginConfiguration
         return true;
     }
 
-    private bool Migrate_TerritoryId(CollectableShop shop)
-    {
-        if (shop == null) return false;
-
-        if(!string.IsNullOrEmpty(shop.Name) && shop.TerritoryId == default )
-        {
-            var newShop = CollectableNpcLocations.CollectableShops.FirstOrDefault(x => x.RetainerBellLoc == shop.RetainerBellLoc);
-            if(newShop == null) return false;
-
-            shop.TerritoryId = newShop.TerritoryId;
-            shop.Name = null;
-            return true;
-        }
-        return false;
-    }
+    private bool Migrate_TerritoryId(CollectableShop _) => false;
 
 
 }

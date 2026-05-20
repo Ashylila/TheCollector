@@ -1,133 +1,164 @@
-using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Text.Json;
-using System.Threading.Tasks;
-using Dalamud.Plugin;
 using ECommons.DalamudServices;
 using Lumina.Excel.Sheets;
 using TheCollector.Data.Models;
 
 namespace TheCollector.Utility;
 
+
 public class ScripShopItemManager
 {
+    public static IReadOnlyList<ScripShopItem> ShopItems { get; private set; } = new List<ScripShopItem>();
+    public static FrozenDictionary<uint, ScripShopItem> ByItemId { get; private set; } =
+        FrozenDictionary<uint, ScripShopItem>.Empty;
 
-    private static readonly HttpClient _http = new();
-    public static List<ScripShopItem> ShopItems = new();
-    public static bool IsLoading { get; private set; }
+
+    public static bool IsLoading => false;
+
     private readonly PlogonLog _log;
-    private readonly IDalamudPluginInterface _pluginInterface;
-    private readonly string _scripFileLink = "https://raw.githubusercontent.com/Ashylila/TheCollector/master/Data/ScripShopItems.json";
 
-    public ScripShopItemManager(PlogonLog log, IDalamudPluginInterface pluginInterface)
+    public ScripShopItemManager(PlogonLog log)
     {
         _log = log;
-        _pluginInterface = pluginInterface;
-        _ = LoadScripItemsAsync();
-    }
-    public async Task LoadScripItemsAsync()
-    {
-        IsLoading = true;
-        try
-        {
-            _log.Debug($"Loading {_scripFileLink}");
-
-            var text = await _http.GetStringAsync(_scripFileLink);
-            ShopItems = JsonSerializer.Deserialize<List<ScripShopItem>>(text) ?? new();
-        }
-        catch (Exception ex)
-        {
-            ShopItems = new();
-            Svc.Log.Error("Failed to fetch file", ex);
-        }
-        finally
-        {
-            IsLoading = false;
-            _log.Debug($"Loaded {ShopItems.Count} items from {_scripFileLink}.");
-            ResolveCurrencyIdsForItems(ShopItems);
-        }
-    }
-    private void ResolveCurrencyIdsForItems(IReadOnlyCollection<ScripShopItem> items)
-    {
-        var targets = items.Select(x => x.ItemId).ToHashSet();
-        if (targets.Count == 0) return;
-
-        var resolved = new Dictionary<uint, uint>(targets.Count);
-
-        ResolveFromInclusionShopSpecialShops(targets, resolved);
-
-        foreach (var it in items)
-        {
-            if (it.CurrencyId == 0 && resolved.TryGetValue(it.ItemId, out var cid))
-                it.CurrencyId = cid;
-        }
-
-        var missing = items.Count(x => x.CurrencyId == 0);
-        if (missing > 0)
-            _log.Error($"CurrencyId resolve: {missing}/{items.Count} items unresolved.");
-        
-
+        BuildFromLumina();
     }
 
-    private void ResolveFromInclusionShopSpecialShops(HashSet<uint> targets, Dictionary<uint, uint> resolved)
+    private void BuildFromLumina()
     {
-        var inclusion = Svc.Data.GetExcelSheet<InclusionShop>();
-        if (inclusion == null) return;
-
-        var specialShopSheet = Svc.Data.GetExcelSheet<SpecialShop>();
-        if (specialShopSheet == null) return;
-
-        var specialShopIds = new HashSet<uint>();
-
-        foreach (var shop in inclusion)
+        var inclusionSheet = Svc.Data.GetExcelSheet<InclusionShop>();
+        var categorySheet  = Svc.Data.GetExcelSheet<InclusionShopCategory>();
+        var seriesSheet    = Svc.Data.GetSubrowExcelSheet<InclusionShopSeries>();
+        var specialSheet   = Svc.Data.GetExcelSheet<SpecialShop>();
+        if (inclusionSheet == null || categorySheet == null || seriesSheet == null || specialSheet == null)
         {
-            for (var c = 0; c < shop.Category.Count; c++)
+            _log.Error("ScripShopCatalog: required Lumina sheets unavailable; catalog will be empty.");
+            return;
+        }
+
+        InclusionShop? canonical = null;
+        var canonicalScripItemCount = 0;
+        foreach (var inclusion in inclusionSheet)
+        {
+            var count = CountScripItems(inclusion, seriesSheet, specialSheet);
+            if (count > canonicalScripItemCount)
             {
-                if (shop.Category[c].RowId == 0) continue;
-
-                var cat = shop.Category[c].Value;
-                for (var s = 0; s < cat.InclusionShopSeries.Value.Count; s++)
-                {
-                    if (cat.InclusionShopSeries.Value[s].RowId == 0) continue;
-
-                    var specialShopId = cat.InclusionShopSeries.Value[s].SpecialShop.RowId;
-                    if (specialShopId != 0) specialShopIds.Add(specialShopId);
-                }
+                canonicalScripItemCount = count;
+                canonical = inclusion;
             }
         }
 
-        if (specialShopIds.Count == 0) return;
-
-        foreach (var id in specialShopIds)
+        if (canonical is not { } canonicalShop || canonicalScripItemCount == 0)
         {
-            var ss = specialShopSheet.GetRow(id);
-            if (ss.RowId == 0) continue;
+            _log.Error("ScripShopCatalog: no InclusionShop with scrip-cost items found.");
+            return;
+        }
 
-            foreach (var entry in ss.Item)
+        var byItemId = new Dictionary<uint, ScripShopItem>();
+        var ordered  = new List<ScripShopItem>();
+
+        for (var pageIndex = 0; pageIndex < canonicalShop.Category.Count; pageIndex++)
+        {
+            var categoryRef = canonicalShop.Category[pageIndex];
+            if (categoryRef.RowId == 0) continue;
+            if (categoryRef.ValueNullable is not { } category) continue;
+
+            var seriesId = category.InclusionShopSeries.RowId;
+            if (seriesId == 0) continue;
+            if (!seriesSheet.TryGetRow(seriesId, out var seriesRow)) continue;
+
+            for (var subRowIndex = 0; subRowIndex < seriesRow.Count; subRowIndex++)
             {
-                uint scripCurrency = 0;
-                foreach (var cost in entry.ItemCosts)
+                var sub = seriesRow[subRowIndex];
+                var subPage = subRowIndex + 1;
+
+                var specialShopRowId = sub.SpecialShop.RowId;
+                if (specialShopRowId == 0) continue;
+                if (!specialSheet.TryGetRow(specialShopRowId, out var shop)) continue;
+
+                foreach (var entry in shop.Item)
                 {
-                    var normalized = CurrencyHelper.NormalizeScripCurrencyId(cost.ItemCost.RowId);
-                    if (normalized != 0)
+                    uint scripCurrency = 0;
+                    uint scripCost     = 0;
+                    foreach (var cost in entry.ItemCosts)
                     {
+                        if (cost.ItemCost.RowId == 0 || cost.CurrencyCost == 0) continue;
+                        var normalized = CurrencyHelper.NormalizeScripCurrencyId(cost.ItemCost.RowId);
+                        if (normalized == 0) continue;
                         scripCurrency = normalized;
+                        scripCost     = (uint)cost.CurrencyCost;
                         break;
                     }
-                }
+                    if (scripCurrency == 0 || scripCost == 0) continue;
 
-                if (scripCurrency == 0) continue;
+                    foreach (var receive in entry.ReceiveItems)
+                    {
+                        var itemId = receive.Item.RowId;
+                        if (itemId == 0) continue;
+                        if (byItemId.ContainsKey(itemId)) continue;
 
-                foreach (var received in entry.ReceiveItems)
-                {
-                    var rewardId = received.Item.RowId;
-                    if (rewardId == 0 || !targets.Contains(rewardId)) continue;
-                    resolved.TryAdd(rewardId, scripCurrency);
+                        var item = new ScripShopItem
+                        {
+                            ItemId     = itemId,
+                            ItemCost   = scripCost,
+                            CurrencyId = scripCurrency,
+                            Page       = pageIndex,
+                            SubPage    = subPage,
+                            Index      = ordered.Count,
+                        };
+                        byItemId[itemId] = item;
+                        ordered.Add(item);
+                    }
                 }
             }
         }
+
+        ShopItems = ordered;
+        ByItemId  = byItemId.ToFrozenDictionary();
+        _log.Debug($"ScripShopCatalog: built {ordered.Count} items from InclusionShop #{canonicalShop.RowId}.");
     }
 
+    private static int CountScripItems(
+        InclusionShop inclusion,
+        Lumina.Excel.SubrowExcelSheet<InclusionShopSeries> seriesSheet,
+        Lumina.Excel.ExcelSheet<SpecialShop> specialSheet)
+    {
+        var count = 0;
+        for (var pageIndex = 0; pageIndex < inclusion.Category.Count; pageIndex++)
+        {
+            var categoryRef = inclusion.Category[pageIndex];
+            if (categoryRef.RowId == 0) continue;
+            if (categoryRef.ValueNullable is not { } category) continue;
+
+            var seriesId = category.InclusionShopSeries.RowId;
+            if (seriesId == 0) continue;
+            if (!seriesSheet.TryGetRow(seriesId, out var seriesRow)) continue;
+
+            for (var subRowIndex = 0; subRowIndex < seriesRow.Count; subRowIndex++)
+            {
+                var specialShopRowId = seriesRow[subRowIndex].SpecialShop.RowId;
+                if (specialShopRowId == 0) continue;
+                if (!specialSheet.TryGetRow(specialShopRowId, out var shop)) continue;
+
+                foreach (var entry in shop.Item)
+                {
+                    var hasScripCost = false;
+                    foreach (var cost in entry.ItemCosts)
+                    {
+                        if (cost.ItemCost.RowId == 0 || cost.CurrencyCost == 0) continue;
+                        if (CurrencyHelper.NormalizeScripCurrencyId(cost.ItemCost.RowId) != 0)
+                        {
+                            hasScripCost = true;
+                            break;
+                        }
+                    }
+                    if (!hasScripCost) continue;
+                    foreach (var receive in entry.ReceiveItems)
+                        if (receive.Item.RowId != 0)
+                            count++;
+                }
+            }
+        }
+        return count;
+    }
 }

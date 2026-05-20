@@ -20,6 +20,7 @@ public partial class CollectableAutomationHandler
     private readonly IClientState _clientState;
     private readonly GatherbuddyReborn_IPCSubscriber _gatherbuddyService;
     private readonly Lifestream_IPCSubscriber _lifestreamIpc;
+    private readonly VendorCatalog _vendorCatalog;
     public event Action<bool>? OnScripsCapped;
     public event System.Action? OnFinishCollecting;
     public event Action<uint, int>? OnScripsEarned;
@@ -37,7 +38,8 @@ public partial class CollectableAutomationHandler
         IClientState clientState,
         GatherbuddyReborn_IPCSubscriber gatherbuddyService,
         Lifestream_IPCSubscriber lifestreamIpc,
-        IPlayerState playerState): base(log, frameWork)
+        IPlayerState playerState,
+        VendorCatalog vendorCatalog): base(log, frameWork)
     {
         _collectibleWindowHandler = collectibleWindowHandler;
         _dataManager = data;
@@ -48,7 +50,8 @@ public partial class CollectableAutomationHandler
         _gatherbuddyService = gatherbuddyService;
         _lifestreamIpc = lifestreamIpc;
         _player = playerState;
-        
+        _vendorCatalog = vendorCatalog;
+
         Init();
     }
 
@@ -63,9 +66,10 @@ public partial class CollectableAutomationHandler
 
     private unsafe void OpenShop()
     {
-        var gameObj = _objectTable.FirstOrDefault(a =>
-            a.Name.TextValue.Contains("collectable", StringComparison.OrdinalIgnoreCase));
+        var vendor = _vendorCatalog.GetCollectableVendor(_configuration.PreferredTerritoryId);
+        if (vendor == null) return;
 
+        var gameObj = _objectTable.FirstOrDefault(o => o.DataId == vendor.DataId);
         if (gameObj == null) return;
 
         VNavmesh_IPCSubscriber.Path_Stop();

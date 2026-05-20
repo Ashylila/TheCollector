@@ -28,8 +28,9 @@ public partial class CollectableAutomationHandler : FrameRunnerPipelineBase
 
     protected override FrameRunner.Step[] BuildSteps()
     {
-        var shopId = _configuration.PreferredCollectableShop.TerritoryId;
-        var target = _configuration.PreferredCollectableShop.Location;
+        var territoryId = _configuration.PreferredTerritoryId;
+        var vendor = _vendorCatalog.GetCollectableVendor(territoryId);
+        var target = vendor?.Position ?? System.Numerics.Vector3.Zero;
 
         var steps = new[]
         {
@@ -45,7 +46,7 @@ public partial class CollectableAutomationHandler : FrameRunnerPipelineBase
                 TimeSpan.FromSeconds(5)),
             new FrameRunner.Step(
                 "TeleportToPreferredShop",
-                () => MakeTeleportTick(shopId),
+                () => MakeTeleportTick(territoryId),
                 TimeSpan.FromSeconds(20),
                 () => _teleportAttempted = false
             ),
@@ -142,10 +143,8 @@ public partial class CollectableAutomationHandler : FrameRunnerPipelineBase
     {
         Plugin.State = PluginState.Teleporting;
         var terSheet = _dataManager.GetExcelSheet<TerritoryType>();
-        
-        var shopDef = CollectableNpcLocations.CollectableShops
-            .FirstOrDefault(s => s.TerritoryId == _configuration.PreferredCollectableShop.TerritoryId);
-        if (_clientState.TerritoryType == territoryId || shopDef is { IsLifestreamRequired: true })
+
+        if (_clientState.TerritoryType == territoryId || TerritoryRouting.RequiresAethernet(territoryId))
             return StepResult.Success();
 
         var territory = terSheet.GetRow(territoryId);
@@ -198,35 +197,27 @@ public partial class CollectableAutomationHandler : FrameRunnerPipelineBase
 
     private bool IsNearShop(Vector3 destination)
     {
-        var playerTer = _clientState.TerritoryType;
-        var ter = _dataManager.GetExcelSheet<TerritoryType>().GetRow(_configuration.PreferredCollectableShop.TerritoryId);
-        if (playerTer == ter.RowId && PlayerHelper.GetDistanceToPlayer(destination) <= 40f)
-        {
-            return true;
-        }
-
-        return false;
+        var territoryId = _configuration.PreferredTerritoryId;
+        if (_clientState.TerritoryType != territoryId) return false;
+        return PlayerHelper.GetDistanceToPlayer(destination) <= 40f;
     }
+
     private StepResult LifestreamCheck()
     {
-        if (IsNearShop(_configuration.PreferredCollectableShop.Location)) return StepResult.Success();
-        var shop = CollectableNpcLocations.CollectableShops
-            .FirstOrDefault(s => s.TerritoryId == _configuration.PreferredCollectableShop.TerritoryId);
-        if (shop is { IsLifestreamRequired: true, LifestreamRootAetheryteId: { } rootId, LifestreamAethernetId: { } aethernetId })
-        {
-            _lifestreamIpc.ExecuteCommand($"debug TaskAetheryteAethernetTeleport {rootId} {aethernetId}");
-        }
+        var territoryId = _configuration.PreferredTerritoryId;
+        var vendor = _vendorCatalog.GetCollectableVendor(territoryId);
+        if (vendor != null && IsNearShop(vendor.Position)) return StepResult.Success();
+
+        if (TerritoryRouting.TryGet(territoryId, out var route))
+            _lifestreamIpc.ExecuteCommand($"debug TaskAetheryteAethernetTeleport {route.RootAetheryteId} {route.AethernetId}");
+
         return StepResult.Success();
     }
+
     private StepResult WaitForLifestream()
     {
-        var shopDef = CollectableNpcLocations.CollectableShops
-            .FirstOrDefault(s => s.TerritoryId == _configuration.PreferredCollectableShop.TerritoryId);
-        if (shopDef is { IsLifestreamRequired: true })
-        {
-            if (_lifestreamIpc.IsBusy())
-                return StepResult.Continue();
-        }
+        if (TerritoryRouting.RequiresAethernet(_configuration.PreferredTerritoryId) && _lifestreamIpc.IsBusy())
+            return StepResult.Continue();
         return StepResult.Success();
     }
     public List<(CollectablesShopItem item, string name, int left, int jobIndex)>? TurnInQueue { get; private set; } = null;

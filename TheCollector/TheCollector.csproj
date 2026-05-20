@@ -25,13 +25,6 @@
 </PropertyGroup>
 
     <ItemGroup>
-        <Content Include="..\Data\ScripShopItems.json">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-            <Visible>false</Visible>
-        </Content>
-    </ItemGroup>
-    <ItemGroup>
       <PackageReference Include="ECommons" Version="3.2.0.16" />
       <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.4" />
       <PackageReference Update="DalamudPackager" Version="15.0.0" />

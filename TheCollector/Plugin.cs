@@ -82,7 +82,7 @@ public sealed class Plugin : IDalamudPlugin
         ServiceWrapper.Get<ArtisanWatcher>();
         _ = ServiceWrapper.Get<ScripShopItemManager>();
         var tracker = ServiceWrapper.Get<CharacterBalanceTracker>();
-        if (Svc.ClientState.IsLoggedIn) tracker.SampleNow();
+        Svc.Framework.RunOnFrameworkThread(() => tracker.SampleNow());
     }
     public void Dispose()
     {

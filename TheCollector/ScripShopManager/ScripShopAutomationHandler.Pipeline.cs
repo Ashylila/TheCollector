@@ -256,13 +256,11 @@ public partial class ScripShopAutomationHandler : FrameRunnerPipelineBase
 
     private StepResult MakeMoveTick()
     {
-        
-        var shop = _configuration.PreferredCollectableShop;
+        var vendor = _vendorCatalog.GetScripVendor(_configuration.PreferredTerritoryId);
+        if (vendor == null)
+            return StepResult.Fail("No scrip vendor known for the preferred territory.");
 
-        if (shop.ScripShopLocation == null)
-            return StepResult.Success();
-
-        var scripLoc = shop.EffectiveScripShopLocation;
+        var scripLoc = vendor.Position;
 
         if ((DateTime.UtcNow - _lastMove).TotalMilliseconds >= 200)
         {
@@ -285,9 +283,10 @@ public partial class ScripShopAutomationHandler : FrameRunnerPipelineBase
     {
         if (_attemptedTarget) return StepResult.Success();
 
-        var gameObj = _objectTable.FirstOrDefault(a =>
-            a.Name.TextValue.Contains("scrip", StringComparison.OrdinalIgnoreCase));
+        var vendor = _vendorCatalog.GetScripVendor(_configuration.PreferredTerritoryId);
+        if (vendor == null) return StepResult.Fail("No scrip vendor known for the preferred territory.");
 
+        var gameObj = _objectTable.FirstOrDefault(o => o.DataId == vendor.DataId);
         if (gameObj == null)
             return StepResult.Continue();
 
