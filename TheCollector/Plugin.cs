@@ -54,7 +54,7 @@ public sealed class Plugin : IDalamudPlugin
         StopUi = ServiceWrapper.Get<StopUi>();
 
         WindowSystem.AddWindow(MainWindow);
-        WindowSystem.AddWindow(ChangelogUi.Changelog);
+        WindowSystem.AddWindow(ChangelogUi.Window);
         WindowSystem.AddWindow(StopUi);
 
 

@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
 using ECommons.DalamudServices;
-using OtterGui.Widgets;
 using TheCollector.CollectableManager;
 using TheCollector.Data;
 using TheCollector.Data.Models;
