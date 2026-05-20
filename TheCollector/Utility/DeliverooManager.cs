@@ -90,11 +90,7 @@ public class DeliverooManager : FrameRunnerPipelineBase
     {
         Plugin.State = PluginState.Teleporting;
 
-        var terSheet = Svc.Data.GetExcelSheet<Lumina.Excel.Sheets.TerritoryType>();
-        var territory = terSheet.GetRow(territoryId);
-        var placeName = territory.PlaceName.Value.Name.ExtractText();
-
-        if (TeleportHelper.TryFindAetheryteByName(placeName, out var aetheryte, out _))
+        if (TeleportHelper.TryFindAetheryteForTerritory(territoryId, Vector3.Zero, out var aetheryte, out _))
         {
             TeleportHelper.Teleport(aetheryte.AetheryteId, aetheryte.SubIndex);
         }

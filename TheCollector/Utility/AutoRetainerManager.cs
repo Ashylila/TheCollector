@@ -40,6 +40,16 @@ public unsafe class AutoRetainerManager : FrameRunnerPipelineBase
     }
     protected override FrameRunner.Step[] BuildSteps()
     {
+
+        if (SummoningBellDataIds(Player.Territory.RowId) == uint.MaxValue)
+        {
+            Log.Debug($"No summoning bell mapped for territory {Player.Territory.RowId}; skipping AutoRetainer.");
+            return new[]
+            {
+                new FrameRunner.Step("SkipAutoRetainer", () => StepResult.Success(), TimeSpan.FromSeconds(1)),
+            };
+        }
+
         return new[]
         {
             FrameRunner.Delay("InitDelay", TimeSpan.FromSeconds(1)),

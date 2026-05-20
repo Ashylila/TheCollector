@@ -269,8 +269,7 @@ public partial class ScripShopAutomationHandler : FrameRunnerPipelineBase
 
             _lastMove = DateTime.UtcNow;
         }
-
-        if (PlayerHelper.GetDistanceToPlayer(scripLoc) <= 0.4f)
+        if (PlayerHelper.GetDistanceToPlayer(scripLoc) <= 3.5f)
         {
             VNavmesh_IPCSubscriber.Path_Stop();
             return StepResult.Success();

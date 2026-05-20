@@ -32,6 +32,15 @@ public partial class CollectableAutomationHandler : FrameRunnerPipelineBase
         var vendor = _vendorCatalog.GetCollectableVendor(territoryId);
         var target = vendor?.Position ?? System.Numerics.Vector3.Zero;
 
+        if (!HasCollectible)
+        {
+            Log.Debug("No collectables in inventory; skipping collectable run.");
+            return new[]
+            {
+                new FrameRunner.Step("SkipCollectableRun", () => StepResult.Success(), TimeSpan.FromSeconds(1)),
+            };
+        }
+
         var steps = new[]
         {
             FrameRunner.Delay("InitialDelay", TimeSpan.FromSeconds(2)),
@@ -151,7 +160,9 @@ public partial class CollectableAutomationHandler : FrameRunnerPipelineBase
 
         if (!_teleportAttempted)
         {
-            if (TeleportHelper.TryFindAetheryteByName(territory.PlaceName.Value.Name.ExtractText(), out var aetheryte, out _))
+            var vendor = _vendorCatalog.GetCollectableVendor(territoryId);
+            var anchor = vendor?.Position ?? System.Numerics.Vector3.Zero;
+            if (TeleportHelper.TryFindAetheryteForTerritory(territoryId, anchor, out var aetheryte, out _))
             {
                 TeleportHelper.Teleport(aetheryte.AetheryteId, aetheryte.SubIndex);
                 _teleportAttempted = true;
@@ -185,7 +196,7 @@ public partial class CollectableAutomationHandler : FrameRunnerPipelineBase
             _lastMove = DateTime.UtcNow;
         }
 
-        if (PlayerHelper.GetDistanceToPlayer(destination) <= 0.4f)
+        if (PlayerHelper.GetDistanceToPlayer(destination) <= 3.5f)
         {
             VNavmesh_IPCSubscriber.Path_Stop();
             Plugin.State = PluginState.Idle;
@@ -321,8 +332,8 @@ public partial class CollectableAutomationHandler : FrameRunnerPipelineBase
     {
         if (!HasCollectible)
         {
-            Log.Debug("No collectables found in inventory, cancelling");
-            return StepResult.Fail("No collectables found in inventory, cancelling");
+            Log.Debug("No collectables in inventory at check time; skipping turn-in.");
+            return StepResult.Success();
         }
         return StepResult.Success();
     }

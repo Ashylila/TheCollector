@@ -98,10 +98,7 @@ public class CraftingHandler : IDisposable
 
     private void TeleportToSafeArea()
     {
-        var nearestAetheryte = _data.GetExcelSheet<Aetheryte>()
-                                    .FirstOrDefault(a => a.Territory.RowId == Player.Territory.RowId).PlaceName.Value.Name
-                                    .ExtractText();
-        if (TeleportHelper.TryFindAetheryteByName(nearestAetheryte, out var info, out var aetherName))
+        if (TeleportHelper.TryFindAetheryteForTerritory(Player.Territory.RowId, Player.Position, out var info, out var aetherName))
         {
             TeleportHelper.Teleport(info.AetheryteId, info.SubIndex);
             _log.Debug($"Teleporting to {aetherName}...");
