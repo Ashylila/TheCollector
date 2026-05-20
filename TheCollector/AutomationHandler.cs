@@ -84,10 +84,11 @@ public class AutomationHandler : IDisposable
 
     private void OnAutoGatherStatusChanged(bool enabled)
     {
-        if (_config.ShouldCraftOnAutogatherChanged && !enabled)
-        {
+        if (enabled) return;
+        if (_config.ShouldCraftOnAutogatherChanged)
             _craftingHandler.ShouldStartCrafting();
-        }
+        else if (_config.CollectOnAutogatherFinish)
+            Invoke();
     }
     public void Invoke()
     {
@@ -324,7 +325,7 @@ public class AutomationHandler : IDisposable
 
     private void OnError(Exception ex)
     {
-        _chatGui.PrintError($"Automation threw an error: {ex.Message}", "TheCollector");
+        TripHardFail(ex.Message);
     }
     private void OnScripCapped(bool capped)
     {

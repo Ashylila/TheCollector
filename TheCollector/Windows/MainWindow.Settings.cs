@@ -147,20 +147,6 @@ public partial class MainWindow
             configuration.Save();
         }
 
-        bool gbrReady = IPCSubscriber_Common.IsReady("GatherBuddyReborn");
-        ImGui.BeginDisabled(!gbrReady);
-
-        var autogatherOnFinish = configuration.EnableAutogatherOnFinish;
-        if (ImGui.Checkbox("Enable Autogather on finish", ref autogatherOnFinish))
-        {
-            configuration.EnableAutogatherOnFinish = autogatherOnFinish;
-            configuration.Save();
-        }
-        if (!gbrReady && ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
-            ImGui.SetTooltip("GatherbuddyReborn is not installed or not ready.");
-
-        ImGui.EndDisabled();
-
         var collectOnFishing = configuration.CollectOnFinishedFishing;
         if (ImGui.Checkbox("Collect on finished fishing", ref collectOnFishing))
         {
@@ -185,9 +171,40 @@ public partial class MainWindow
 
     private void DrawSettingsIntegrations()
     {
+        ImGuiHelper.SectionHeader("GatherBuddyReborn");
+
+        bool gbrReady = IPCSubscriber_Common.IsReady("GatherBuddyReborn");
+        ImGui.BeginDisabled(!gbrReady);
+
+        var autogatherOnFinish = configuration.EnableAutogatherOnFinish;
+        if (ImGui.Checkbox("Enable Autogather on finish", ref autogatherOnFinish))
+        {
+            configuration.EnableAutogatherOnFinish = autogatherOnFinish;
+            configuration.Save();
+        }
+        if (!gbrReady && ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
+            ImGui.SetTooltip("GatherbuddyReborn is not installed or not ready.");
+
+        bool craftOnAutogatherActive = configuration.ShouldCraftOnAutogatherChanged;
+        ImGui.BeginDisabled(craftOnAutogatherActive);
+        var collectOnAutogather = configuration.CollectOnAutogatherFinish;
+        if (ImGui.Checkbox("Turn in collectables on autogather finish", ref collectOnAutogather))
+        {
+            configuration.CollectOnAutogatherFinish = collectOnAutogather;
+            configuration.Save();
+        }
+        if (craftOnAutogatherActive && ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
+            ImGui.SetTooltip("Disabled while \"Craft selected Artisan list on autogather finish\" is enabled (Artisan section).");
+        else if (!gbrReady && ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
+            ImGui.SetTooltip("GatherbuddyReborn is not installed or not ready.");
+        ImGui.EndDisabled();
+
+        ImGui.EndDisabled();
+
+        ImGui.Spacing();
         ImGuiHelper.SectionHeader("Artisan");
 
-        bool artisanGbrReady = IPCSubscriber_Common.IsReady("GatherBuddyReborn");
+        bool artisanGbrReady = gbrReady;
         bool artisanReady = IPCSubscriber_Common.IsReady("Artisan");
         bool artisanSectionReady = artisanGbrReady && artisanReady;
         string? artisanDisabledReason = !artisanReady && !artisanGbrReady
@@ -200,14 +217,19 @@ public partial class MainWindow
 
         ImGui.BeginDisabled(!artisanSectionReady);
 
+        bool collectOnAutogatherActiveArtisan = configuration.CollectOnAutogatherFinish;
+        ImGui.BeginDisabled(collectOnAutogatherActiveArtisan);
         var craftOnAutogather = configuration.ShouldCraftOnAutogatherChanged;
         if (ImGui.Checkbox("Craft selected Artisan list on autogather finish", ref craftOnAutogather))
         {
             configuration.ShouldCraftOnAutogatherChanged = craftOnAutogather;
             configuration.Save();
         }
-        if (artisanDisabledReason != null && ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
+        if (collectOnAutogatherActiveArtisan && ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
+            ImGui.SetTooltip("Disabled while \"Turn in collectables on autogather finish\" is enabled (GatherBuddyReborn section).");
+        else if (artisanDisabledReason != null && ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
             ImGui.SetTooltip(artisanDisabledReason);
+        ImGui.EndDisabled();
 
         ImGui.BeginDisabled(!craftOnAutogather);
 
