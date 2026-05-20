@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using Dalamud.Game.Text.SeStringHandling;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using TheCollector.Utility;
@@ -20,12 +18,23 @@ public unsafe class TurninWindow(AtkUnitBase* addon) : TreeListWindowBase(addon)
     public override int GetItemIndexOf(string label)
     {
         Log.Debug($"GetItemIndexOf({label})");
-        var trimmedLabels = Labels.Where(l => !l.Contains("Lv.", StringComparison.OrdinalIgnoreCase)).ToArray();
-        for (var i = 0; i < trimmedLabels.Length; i++)
+        var leafIndex = 0;
+        for (var i = 0; i < Labels.Length; i++)
         {
-            var current = trimmedLabels[i];
-            if (current.Contains(label, StringComparison.OrdinalIgnoreCase))
-                return i;
+            var item = Items[i].Value;
+            if (item == null)
+                continue;
+
+            var rawType = item->UIntValues.Count > 0 ? item->UIntValues[0] : 0u;
+            var itemType = (AtkComponentTreeListItemType)(rawType & 0xF);
+            if (itemType == AtkComponentTreeListItemType.GroupHeader ||
+                itemType == AtkComponentTreeListItemType.CollapsibleGroupHeader)
+                continue;
+
+            if (Labels[i].Contains(label, StringComparison.OrdinalIgnoreCase))
+                return leafIndex;
+
+            leafIndex++;
         }
 
         return -1;
