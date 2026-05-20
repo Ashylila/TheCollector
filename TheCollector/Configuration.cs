@@ -18,6 +18,9 @@ namespace TheCollector;
 public class Configuration : IPluginConfiguration
 {
     public int Version { get; set; } = 0;
+
+    // Legacy field, read only by Migrate_MoveItemsToGoal. After v5 migration it
+    // is emptied and the shopping list lives at Goal.ItemsToPurchase.
     public List<ItemToPurchase> ItemsToPurchase { get; set; } = new List<ItemToPurchase>();
     public bool EnableAutogatherOnFinish { get; set; } = false;
     public bool CollectOnFinishCraftingList { get; set; } = false;
@@ -64,8 +67,22 @@ public class Configuration : IPluginConfiguration
             changed |= Migrate_ScripsSpentKeys();
             Version = 4;
         }
+        if (Version < 5)
+        {
+            changed |= Migrate_MoveItemsToGoal();
+            Version = 5;
+        }
         if (changed) Save();
         return changed;
+    }
+
+    private bool Migrate_MoveItemsToGoal()
+    {
+        if (ItemsToPurchase.Count == 0) return false;
+        if (Goal.ItemsToPurchase.Count > 0) { ItemsToPurchase.Clear(); return true; }
+        Goal.ItemsToPurchase = ItemsToPurchase;
+        ItemsToPurchase = new List<ItemToPurchase>();
+        return true;
     }
 
     private bool Migrate_ScripsSpentKeys()

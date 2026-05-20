@@ -267,7 +267,7 @@ public class AutomationHandler : IDisposable
         }
         _config.Save();
         if (_config.ResetEachQuantityAfterCompletingList)
-            ResetIfAllComplete(_config.ItemsToPurchase);
+            ResetIfAllComplete(_config.Goal.ItemsToPurchase);
         if (_config.Goal.StopGatheringWhenComplete && _plannerService.IsGoalComplete())
         {
             _chatGui.Print("Purchase list complete! Stopping automation.", "TheCollector");

@@ -43,7 +43,7 @@ public partial class MainWindow
             ImGuiHelper.SectionHeader("Add Item");
 
             bool alreadyAdded = SelectedScripItem != null &&
-                                configuration.ItemsToPurchase.Any(i => i.Item.ItemId == SelectedScripItem.ItemId);
+                                configuration.Goal.ItemsToPurchase.Any(i => i.Item.ItemId == SelectedScripItem.ItemId);
 
             var style = ImGui.GetStyle();
             float buttonWidth = ImGui.CalcTextSize("+").X + style.FramePadding.X * 2;
@@ -84,7 +84,7 @@ public partial class MainWindow
             ImGui.BeginDisabled(SelectedScripItem == null || alreadyAdded);
             if (ImGui.Button("+##AddBtn"))
             {
-                configuration.ItemsToPurchase.Add(new ItemToPurchase
+                configuration.Goal.ItemsToPurchase.Add(new ItemToPurchase
                 {
                     Item = SelectedScripItem!,
                     Quantity = 1
@@ -104,7 +104,7 @@ public partial class MainWindow
 
     private void DrawItemsList(RunSource source)
     {
-        var rows = configuration.ItemsToPurchase
+        var rows = configuration.Goal.ItemsToPurchase
             .Select((item, index) => (item, index))
             .Where(t => CurrencyHelper.GetRunSource(CurrencyHelper.GetCurrencyIdForItem(t.item.Item.ItemId)) == source)
             .ToList();
@@ -140,7 +140,7 @@ public partial class MainWindow
                 ImGui.TableSetColumnIndex(0);
                 if (ImGuiHelper.DangerButton($"x##Remove{originalIndex}", new Vector2(22, 22)))
                 {
-                    configuration.ItemsToPurchase.RemoveAt(originalIndex);
+                    configuration.Goal.ItemsToPurchase.RemoveAt(originalIndex);
                     configuration.Save();
                     break;
                 }
@@ -189,7 +189,7 @@ public partial class MainWindow
                 else if (ImGui.InputInt($"##Qty{originalIndex}", ref qty, 0, 0))
                 {
                     item.Quantity = Math.Max(0, qty);
-                    configuration.ItemsToPurchase[originalIndex] = item;
+                    configuration.Goal.ItemsToPurchase[originalIndex] = item;
                     configuration.Save();
                 }
                 ImGui.PopItemWidth();

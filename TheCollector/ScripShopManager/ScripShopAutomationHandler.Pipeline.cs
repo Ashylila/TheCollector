@@ -120,7 +120,7 @@ public partial class ScripShopAutomationHandler : FrameRunnerPipelineBase
     {
         var activeSource = _configuration.ActiveRunSource;
         _buyQueue =
-            (from i in _configuration.ItemsToPurchase
+            (from i in _configuration.Goal.ItemsToPurchase
              join s in ScripShopItemManager.ShopItems on i.Item.ItemId equals s.ItemId
              let remaining = i.Quantity - i.AmountPurchased
              where i.Quantity > 0 && remaining > 0
@@ -231,7 +231,7 @@ public partial class ScripShopAutomationHandler : FrameRunnerPipelineBase
                     _scripsSpentThisCycle.TryGetValue(h.currencyId, out var prev);
                     _scripsSpentThisCycle[h.currencyId] = prev + h.cost * _currentPurchaseAmount;
 
-                    var cfgItem = _configuration.ItemsToPurchase.FirstOrDefault(x => x.Item.ItemId == h.itemId);
+                    var cfgItem = _configuration.Goal.ItemsToPurchase.FirstOrDefault(x => x.Item.ItemId == h.itemId);
                     if (cfgItem != null)
                     {
                         cfgItem.AmountPurchased += Math.Max(0, _currentPurchaseAmount);

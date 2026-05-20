@@ -21,7 +21,7 @@ public partial class MainWindow
 
     private void DrawPlannerTab()
     {
-        if (configuration.ItemsToPurchase.Count == 0)
+        if (configuration.Goal.ItemsToPurchase.Count == 0)
         {
             ImGui.TextDisabled("Add items to your purchase list on the Main tab to see the plan.");
             return;

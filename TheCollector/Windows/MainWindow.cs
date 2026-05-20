@@ -150,10 +150,10 @@ public partial class MainWindow : Window, IDisposable
             ImGui.TextUnformatted(label);
             ImGui.PopStyleColor();
 
-            if (configuration.ItemsToPurchase.Count > 0)
+            if (configuration.Goal.ItemsToPurchase.Count > 0)
             {
-                int completed = configuration.ItemsToPurchase.Count(i => i.Quantity > 0 && i.AmountPurchased >= i.Quantity);
-                int total     = configuration.ItemsToPurchase.Count;
+                int completed = configuration.Goal.ItemsToPurchase.Count(i => i.Quantity > 0 && i.AmountPurchased >= i.Quantity);
+                int total     = configuration.Goal.ItemsToPurchase.Count;
                 var chipColor = completed == total ? UiTheme.Success : UiTheme.Accent;
 
                 var summary = $"{completed}/{total} done";

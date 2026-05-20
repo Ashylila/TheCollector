@@ -28,7 +28,7 @@ public class ScripPlannerService
         var byCurrency = new Dictionary<uint, CurrencySummary>();
         var itemBreakdowns = new List<ItemBreakdown>();
 
-        foreach (var item in _config.ItemsToPurchase)
+        foreach (var item in _config.Goal.ItemsToPurchase)
         {
             var remaining = Math.Max(0, item.Quantity - item.AmountPurchased);
             var scripCost = remaining * (int)item.Item.ItemCost;
@@ -90,8 +90,8 @@ public class ScripPlannerService
             CurrencySummaries = byCurrency.Values.ToList(),
             ItemBreakdowns = itemBreakdowns,
             InventoryByItemId = inventory,
-            IsListComplete = _config.ItemsToPurchase.Count > 0 &&
-                             _config.ItemsToPurchase.All(i => i.Quantity > 0 && i.AmountPurchased >= i.Quantity)
+            IsListComplete = _config.Goal.ItemsToPurchase.Count > 0 &&
+                             _config.Goal.ItemsToPurchase.All(i => i.Quantity > 0 && i.AmountPurchased >= i.Quantity)
         };
     }
 
@@ -100,7 +100,7 @@ public class ScripPlannerService
 
     public bool IsGoalComplete(RunSource source)
     {
-        var items = _config.ItemsToPurchase
+        var items = _config.Goal.ItemsToPurchase
             .Where(i => CurrencyHelper.GetRunSource(CurrencyHelper.GetCurrencyIdForItem(i.Item.ItemId)) == source)
             .ToList();
         if (items.Count == 0) return false;
