@@ -17,7 +17,7 @@
   <RepoUrl>https://github.com/Ashylila/TheCollector</RepoUrl>
   <ApplicableVersion>any</ApplicableVersion>
   <AssemblyVersion>0.6.0.0</AssemblyVersion>
-  <TestingAssemblyVersion>0.5.7</TestingAssemblyVersion>
+  <TestingAssemblyVersion>0.6.1.0</TestingAssemblyVersion>
   <Tags>collectables;automation</Tags>
   <IconUrl>https://raw.githubusercontent.com/Ashylila/TheCollector/refs/heads/master/icon.png</IconUrl>
   <DalamudApiLevel>15</DalamudApiLevel>
