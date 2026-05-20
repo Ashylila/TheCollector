@@ -308,6 +308,7 @@ public partial class CollectableAutomationHandler : FrameRunnerPipelineBase
 
         _collectibleWindowHandler.SubmitItem();
         LastEarnedCurrency = CurrencyHelper.SpecialIdToItemId(currencyId);
+        OnScripsEarned?.Invoke(LastEarnedCurrency.Value, h.item.CollectablesShopRewardScrip.Value.HighReward);
         _lastTurnIn = DateTime.UtcNow;
         _cooldownUntil = _lastTurnIn + UiInteractDelay;
         _turnInPhase = 0;

@@ -307,6 +307,45 @@ public partial class MainWindow
             ImGui.SetTooltip("When enabled, automation will stop instead of\nre-enabling autogather once all items are purchased.");
 
         ImGui.Spacing();
+        ImGuiHelper.SectionHeader("Stop Conditions");
+        ImGui.TextWrapped("Evaluated between turn-in and buy cycles. Counters reset when the plugin reloads.");
+        ImGui.Spacing();
+
+        {
+            var en = configuration.Stop.StopOnScripsEarnedEnabled;
+            var v  = configuration.Stop.MaxScripsEarned;
+            if (DrawStopConditionRow("Stop after scrips earned", ref en, ref v, 100, 1_000_000, 500,
+                "Total scrips estimated earned this session (using HighReward).\nApplies across currencies."))
+            {
+                configuration.Stop.StopOnScripsEarnedEnabled = en;
+                configuration.Stop.MaxScripsEarned = v;
+                configuration.Save();
+            }
+        }
+        {
+            var en = configuration.Stop.StopOnBuyCyclesEnabled;
+            var v  = configuration.Stop.MaxBuyCycles;
+            if (DrawStopConditionRow("Stop after buy cycles", ref en, ref v, 1, 1000, 1,
+                "Number of times the shop has been visited and purchases completed."))
+            {
+                configuration.Stop.StopOnBuyCyclesEnabled = en;
+                configuration.Stop.MaxBuyCycles = v;
+                configuration.Save();
+            }
+        }
+        {
+            var en = configuration.Stop.StopOnSessionTimeEnabled;
+            var v  = configuration.Stop.MaxSessionMinutes;
+            if (DrawStopConditionRow("Stop after session minutes", ref en, ref v, 5, 1440, 5,
+                "Real elapsed minutes since the current session started."))
+            {
+                configuration.Stop.StopOnSessionTimeEnabled = en;
+                configuration.Stop.MaxSessionMinutes = v;
+                configuration.Save();
+            }
+        }
+
+        ImGui.Spacing();
         ImGuiHelper.SectionHeader("Planner");
 
         var hideFish = configuration.Goal.HideFishingCollectables;
@@ -324,5 +363,31 @@ public partial class MainWindow
         }
         if (ImGui.IsItemHovered())
             ImGui.SetTooltip("Filters the planner to only show collectables you can\nactually gather or craft. Also gates the 'best' pick.");
+    }
+
+    private static bool DrawStopConditionRow(string label, ref bool enabled, ref int value,
+        int min, int max, int step, string tooltip)
+    {
+        bool changed = false;
+
+        if (ImGui.Checkbox($"##en_{label}", ref enabled))
+            changed = true;
+        ImGui.SameLine();
+        ImGui.AlignTextToFramePadding();
+        ImGui.TextUnformatted(label);
+        if (ImGui.IsItemHovered())
+            ImGui.SetTooltip(tooltip);
+
+        ImGui.BeginDisabled(!enabled);
+        ImGui.SameLine();
+        ImGui.SetNextItemWidth(120);
+        if (ImGui.InputInt($"##v_{label}", ref value, step, step * 10))
+        {
+            value = Math.Clamp(value, min, max);
+            changed = true;
+        }
+        ImGui.EndDisabled();
+
+        return changed;
     }
 }

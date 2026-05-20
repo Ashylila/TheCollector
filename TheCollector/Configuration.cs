@@ -32,6 +32,7 @@ public class Configuration : IPluginConfiguration
     public ChangeLogDisplayType ChangeLogDisplayType { get; set; } = ChangeLogDisplayType.New;
     public CollectableShop PreferredCollectableShop { get; set; } = new();
     public ScripGoal Goal { get; set; } = new();
+    public StopConditions Stop { get; set; } = new();
     public Dictionary<uint, int> TotalScripsSpent { get; set; } = new();
 
     public const int DefaultUiDelayMs = 300;

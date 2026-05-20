@@ -22,6 +22,7 @@ public partial class CollectableAutomationHandler
     private readonly Lifestream_IPCSubscriber _lifestreamIpc;
     public event Action<bool>? OnScripsCapped;
     public event System.Action? OnFinishCollecting;
+    public event Action<uint, int>? OnScripsEarned;
 
 
 

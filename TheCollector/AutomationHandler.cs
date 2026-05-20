@@ -34,7 +34,10 @@ public class AutomationHandler : IDisposable
     public int SessionCollectablesTurnedIn { get; private set; }
     public int SessionItemsPurchased { get; private set; }
     public Dictionary<uint, int> SessionScripsSpent { get; } = new();
+    public Dictionary<uint, int> SessionScripsEarned { get; } = new();
     public DateTime? SessionStarted { get; private set; }
+
+    public int SessionScripsEarnedTotal => SessionScripsEarned.Values.Sum();
 
     private int _consecutiveEmptyBuyCycles;
     private const int HardFailThreshold = 2;
@@ -63,6 +66,7 @@ public class AutomationHandler : IDisposable
         _collectableAutomationHandler.OnScripsCapped += OnScripCapped;
         _collectableAutomationHandler.OnError += OnError;
         _collectableAutomationHandler.OnFinishCollecting += OnFinishedCollecting;
+        _collectableAutomationHandler.OnScripsEarned += OnScripsEarned;
         _scripShopAutomationHandler.OnError += OnError;
         _scripShopAutomationHandler.OnFinishedTrading += OnFinishedTrading;
         _gatherbuddyReborn_IPCSubscriber.OnAutoGatherStatusChanged += OnAutoGatherStatusChanged;
@@ -165,6 +169,44 @@ public class AutomationHandler : IDisposable
         _pipelineRegistry.StopAll(reason);
     }
 
+    private void OnScripsEarned(uint currencyItemId, int amount)
+    {
+        if (amount <= 0) return;
+        SessionScripsEarned.TryGetValue(currencyItemId, out var prev);
+        SessionScripsEarned[currencyItemId] = prev + amount;
+    }
+
+    private string? EvaluateStopConditions()
+    {
+        var cond = _config.Stop;
+
+        if (cond.StopOnScripsEarnedEnabled && cond.MaxScripsEarned > 0 &&
+            SessionScripsEarnedTotal >= cond.MaxScripsEarned)
+            return $"Reached scrips-earned limit ({SessionScripsEarnedTotal:N0}/{cond.MaxScripsEarned:N0}).";
+
+        if (cond.StopOnBuyCyclesEnabled && cond.MaxBuyCycles > 0 &&
+            SessionItemsPurchased >= cond.MaxBuyCycles)
+            return $"Reached buy-cycle limit ({SessionItemsPurchased}/{cond.MaxBuyCycles}).";
+
+        if (cond.StopOnSessionTimeEnabled && cond.MaxSessionMinutes > 0 && SessionStarted is { } start)
+        {
+            var elapsed = DateTime.UtcNow - start;
+            if (elapsed.TotalMinutes >= cond.MaxSessionMinutes)
+                return $"Reached session-time limit ({(int)elapsed.TotalMinutes}m/{cond.MaxSessionMinutes}m).";
+        }
+
+        return null;
+    }
+
+    private bool TryStopOnConditionMet()
+    {
+        var reason = EvaluateStopConditions();
+        if (reason == null) return false;
+        _chatGui.Print($"Stop condition met: {reason}", "TheCollector");
+        ForceStop(reason);
+        return true;
+    }
+
     private void OnFinishedCollecting()
     {
         SessionCollectablesTurnedIn++;
@@ -178,6 +220,8 @@ public class AutomationHandler : IDisposable
                 _config.Save();
             }
         }
+
+        if (TryStopOnConditionMet()) return;
 
         if (_config.BuyAfterEachCollect)
         {
@@ -226,6 +270,8 @@ public class AutomationHandler : IDisposable
             _log.Debug("Goal complete — all items purchased. Stopping.");
             return;
         }
+
+        if (TryStopOnConditionMet()) return;
 
         if (_collectableAutomationHandler.HasCollectible)
         {
@@ -308,6 +354,7 @@ public class AutomationHandler : IDisposable
         _fishingWatcher.OnFishingFinished -= OnFinishedWatching;
         _collectableAutomationHandler.OnScripsCapped -= OnScripCapped;
         _collectableAutomationHandler.OnFinishCollecting -= OnFinishedCollecting;
+        _collectableAutomationHandler.OnScripsEarned -= OnScripsEarned;
         _autoretainerManager.OnError -= OnError;
         _autoretainerManager.OnRetainerFinish -= OnAutoRetainerFinish;
         _deliverooManager.OnDeliverooFinish -= OnDeliverooFinish;

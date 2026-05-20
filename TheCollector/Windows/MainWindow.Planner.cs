@@ -291,6 +291,13 @@ public partial class MainWindow
             {
                 ImGui.TextUnformatted($"Turn-ins:    {_automationHandler.SessionCollectablesTurnedIn}");
                 ImGui.TextUnformatted($"Buy cycles:  {_automationHandler.SessionItemsPurchased}");
+                ImGui.TextUnformatted($"Scrips earned: {_automationHandler.SessionScripsEarnedTotal:N0}");
+
+                if (_automationHandler.SessionScripsEarned.Count > 0)
+                {
+                    foreach (var (currencyId, amount) in _automationHandler.SessionScripsEarned)
+                        ImGui.TextUnformatted($"  {GetCurrencyName(currencyId)} earned: {amount:N0}");
+                }
 
                 if (_automationHandler.SessionScripsSpent.Count > 0)
                 {
