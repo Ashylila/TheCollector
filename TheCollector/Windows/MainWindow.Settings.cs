@@ -1,8 +1,13 @@
 using System;
+using System.Linq;
 using System.Numerics;
+using System.Reflection;
+using System.Text.Json;
 using Dalamud.Bindings.ImGui;
+using ECommons.DalamudServices;
 using TheCollector.CollectableManager;
 using TheCollector.Ipc;
+using TheCollector.ScripShopManager;
 using TheCollector.Utility;
 
 namespace TheCollector.Windows;
@@ -45,6 +50,13 @@ public partial class MainWindow
             {
                 ImGui.Spacing();
                 DrawSettingsTiming();
+                ImGui.EndTabItem();
+            }
+
+            if (pluginInterface.IsDev && ImGui.BeginTabItem("Debug"))
+            {
+                ImGui.Spacing();
+                DrawSettingsDebug();
                 ImGui.EndTabItem();
             }
 
@@ -481,5 +493,188 @@ public partial class MainWindow
         ImGui.EndDisabled();
 
         return changed;
+    }
+
+    private void DrawSettingsDebug()
+    {
+        var collectable   = ServiceWrapper.Get<CollectableAutomationHandler>();
+        var scripShop     = ServiceWrapper.Get<ScripShopAutomationHandler>();
+        var retainer      = ServiceWrapper.Get<AutoRetainerManager>();
+        var deliveroo     = ServiceWrapper.Get<DeliverooManager>();
+        var vendorCatalog = ServiceWrapper.Get<VendorCatalog>();
+
+        ImGuiHelper.SectionHeader("State");
+
+        if (ImGui.BeginTable("##dbgstate", 2, ImGuiTableFlags.SizingStretchProp))
+        {
+            void Row(string label, string value)
+            {
+                ImGui.TableNextRow();
+                ImGui.TableNextColumn();
+                ImGui.TextDisabled(label);
+                ImGui.TableNextColumn();
+                ImGui.TextUnformatted(value);
+            }
+
+            var terId   = Svc.ClientState.TerritoryType;
+            var terName = VendorCatalog.GetTerritoryDisplayName(terId);
+            var prefId  = configuration.PreferredTerritoryId;
+            var prefName = prefId == 0 ? "<none>" : VendorCatalog.GetTerritoryDisplayName(prefId);
+
+            Row("Plugin state",       Plugin.State.ToString());
+            Row("Territory",          $"{terId} ({terName})");
+            Row("Preferred",          $"{prefId} ({prefName})");
+            Row("Active source",      configuration.ActiveRunSource.ToString());
+            Row("Hard fail",          configuration.HardFailReason ?? "<none>");
+            Row("Config version",     configuration.Version.ToString());
+            Row("Has collectible",    collectable.HasCollectible.ToString());
+            Row("Free inv slots",     ItemHelper.GetFreeInventorySlots().ToString());
+            Row("Automation running", _automationHandler.IsRunning.ToString());
+            Row("  collectable",      collectable.IsRunning.ToString());
+            Row("  scrip shop",       scripShop.IsRunning.ToString());
+            Row("  autoretainer",     retainer.IsRunning.ToString());
+            Row("  deliveroo",        deliveroo.IsRunning.ToString());
+            Row("Session started",    _automationHandler.SessionStarted?.ToLocalTime().ToString("HH:mm:ss") ?? "-");
+            Row("Turn-ins",           _automationHandler.SessionCollectablesTurnedIn.ToString());
+            Row("Items purchased",    _automationHandler.SessionItemsPurchased.ToString());
+            Row("Scrips earned",      _automationHandler.SessionScripsEarnedTotal.ToString());
+            Row("Current item",       collectable.CurrentItemName ?? "-");
+
+            string queueText;
+            if (collectable.TurnInQueue is { Count: > 0 } q)
+            {
+                var preview = string.Join(", ", q.Take(3).Select(t => $"{t.name}×{t.left}"));
+                queueText = q.Count > 3 ? $"{preview}, +{q.Count - 3} more" : preview;
+            }
+            else queueText = "<empty>";
+            Row("Turn-in queue", queueText);
+
+            var cv = vendorCatalog.GetCollectableVendor(prefId);
+            var sv = vendorCatalog.GetScripVendor(prefId);
+            Row("Collectable NPC", cv == null ? "<none>" : $"{cv.Name} @ ({cv.Position.X:F1}, {cv.Position.Y:F1}, {cv.Position.Z:F1})");
+            Row("Scrip NPC",       sv == null ? "<none>" : $"{sv.Name} @ ({sv.Position.X:F1}, {sv.Position.Y:F1}, {sv.Position.Z:F1})");
+
+            ImGui.EndTable();
+        }
+
+        ImGui.Spacing();
+        ImGuiHelper.SectionHeader("Pipelines");
+        ImGui.TextDisabled("Starts the pipeline directly, bypassing the automation cascade.");
+        ImGui.Spacing();
+
+        if (ImGui.Button("Start collectable")) collectable.Start();
+        ImGui.SameLine();
+        if (ImGui.Button("Start scrip shop")) scripShop.Start();
+        ImGui.SameLine();
+        if (ImGui.Button("Start autoretainer")) retainer.Start();
+        ImGui.SameLine();
+        if (ImGui.Button("Start deliveroo")) deliveroo.Start();
+
+        if (ImGui.Button("Force stop all"))
+            _automationHandler.ForceStop("Stopped from debug panel");
+
+        ImGui.Spacing();
+        ImGuiHelper.SectionHeader("Reset");
+
+        bool ctrl = ImGui.GetIO().KeyCtrl;
+        if (!ctrl)
+            ImGui.TextDisabled("Hold Ctrl to enable destructive buttons.");
+        else
+            ImGui.TextColored(UiTheme.Danger, "Ctrl held — buttons are armed.");
+
+        ImGui.BeginDisabled(!ctrl);
+
+        if (ImGui.Button("Clear hard fail"))
+        {
+            configuration.HardFailReason = null;
+            configuration.Save();
+            _log.Debug("Debug: cleared HardFailReason.");
+        }
+        ImGui.SameLine();
+        if (ImGui.Button("Reset session counters"))
+        {
+            ResetSessionCountersDebug();
+            _log.Debug("Debug: reset session counters.");
+        }
+        ImGui.SameLine();
+        if (ImGui.Button("Reset purchased amounts"))
+        {
+            foreach (var i in configuration.Goal.ItemsToPurchase)
+                i.AmountPurchased = 0;
+            configuration.Save();
+            _log.Debug("Debug: reset AmountPurchased on every Goal item.");
+        }
+
+        if (ImGui.Button("Clear character balances"))
+        {
+            configuration.CharacterBalances.Clear();
+            configuration.Save();
+            _log.Debug("Debug: cleared CharacterBalances.");
+        }
+        ImGui.SameLine();
+        if (ImGui.Button("Clear total scrips spent"))
+        {
+            configuration.TotalScripsSpent.Clear();
+            configuration.Save();
+            _log.Debug("Debug: cleared TotalScripsSpent.");
+        }
+
+        ImGui.EndDisabled();
+
+        ImGui.Spacing();
+        ImGuiHelper.SectionHeader("Dump to log");
+
+        var jsonOpts = new JsonSerializerOptions { WriteIndented = true };
+
+        if (ImGui.Button("Vendor catalog"))
+        {
+            var payload = vendorCatalog.AllVendors.Select(v => new
+            {
+                v.DataId, v.Name, v.TerritoryId, v.MapId,
+                Position = new { v.Position.X, v.Position.Y, v.Position.Z },
+                v.IsScripVendor, v.IsCollectableVendor,
+            });
+            _log.Debug($"VendorCatalog ({vendorCatalog.AllVendors.Count} entries):\n{JsonSerializer.Serialize(payload, jsonOpts)}");
+        }
+        ImGui.SameLine();
+        if (ImGui.Button("Turn-in queue"))
+        {
+            if (collectable.TurnInQueue is null) _log.Debug("TurnInQueue: null");
+            else if (collectable.TurnInQueue.Count == 0) _log.Debug("TurnInQueue: empty");
+            else _log.Debug($"TurnInQueue ({collectable.TurnInQueue.Count}):\n" +
+                string.Join("\n", collectable.TurnInQueue.Select(t => $"  {t.name} ×{t.left} (job {t.jobIndex})")));
+        }
+        ImGui.SameLine();
+        if (ImGui.Button("Scrip shop items"))
+        {
+            var payload = ScripShopItemManager.ShopItems.Select(s => new
+            {
+                s.ItemId, name = s.Name, s.Page, s.SubPage, s.ItemCost, s.CurrencyId,
+            });
+            _log.Debug($"ScripShopItems ({ScripShopItemManager.ShopItems.Count}):\n{JsonSerializer.Serialize(payload, jsonOpts)}");
+        }
+        ImGui.SameLine();
+        if (ImGui.Button("Full config"))
+        {
+            _log.Debug($"Configuration:\n{JsonSerializer.Serialize(configuration, jsonOpts)}");
+        }
+    }
+
+    private void ResetSessionCountersDebug()
+    {
+        var t = typeof(AutomationHandler);
+        foreach (var name in new[]
+        {
+            nameof(AutomationHandler.SessionCollectablesTurnedIn),
+            nameof(AutomationHandler.SessionItemsPurchased),
+        })
+            t.GetProperty(name)?.GetSetMethod(nonPublic: true)?.Invoke(_automationHandler, new object[] { 0 });
+
+        t.GetProperty(nameof(AutomationHandler.SessionStarted))
+            ?.GetSetMethod(nonPublic: true)
+            ?.Invoke(_automationHandler, new object?[] { null });
+
+        _automationHandler.SessionScripsSpent.Clear();
+        _automationHandler.SessionScripsEarned.Clear();
     }
 }
