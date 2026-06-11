@@ -18,8 +18,8 @@ public class DeliverooManager : FrameRunnerPipelineBase
     private const uint AftcastleAethernetId = 41;
     private readonly Lifestream_IPCSubscriber _lifestreamIpc;
 
-    public DeliverooManager(PlogonLog log, IFramework framework, Lifestream_IPCSubscriber lifestreamIpc)
-        : base(log, framework)
+    public DeliverooManager(PlogonLog log, IFramework framework, StatusService status, Lifestream_IPCSubscriber lifestreamIpc)
+        : base(log, framework, status)
     {
         _lifestreamIpc = lifestreamIpc;
     }
@@ -27,26 +27,19 @@ public class DeliverooManager : FrameRunnerPipelineBase
     protected override void OnFinished(bool ok)
     {
         base.OnFinished(ok);
-        Plugin.State = PluginState.Idle;
         if (ok) OnDeliverooFinish?.Invoke();
-    }
-
-    protected override void OnCanceledOrFailed(string? error)
-    {
-        base.OnCanceledOrFailed(error);
-        Plugin.State = PluginState.Idle;
     }
 
     protected override void OnStart()
     {
         base.OnStart();
-        Plugin.State = PluginState.Deliveroo;
+        Status.Set(PluginState.Deliveroo);
     }
 
     protected override FrameRunner.Step[] BuildSteps()
     {
-        var gc = PlayerHelper.GetGrandCompany();
-        var gcTerritory = PlayerHelper.GetGrandCompanyTerritoryType(gc);
+        var gc = (uint)Player.GrandCompany;
+        var gcTerritory = PlayerEx.GetGrandCompanyTerritoryType(gc);
         var destination = GetGrandCompanyNpcLocation(gc);
         var needsTeleport = Player.Territory.RowId != gcTerritory;
 
@@ -59,7 +52,7 @@ public class DeliverooManager : FrameRunnerPipelineBase
         {
             steps.Add(new FrameRunner.Step("LifestreamToUpperDecks", () =>
             {
-                if (PlayerHelper.GetDistanceToPlayer(destination) < 40f)
+                if (Player.Territory.RowId == gcTerritory && Player.DistanceTo(destination) < 40f)
                     return StepResult.Success();
                 _lifestreamIpc.ExecuteCommand($"debug TaskAetheryteAethernetTeleport {LimsaRootAetheryteId} {AftcastleAethernetId}");
                 return StepResult.Success();
@@ -76,11 +69,11 @@ public class DeliverooManager : FrameRunnerPipelineBase
             steps.Add(FrameRunner.Delay("PostTeleportDelay", TimeSpan.FromSeconds(3)));
         }
 
-        steps.Add(new FrameRunner.Step("MoveToPersonnelOfficer", () => MoveToNpc(destination), TimeSpan.FromSeconds(1)));
-        steps.Add(new FrameRunner.Step("IsNearPersonnelOfficer", () => IsNearNpc(destination), TimeSpan.FromSeconds(20)));
+        steps.Add(new FrameRunner.Step("MoveToPersonnelOfficer", () => MoveToNpcTick(destination), TimeSpan.FromSeconds(60), ResetMoveThrottle));
         steps.Add(new FrameRunner.Step("EnableDeliveroo", EnableDeliveroo, TimeSpan.FromSeconds(1)));
         steps.Add(FrameRunner.Delay("EngageDelay", TimeSpan.FromSeconds(2)));
-        steps.Add(new FrameRunner.Step("WaitDeliverooFinish", WaitDeliverooFinish, TimeSpan.FromMinutes(10)));
+        steps.Add(new FrameRunner.Step("WaitDeliverooFinish", WaitDeliverooFinish, TimeSpan.FromMinutes(10),
+            () => _deliverooIdleSince = DateTime.MinValue));
         steps.Add(FrameRunner.Delay("PostDelay", TimeSpan.FromSeconds(1)));
 
         return steps.ToArray();
@@ -88,7 +81,7 @@ public class DeliverooManager : FrameRunnerPipelineBase
 
     private StepResult TeleportToGrandCompany(uint territoryId)
     {
-        Plugin.State = PluginState.Teleporting;
+        Status.Set(PluginState.Teleporting);
 
         if (TeleportHelper.TryFindAetheryteForTerritory(territoryId, Vector3.Zero, out var aetheryte, out _))
         {
@@ -99,26 +92,15 @@ public class DeliverooManager : FrameRunnerPipelineBase
 
     private StepResult WaitForTeleport(uint territoryId)
     {
-        if (Player.Territory.RowId == territoryId && PlayerHelper.CanAct)
+        if (Player.Territory.RowId == territoryId && PlayerEx.CanAct)
             return StepResult.Success();
         return StepResult.Continue();
     }
 
-    private StepResult MoveToNpc(Vector3 destination)
+    private StepResult MoveToNpcTick(Vector3 destination)
     {
-        Plugin.State = PluginState.Deliveroo;
-        VNavmesh_IPCSubscriber.SimpleMove_PathfindAndMoveTo(destination, false);
-        return StepResult.Success();
-    }
-
-    private StepResult IsNearNpc(Vector3 loc)
-    {
-        if (PlayerHelper.GetDistanceToPlayer(loc) < 3f)
-        {
-            VNavmesh_IPCSubscriber.Path_Stop();
-            return StepResult.Success();
-        }
-        return StepResult.Continue();
+        Status.Set(PluginState.Deliveroo);
+        return MoveTowardsTick(destination, 3f);
     }
 
     private StepResult EnableDeliveroo()
@@ -127,12 +109,21 @@ public class DeliverooManager : FrameRunnerPipelineBase
         return StepResult.Success();
     }
 
+    private DateTime _deliverooIdleSince = DateTime.MinValue;
+
     private StepResult WaitDeliverooFinish()
     {
         if (Deliveroo_IPCSubscriber.IsTurnInRunning())
         {
+            _deliverooIdleSince = DateTime.MinValue;
             return StepResult.Continue();
         }
+
+        if (_deliverooIdleSince == DateTime.MinValue)
+            _deliverooIdleSince = DateTime.UtcNow;
+        if ((DateTime.UtcNow - _deliverooIdleSince).TotalSeconds < 10)
+            return StepResult.Continue();
+
         Chat.ExecuteCommand("/deliveroo d");
         return StepResult.Success();
     }

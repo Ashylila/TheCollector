@@ -5,6 +5,7 @@ using ECommons.Automation.NeoTaskManager;
 using ECommons.DalamudServices;
 using Microsoft.Extensions.DependencyInjection;
 using TheCollector.CollectableManager;
+using TheCollector.Data;
 using TheCollector.Ipc;
 using TheCollector.ScripShopManager;
 using TheCollector.Windows;
@@ -34,6 +35,8 @@ public static class ServiceWrapper
         
         collection.AddSingleton(plugin);
         collection.AddSingleton(plugin.Configuration);
+
+        collection.AddSingleton<StatusService>();
         
         collection.AddSingleton<CollectableWindowHandler>();
         collection.AddSingleton<ScripShopWindowHandler>();
@@ -71,7 +74,6 @@ public static class ServiceWrapper
         collection.AddSingleton<PipelineRegistry>();
 
         collection.AddSingleton<MainWindow>();
-        collection.AddSingleton<ConfigWindow>();
         collection.AddSingleton<ChangelogUi>();
         collection.AddSingleton<StopUi>();
         

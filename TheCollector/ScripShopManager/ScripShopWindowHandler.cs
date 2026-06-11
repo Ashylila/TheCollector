@@ -228,14 +228,14 @@ public unsafe class ScripShopWindowHandler
         return false;
     }
 
-    public uint ScripCount(uint currencyItemId)
+    public bool TryGetScripCount(uint currencyItemId, out uint count)
     {
-        if (GenericHelpers.TryGetAddonByName("InclusionShop", out AtkUnitBase* addon))
-        {
-            var cur = CurrencyManager.Instance();
-            return cur->GetItemCount(currencyItemId);
-        }
-        return uint.MinValue;
+        count = 0;
+        if (!GenericHelpers.TryGetAddonByName("InclusionShop", out AtkUnitBase* addon))
+            return false;
+        var cur = CurrencyManager.Instance();
+        count = cur->GetItemCount(currencyItemId);
+        return true;
     }
     public void CloseShop()
     {

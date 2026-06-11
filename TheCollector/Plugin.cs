@@ -7,7 +7,6 @@ using Dalamud.Plugin.Services;
 using ECommons;
 using ECommons.DalamudServices;
 using TheCollector.CollectableManager;
-using TheCollector.Data;
 using TheCollector.Ipc;
 using TheCollector.Utility;
 using TheCollector.Windows;
@@ -31,15 +30,12 @@ public sealed class Plugin : IDalamudPlugin
     public Configuration Configuration { get; init; }
 
     public readonly WindowSystem WindowSystem = new("TheCollector");
-    private ConfigWindow ConfigWindow { get; init; }
     private MainWindow MainWindow { get; init; }
     private ChangelogUi ChangelogUi { get; init; }
     private StopUi StopUi { get; init; }
     private readonly AutomationHandler _automationHandler;
     private readonly PlogonLog _log;
 
-    public static PluginState State { get; set; } = PluginState.Idle;
-    public static event Action<bool>? OnCollectorStatusChanged;
     public Plugin()
     {
         Configuration = PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
@@ -49,7 +45,6 @@ public sealed class Plugin : IDalamudPlugin
         ServiceWrapper.Get<IpcProvider>();
 
         MainWindow = ServiceWrapper.Get<MainWindow>();
-        ConfigWindow = ServiceWrapper.Get<ConfigWindow>();
         ChangelogUi = ServiceWrapper.Get<ChangelogUi>();
         StopUi = ServiceWrapper.Get<StopUi>();
 
@@ -86,15 +81,27 @@ public sealed class Plugin : IDalamudPlugin
     }
     public void Dispose()
     {
-        ECommonsMain.Dispose();
-        if(ServiceWrapper.ServiceProvider is IDisposable disposable)
+        // Tear down any in-flight pipeline synchronously — Cancel() waits for a framework
+        // tick that will never come once the plugin is gone, leaking the Update handler.
+        ServiceWrapper.Get<PipelineRegistry>().AbortAll("Plugin unloading");
+
+        PluginInterface.UiBuilder.Draw -= DrawUI;
+        PluginInterface.UiBuilder.OpenConfigUi -= ToggleConfigUI;
+        PluginInterface.UiBuilder.OpenMainUi -= ToggleMainUI;
+        WindowSystem.RemoveAllWindows();
+        CommandManager.RemoveHandler(CommandName);
+
+        if (ServiceWrapper.ServiceProvider is IDisposable disposable)
         {
             disposable.Dispose();
         }
-        WindowSystem.RemoveAllWindows();
 
-        CommandManager.RemoveHandler(CommandName);
-        
+        VNavmesh_IPCSubscriber.Dispose();
+        Autoretainer_IPCSubscriber.Dispose();
+        Deliveroo_IPCSubscriber.Dispose();
+
+        // Everything disposed above still relies on ECommons internals, so this goes last.
+        ECommonsMain.Dispose();
     }
 
     private void OnCommand(string command, string args)
@@ -116,14 +123,14 @@ public sealed class Plugin : IDalamudPlugin
                 _automationHandler.ForceStop("Manually stopped by user");
                 break;
             case "buy":
-            ServiceWrapper.Get<ScripShopAutomationHandler>().Start();
-            break;
+                _automationHandler.InvokeBuy();
+                break;
             default:
                 ToggleMainUI();
                 break;
         }
     }
     private void DrawUI() => WindowSystem.Draw();
-    public void ToggleConfigUI() => ConfigWindow.Toggle();
+    public void ToggleConfigUI() => MainWindow.Toggle();
     public void ToggleMainUI() => MainWindow.Toggle();
 }

@@ -3,6 +3,7 @@ using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Threading.Tasks;
 using ECommons.DalamudServices;
 using Lumina.Data.Files;
 using Lumina.Data.Parsing.Layer;
@@ -15,18 +16,40 @@ namespace TheCollector.Utility;
 
 public class VendorCatalog
 {
-    public IReadOnlyList<VendorNpc> AllVendors { get; } = new List<VendorNpc>();
-    public FrozenDictionary<uint, IReadOnlyList<VendorNpc>> ByTerritory { get; } =
+    public IReadOnlyList<VendorNpc> AllVendors { get; private set; } = new List<VendorNpc>();
+    public FrozenDictionary<uint, IReadOnlyList<VendorNpc>> ByTerritory { get; private set; } =
         FrozenDictionary<uint, IReadOnlyList<VendorNpc>>.Empty;
-    public IReadOnlyList<uint> ServedTerritoryIds { get; } = new List<uint>();
+    public IReadOnlyList<uint> ServedTerritoryIds { get; private set; } = new List<uint>();
 
     private readonly HashSet<uint> _canonicalScripNpcIds = new();
     private readonly PlogonLog _log;
+
+    private volatile bool _isReady;
+    public bool IsReady => _isReady;
 
     public VendorCatalog(PlogonLog log)
     {
         _log = log;
 
+        Task.Run(() =>
+        {
+            try
+            {
+                Build();
+            }
+            catch (Exception ex)
+            {
+                _log.Error(ex, "VendorCatalog: background build failed; catalog will be empty.");
+            }
+            finally
+            {
+                _isReady = true;
+            }
+        });
+    }
+
+    private void Build()
+    {
         var npcBaseSheet     = Svc.Data.GetExcelSheet<ENpcBase>();
         var npcResidentSheet = Svc.Data.GetExcelSheet<ENpcResident>();
         var levelSheet       = Svc.Data.GetExcelSheet<Level>();

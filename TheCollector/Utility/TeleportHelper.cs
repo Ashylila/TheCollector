@@ -12,39 +12,6 @@ public static class TeleportHelper
 {
     private static PlogonLog Logger = new();
 
-    public static unsafe bool TryFindAetheryteByName(string name, out TeleportInfo info, out string aetherName)
-    {
-        info = new TeleportInfo();
-        aetherName = string.Empty;
-        try
-        {
-            var tp = Telepo.Instance();
-            if (tp->UpdateAetheryteList() == null) return false;
-            var tpInfos = tp->TeleportList;
-            foreach (var tpInfo in tpInfos)
-            {
-                var aetheryteName = ServiceWrapper.Get<IDataManager>().GetExcelSheet<Aetheryte>()
-                    .FirstOrDefault(x => x.RowId == tpInfo.AetheryteId).PlaceName.ValueNullable?.Name
-                    .ToString();
-
-                if (string.IsNullOrEmpty(aetheryteName)) continue;
-                if (!aetheryteName.Contains(name, StringComparison.OrdinalIgnoreCase))
-                    continue;
-                info = tpInfo;
-                aetherName = aetheryteName;
-                return true;
-            }
-        }
-        catch (Exception ex)
-        {
-            Logger.Error(ex, "Failed to find teleportInfo");
-            return false;
-        }
-        Logger.Error("Failed to find teleportInfo");
-        return false;
-    }
-
-
     public static unsafe bool TryFindAetheryteForTerritory(
         uint territoryId, Vector3 targetPosition,
         out TeleportInfo info, out string aetherName)

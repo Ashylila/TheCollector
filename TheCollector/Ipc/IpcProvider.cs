@@ -7,13 +7,13 @@ namespace TheCollector.Ipc;
 public class IpcProvider : IDisposable
 {
     private readonly AutomationHandler _automationHandler;
-    private readonly Plugin _plugin;
+    private readonly StatusService _status;
     private readonly EzIPCDisposalToken[] _disposalTokens;
 
-    public IpcProvider(AutomationHandler handler, Plugin plugin)
+    public IpcProvider(AutomationHandler handler, StatusService status)
     {
         _automationHandler = handler;
-        _plugin = plugin;
+        _status = status;
         _disposalTokens = EzIPC.Init(this, Plugin.InternalName);
     }
 
@@ -22,7 +22,7 @@ public class IpcProvider : IDisposable
         _automationHandler.Invoke();
     [EzIPC]
     public string GetStateText() =>
-        Plugin.State.ToString();
+        _status.Current.ToString();
 
     [EzIPC]
     public bool IsRunning() =>

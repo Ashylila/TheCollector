@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Plugin.Services;
 using ECommons.DalamudServices;
 using ECommons.GameHelpers;
@@ -31,6 +32,7 @@ public class AutomationHandler : IDisposable
     private readonly ScripPlannerService _plannerService;
     private readonly DiscordWebhookService _discord;
     private readonly CharacterBalanceTracker _balanceTracker;
+    private readonly VendorCatalog _vendorCatalog;
     public bool IsRunning => _pipelineRegistry.All.Any(p => p.IsRunning);
 
     public int SessionCollectablesTurnedIn { get; private set; }
@@ -45,7 +47,7 @@ public class AutomationHandler : IDisposable
     private const int HardFailThreshold = 2;
 
     public AutomationHandler(
-        PlogonLog log, CollectableAutomationHandler collectableAutomationHandler, Configuration config, ScripShopAutomationHandler scripShopAutomationHandler, IChatGui chatGui, GatherbuddyReborn_IPCSubscriber gatherbuddyReborn_IPCSubscriber, ArtisanWatcher artisanWatcher, IFramework framework, FishingWatcher fishingWatcher, CraftingHandler craftingHandler, PipelineRegistry registry, AutoRetainerManager retainer, DeliverooManager deliveroo, ScripPlannerService plannerService, DiscordWebhookService discord, CharacterBalanceTracker balanceTracker)
+        PlogonLog log, CollectableAutomationHandler collectableAutomationHandler, Configuration config, ScripShopAutomationHandler scripShopAutomationHandler, IChatGui chatGui, GatherbuddyReborn_IPCSubscriber gatherbuddyReborn_IPCSubscriber, ArtisanWatcher artisanWatcher, IFramework framework, FishingWatcher fishingWatcher, CraftingHandler craftingHandler, PipelineRegistry registry, AutoRetainerManager retainer, DeliverooManager deliveroo, ScripPlannerService plannerService, DiscordWebhookService discord, CharacterBalanceTracker balanceTracker, VendorCatalog vendorCatalog)
     {
         _log = log;
         _gatherbuddyReborn_IPCSubscriber = gatherbuddyReborn_IPCSubscriber;
@@ -63,11 +65,11 @@ public class AutomationHandler : IDisposable
         _plannerService = plannerService;
         _discord = discord;
         _balanceTracker = balanceTracker;
+        _vendorCatalog = vendorCatalog;
     }
 
     public void Init()
     {
-        _collectableAutomationHandler.OnScripsCapped += OnScripCapped;
         _collectableAutomationHandler.OnError += OnError;
         _collectableAutomationHandler.OnFinishCollecting += OnFinishedCollecting;
         _collectableAutomationHandler.OnScripsEarned += OnScripsEarned;
@@ -75,6 +77,7 @@ public class AutomationHandler : IDisposable
         _scripShopAutomationHandler.OnFinishedTrading += OnFinishedTrading;
         _gatherbuddyReborn_IPCSubscriber.OnAutoGatherStatusChanged += OnAutoGatherStatusChanged;
         _artisanWatcher.OnCraftingFinished += OnFinishedWatching;
+        _artisanWatcher.OnInventoryFullDuringCrafting += OnArtisanInventoryFull;
         _fishingWatcher.OnFishingFinished += OnFinishedWatching;
         _autoretainerManager.OnRetainerFinish += OnAutoRetainerFinish;
         _autoretainerManager.OnError += OnError;
@@ -90,31 +93,64 @@ public class AutomationHandler : IDisposable
         else if (_config.CollectOnAutogatherFinish)
             Invoke();
     }
-    public void Invoke()
+    public bool Invoke()
     {
+        if (IsRunning)
+        {
+            _log.Debug("Automation is already running; ignoring start request.");
+            return false;
+        }
         if (_config.HardFailReason != null)
         {
             _chatGui.PrintError($"Automation halted: {_config.HardFailReason}. Acknowledge it in the main window before retrying.", "TheCollector");
-            return;
+            return false;
         }
         if (_config.PreferredTerritoryId == 0)
         {
             _chatGui.PrintError("Please configure your preferred shop territory in the Settings tab!", "TheCollector");
-            return;
+            return false;
         }
-        if (PlayerHelper.InCombat)
+        if (!_vendorCatalog.IsReady)
+        {
+            _chatGui.PrintError("Still scanning vendor data — try again in a few seconds.", "TheCollector");
+            return false;
+        }
+        if (Svc.Condition[ConditionFlag.InCombat])
         {
             _chatGui.PrintError("Cannot start automation while in combat.", "TheCollector");
-            return;
+            return false;
         }
-        if (PlayerHelper.IsInDuty)
+        if (PlayerEx.IsInDuty)
         {
             _chatGui.PrintError("Cannot start automation while in a duty.", "TheCollector");
-            return;
+            return false;
         }
         SessionStarted ??= DateTime.UtcNow;
         _consecutiveEmptyBuyCycles = 0;
         _collectableAutomationHandler.Start();
+        return true;
+    }
+
+    public bool InvokeBuy()
+    {
+        if (IsRunning)
+        {
+            _chatGui.PrintError("Automation is already running.", "TheCollector");
+            return false;
+        }
+        if (_config.HardFailReason != null)
+        {
+            _chatGui.PrintError($"Automation halted: {_config.HardFailReason}. Acknowledge it in the main window before retrying.", "TheCollector");
+            return false;
+        }
+        if (!_vendorCatalog.IsReady)
+        {
+            _chatGui.PrintError("Still scanning vendor data — try again in a few seconds.", "TheCollector");
+            return false;
+        }
+        SessionStarted ??= DateTime.UtcNow;
+        _scripShopAutomationHandler.Start();
+        return true;
     }
 
     public void AcknowledgeHardFail()
@@ -149,29 +185,71 @@ public class AutomationHandler : IDisposable
                 throw new ArgumentOutOfRangeException(nameof(watchType), watchType, null);
         }
     }
-    public void OnAutoRetainerFinish()
+
+    private void OnArtisanInventoryFull()
     {
-        if (_config.CheckForDeliverooBetweenRuns
-            && IPCSubscriber_Common.IsReady("Deliveroo"))
+        // The watcher has already stopped Artisan and flagged the pause. If the turn-in
+        // can't actually start (no shop configured, combat, duty, hard-fail), undo the
+        // pause so Artisan keeps crafting and the watcher isn't stuck thinking it owns one.
+        if (!Invoke())
         {
-            _deliverooManager.Start();
+            _artisanWatcher.CancelPause();
             return;
         }
-        if (_config.EnableAutogatherOnFinish)
+        _chatGui.Print("Inventory near full — pausing Artisan to turn collectables in.", "TheCollector");
+    }
+
+
+    private enum PostRunStage { ResumeArtisan, AutoRetainer, Deliveroo, Autogather }
+
+    private bool TryStartStage(PostRunStage stage)
+    {
+        switch (stage)
         {
-            _gatherbuddyReborn_IPCSubscriber.SetAutoGatherEnabled(true);
+            case PostRunStage.ResumeArtisan:
+                if (!_artisanWatcher.IsPausedByUs) return false;
+                _artisanWatcher.ResumeAfterTurnIn();
+                _chatGui.Print("Turn-in done — resuming Artisan list.", "TheCollector");
+                return true;
+
+            case PostRunStage.AutoRetainer:
+                if (!_config.CheckForVenturesBetweenRuns) return false;
+                if (!IPCSubscriber_Common.IsReady("AutoRetainer")) return false;
+                if (!Autoretainer_IPCSubscriber.AreAnyRetainersAvailableForCurrentChara()) return false;
+                _autoretainerManager.Start();
+                return true;
+
+            case PostRunStage.Deliveroo:
+                if (!_config.CheckForDeliverooBetweenRuns) return false;
+                if (!IPCSubscriber_Common.IsReady("Deliveroo")) return false;
+                _deliverooManager.Start();
+                return true;
+
+            case PostRunStage.Autogather:
+                if (!_config.EnableAutogatherOnFinish) return false;
+                _gatherbuddyReborn_IPCSubscriber.SetAutoGatherEnabled(true);
+                return true;
+
+            default:
+                return false;
         }
     }
 
-    public void OnDeliverooFinish()
+    private void RunPostRunCascade(PostRunStage from)
     {
-        if (_config.EnableAutogatherOnFinish)
-        {
-            _gatherbuddyReborn_IPCSubscriber.SetAutoGatherEnabled(true);
-        }
+        for (var stage = from; stage <= PostRunStage.Autogather; stage++)
+            if (TryStartStage(stage)) return;
     }
+
+    public void OnAutoRetainerFinish() => RunPostRunCascade(PostRunStage.Deliveroo);
+
+    public void OnDeliverooFinish() => RunPostRunCascade(PostRunStage.Autogather);
     public void ForceStop(string reason)
     {
+        // If we're mid-turn-in on a self-pause, drop the bookkeeping (leaving Artisan
+        // stopped, since everything is halting) so the watcher isn't permanently stuck.
+        if (_artisanWatcher.IsPausedByUs)
+            _artisanWatcher.AbandonPause();
         _pipelineRegistry.StopAll(reason);
     }
 
@@ -231,30 +309,14 @@ public class AutomationHandler : IDisposable
 
         if (TryStopOnConditionMet()) return;
 
-        if (_config.BuyAfterEachCollect)
+        if (_collectableAutomationHandler.ScripCapReached || _config.BuyAfterEachCollect)
         {
+            if (_collectableAutomationHandler.ScripCapReached)
+                _discord.Notify(DiscordEvent.ScripCap, "💰 TheCollector: scrip cap reached, moving to shop.");
             _scripShopAutomationHandler.Start();
             return;
         }
-        if (_config.CheckForVenturesBetweenRuns
-            && IPCSubscriber_Common.IsReady("AutoRetainer")
-            && Autoretainer_IPCSubscriber.AreAnyRetainersAvailableForCurrentChara())
-        {
-            _autoretainerManager.Start();
-            return;
-        }
-        if (_config.CheckForDeliverooBetweenRuns
-            && IPCSubscriber_Common.IsReady("Deliveroo"))
-        {
-            _deliverooManager.Start();
-            return;
-        }
-
-        if (_config.EnableAutogatherOnFinish)
-        {
-            _gatherbuddyReborn_IPCSubscriber.SetAutoGatherEnabled(true);
-            return;
-        }
+        RunPostRunCascade(PostRunStage.ResumeArtisan);
     }
     private void OnFinishedTrading(Dictionary<uint, int> scripsSpent)
     {
@@ -278,6 +340,10 @@ public class AutomationHandler : IDisposable
             _chatGui.Print("Purchase list complete! Stopping automation.", "TheCollector");
             _log.Debug("Goal complete — all items purchased. Stopping.");
             _discord.Notify(DiscordEvent.GoalComplete, "✅ TheCollector: purchase list complete.");
+            // This run may have started from the Artisan inventory-full pause; drop that
+            // bookkeeping or the watcher stays blind forever (Artisan stays stopped on purpose).
+            if (_artisanWatcher.IsPausedByUs)
+                _artisanWatcher.AbandonPause();
             return;
         }
 
@@ -303,37 +369,12 @@ public class AutomationHandler : IDisposable
             return;
         }
         _consecutiveEmptyBuyCycles = 0;
-        if (_config.CheckForVenturesBetweenRuns
-            && IPCSubscriber_Common.IsReady("AutoRetainer")
-            && Autoretainer_IPCSubscriber.AreAnyRetainersAvailableForCurrentChara())
-        {
-            _autoretainerManager.Start();
-            return;
-        }
-        if (_config.CheckForDeliverooBetweenRuns
-            && IPCSubscriber_Common.IsReady("Deliveroo"))
-        {
-            _deliverooManager.Start();
-            return;
-        }
-        if (_config.EnableAutogatherOnFinish)
-        {
-            _gatherbuddyReborn_IPCSubscriber.SetAutoGatherEnabled(true);
-        }
-
+        RunPostRunCascade(PostRunStage.ResumeArtisan);
     }
 
     private void OnError(Exception ex)
     {
         TripHardFail(ex.Message);
-    }
-    private void OnScripCapped(bool capped)
-    {
-        if (capped)
-        {
-            _discord.Notify(DiscordEvent.ScripCap, "💰 TheCollector: scrip cap reached, moving to shop.");
-            _scripShopAutomationHandler.Start();
-        }
     }
     bool ResetIfAllComplete(IList<ItemToPurchase> items)
     {
@@ -362,8 +403,8 @@ public class AutomationHandler : IDisposable
         _scripShopAutomationHandler.OnFinishedTrading -= OnFinishedTrading;
         _gatherbuddyReborn_IPCSubscriber.OnAutoGatherStatusChanged -= OnAutoGatherStatusChanged;
         _artisanWatcher.OnCraftingFinished -= OnFinishedWatching;
+        _artisanWatcher.OnInventoryFullDuringCrafting -= OnArtisanInventoryFull;
         _fishingWatcher.OnFishingFinished -= OnFinishedWatching;
-        _collectableAutomationHandler.OnScripsCapped -= OnScripCapped;
         _collectableAutomationHandler.OnFinishCollecting -= OnFinishedCollecting;
         _collectableAutomationHandler.OnScripsEarned -= OnScripsEarned;
         _autoretainerManager.OnError -= OnError;

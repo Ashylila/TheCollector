@@ -68,16 +68,15 @@ namespace TheCollector.CollectableManager;
         }
     }
 
-        public uint GetScripCount(uint curType)
+    public bool TryGetScripCount(uint curType, out uint count)
     {
-        if (GenericHelpers.TryGetAddonByName("CollectablesShop", out AtkUnitBase* addon))
-        {
-            var cur = CurrencyManager.Instance();
-
-            var curAmount = cur->GetItemIdBySpecialId((byte)curType);
-            return cur->GetItemCount(curAmount);
-        }
-        return uint.MinValue;
+        count = 0;
+        if (!GenericHelpers.TryGetAddonByName("CollectablesShop", out AtkUnitBase* addon))
+            return false;
+        var cur = CurrencyManager.Instance();
+        var itemId = cur->GetItemIdBySpecialId((byte)curType);
+        count = cur->GetItemCount(itemId);
+        return true;
     }
 
     public unsafe void CloseWindow()

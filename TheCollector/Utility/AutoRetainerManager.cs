@@ -5,6 +5,7 @@ using Dalamud.Plugin.Services;
 using ECommons;
 using ECommons.Automation;
 using ECommons.DalamudServices;
+using ECommons.ExcelServices;
 using ECommons.GameHelpers;
 using FFXIVClientStructs.FFXIV.Client.Game.Control;
 using FFXIVClientStructs.FFXIV.Component.GUI;
@@ -21,8 +22,8 @@ public unsafe class AutoRetainerManager : FrameRunnerPipelineBase
     private IObjectTable _objects;
     public event Action? OnRetainerFinish;
 
-    public AutoRetainerManager(PlogonLog log, IFramework framework, Configuration config, IObjectTable objects)
-           : base(log, framework)
+    public AutoRetainerManager(PlogonLog log, IFramework framework, StatusService status, Configuration config, IObjectTable objects)
+           : base(log, framework, status)
     {
         _config = config;
         _objects = objects;
@@ -36,7 +37,7 @@ public unsafe class AutoRetainerManager : FrameRunnerPipelineBase
     protected override void OnStart()
     {
         base.OnStart();
-        Plugin.State = PluginState.AutoRetainer;
+        Status.Set(PluginState.AutoRetainer);
     }
     protected override FrameRunner.Step[] BuildSteps()
     {
@@ -53,8 +54,7 @@ public unsafe class AutoRetainerManager : FrameRunnerPipelineBase
         return new[]
         {
             FrameRunner.Delay("InitDelay", TimeSpan.FromSeconds(1)),
-            new FrameRunner.Step("MoveToBell", MoveToBell, TimeSpan.FromSeconds(1)),
-            new FrameRunner.Step("IsNearBellCheck", IsNearBell, TimeSpan.FromSeconds(20)),
+            new FrameRunner.Step("MoveToBell", MoveToBellTick, TimeSpan.FromSeconds(60), ResetMoveThrottle),
             new FrameRunner.Step("InteractWithBell", InteractWithBell, TimeSpan.FromSeconds(1)),
             new FrameRunner.Step("EngageRetainer", EngageRetainer, TimeSpan.FromSeconds(1)),
             FrameRunner.Delay("StartDelay", TimeSpan.FromSeconds(1)),
@@ -79,23 +79,13 @@ public unsafe class AutoRetainerManager : FrameRunnerPipelineBase
         return bell?.Position;
     }
 
-    private StepResult MoveToBell()
+    private StepResult MoveToBellTick()
     {
+        // The object table can still be populating right after a zone change;
+        // keep waiting for the bell to appear and let the step timeout backstop it.
         if (GetNearestBellPosition() is not { } dest)
-            return StepResult.Fail($"No known summoning bell in territory {Player.Territory.RowId}.");
-        VNavmesh_IPCSubscriber.SimpleMove_PathfindAndMoveTo(dest, false);
-        return StepResult.Success();
-    }
-
-    private StepResult IsNearBell()
-    {
-        if (GetNearestBellPosition() is not { } dest) return StepResult.Continue();
-        if (PlayerHelper.GetDistanceToPlayer(dest) < 1f)
-        {
-            VNavmesh_IPCSubscriber.Path_Stop();
-            return StepResult.Success();
-        }
-        return StepResult.Continue();
+            return StepResult.Continue();
+        return MoveTowardsTick(dest, 1f);
     }
     private StepResult InteractWithBell()
     {
@@ -138,14 +128,12 @@ public unsafe class AutoRetainerManager : FrameRunnerPipelineBase
         }
         return StepResult.Success();
     }
+    // Callers always pass the *current* territory; the intended-use fallback below
+    // reads the current territory too, so the two stay consistent.
     internal static uint SummoningBellDataIds(uint territoryType)
     {
-        return territoryType switch
+        uint bellId = territoryType switch
         {
-            0 => 2000403, //Inn
-            1 => 196630, //Apartment
-            2 => 196630, //Personal_Home
-            3 => 196630, //FC_Estate
             129 => 2000401, //Limsa_Lominsa_Lower_Decks
             133 => 2000401, //Old_Gridania
             131 => 2000401, //Uldah_Steps_of_Thal
@@ -160,6 +148,14 @@ public unsafe class AutoRetainerManager : FrameRunnerPipelineBase
             1185 => 2000441, //Tuliyollal
             1186 => 2000441, //Nexus_Arcade
             _ => uint.MaxValue
+        };
+        if (bellId != uint.MaxValue) return bellId;
+
+        return Player.TerritoryIntendedUseEnum switch
+        {
+            TerritoryIntendedUseEnum.Inn => 2000403,
+            TerritoryIntendedUseEnum.Housing_Instances or TerritoryIntendedUseEnum.Residential_Area => 196630,
+            _ => uint.MaxValue,
         };
     }
 }

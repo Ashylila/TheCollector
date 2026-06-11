@@ -23,7 +23,7 @@ public static class ItemJobResolver
         // Find item row
         var item = data.GetExcelSheet<Item>()?
             .FirstOrDefault(i => i.Name.ToString().ToLowerInvariant() == itemName);
-        if (item == null)
+        if (item == null || item.Value.RowId == 0)
             return -1;
 
         uint itemId = item.Value.RowId;
@@ -52,6 +52,8 @@ public static class ItemJobResolver
             return -1;
 
         var gi = giSheet.FirstOrDefault(g => g.Item.RowId == itemId);
+        if (gi.RowId == 0)
+            return -1;
 
         var gatherId = gi.RowId;
 

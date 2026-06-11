@@ -12,25 +12,27 @@ using System.Numerics;
 using TheCollector.Utility;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using ECommons;
+using ECommons.GameHelpers;
 
 public partial class CollectableAutomationHandler : FrameRunnerPipelineBase
 {
     public override string Key => "collectables";
     private Dictionary<uint, CollectablesShopItem> _collectableByItemId = new();
-    private readonly IPlayerState _player;
     private const int ScripCap = 4000;
     private TimeSpan UiInteractDelay => TimeSpan.FromMilliseconds(_configuration.UiDelayMs);
-    private DateTime _cooldownUntil;
     public string? CurrentItemName { get; private set; }
     public uint? LastEarnedCurrency { get; private set; }
     private int _currentJobIndex = int.MinValue;
 
+    public bool ScripCapReached { get; private set; }
+
 
     protected override FrameRunner.Step[] BuildSteps()
     {
+        ScripCapReached = false;
         var territoryId = _configuration.PreferredTerritoryId;
         var vendor = _vendorCatalog.GetCollectableVendor(territoryId);
-        var target = vendor?.Position ?? System.Numerics.Vector3.Zero;
+        var target = vendor?.Position ?? Vector3.Zero;
 
         if (!HasCollectible)
         {
@@ -46,7 +48,7 @@ public partial class CollectableAutomationHandler : FrameRunnerPipelineBase
             FrameRunner.Delay("InitialDelay", TimeSpan.FromSeconds(2)),
             new FrameRunner.Step(
                 "CanActCheck",
-                () => PlayerHelper.CanAct ?  StepResult.Success() : StepResult.Continue(),
+                () => PlayerEx.CanAct ?  StepResult.Success() : StepResult.Continue(),
                 TimeSpan.FromSeconds(20),
                         PrimeTurnIn),
             new FrameRunner.Step(
@@ -62,7 +64,7 @@ public partial class CollectableAutomationHandler : FrameRunnerPipelineBase
 
             new FrameRunner.Step(
                 "WaitCanActAfterTeleport",
-                () => PlayerHelper.CanAct ? StepResult.Success() : StepResult.Continue(),
+                () => PlayerEx.CanAct ? StepResult.Success() : StepResult.Continue(),
                 TimeSpan.FromSeconds(20)
             ),
             new FrameRunner.Step(
@@ -78,14 +80,14 @@ public partial class CollectableAutomationHandler : FrameRunnerPipelineBase
             FrameRunner.Delay("PostLifestreamBuffer", TimeSpan.FromSeconds(2)),
             new FrameRunner.Step(
                 "CanActCheck",
-                (() => PlayerHelper.CanAct ? StepResult.Success() : StepResult.Continue() ),
+                () => PlayerEx.CanAct ? StepResult.Success() : StepResult.Continue(),
                 TimeSpan.FromSeconds(10)
                 ),
             new FrameRunner.Step(
                 "MoveToPreferredShop",
                 () => MakeMoveTick(target),
                 TimeSpan.FromSeconds(60),
-                () => _lastMove = DateTime.MinValue
+                ResetMoveThrottle
             ),
 
             new FrameRunner.Step(
@@ -110,11 +112,7 @@ public partial class CollectableAutomationHandler : FrameRunnerPipelineBase
                 TimeSpan.FromSeconds(5)
             ),
 
-            new FrameRunner.Step(
-                "TurnInAllCollectables",
-                () => MakeTurnInTick(),
-                TimeSpan.FromSeconds(150)
-            ),
+            TurnInDriver(),
             FrameRunner.Delay("PostTurnInBuffer", TimeSpan.FromSeconds(1)),
             new FrameRunner.Step(
                 "CloseCollectablesShop",
@@ -134,29 +132,25 @@ public partial class CollectableAutomationHandler : FrameRunnerPipelineBase
     protected override void OnFinished(bool ok)
     {
         base.OnFinished(ok);
-        Plugin.State = PluginState.Idle;
         if(ok)  OnFinishCollecting?.Invoke();
     }
     protected override void OnCanceledOrFailed(string? error)
     {
         base.OnCanceledOrFailed(error);
-        Plugin.State = PluginState.Idle;
         VNavmesh_IPCSubscriber.Path_Stop();
         CurrentItemName = string.Empty;
         TurnInQueue = null;
-        _turnInPhase = 0;
         _collectibleWindowHandler.CloseWindow();
     }
     private bool _teleportAttempted;
     private StepResult MakeTeleportTick(uint territoryId)
     {
-        Plugin.State = PluginState.Teleporting;
         var terSheet = _dataManager.GetExcelSheet<TerritoryType>();
+        var destName = terSheet.GetRow(territoryId).PlaceName.Value.Name.ExtractText();
+        Status.Set(PluginState.Teleporting, $"to {destName}");
 
         if (_clientState.TerritoryType == territoryId || TerritoryRouting.RequiresAethernet(territoryId))
             return StepResult.Success();
-
-        var territory = terSheet.GetRow(territoryId);
 
         if (!_teleportAttempted)
         {
@@ -173,44 +167,22 @@ public partial class CollectableAutomationHandler : FrameRunnerPipelineBase
             }
         }
 
-        var currentName = terSheet
-            .FirstOrDefault(t => t.RowId == _clientState.TerritoryType)
-            .PlaceName.Value.Name.ExtractText();
-        if (string.Equals(currentName, territory.PlaceName.Value.Name.ExtractText(), StringComparison.OrdinalIgnoreCase))
-        {
-            Plugin.State = PluginState.Idle;
-            return StepResult.Success();
-        }
-
+        // The territory check at the top runs every tick and flips to Success once the
+        // teleport lands; place names aren't unique across territories, so don't compare them.
         return StepResult.Continue();
     }
 
-    private DateTime _lastMove;
     private StepResult MakeMoveTick(Vector3 destination)
     {
-        Plugin.State = PluginState.MovingToCollectableVendor;
-        if ((DateTime.UtcNow - _lastMove).TotalMilliseconds >= 200)
-        {
-            if (!VNavmesh_IPCSubscriber.Path_IsRunning())
-                VNavmesh_IPCSubscriber.SimpleMove_PathfindAndMoveTo(destination, false);
-            _lastMove = DateTime.UtcNow;
-        }
-
-        if (PlayerHelper.GetDistanceToPlayer(destination) <= 3.5f)
-        {
-            VNavmesh_IPCSubscriber.Path_Stop();
-            Plugin.State = PluginState.Idle;
-            return StepResult.Success();
-        }
-
-        return StepResult.Continue();
+        Status.Set(PluginState.MovingToCollectableVendor, $"at ({destination.X:0}, {destination.Y:0}, {destination.Z:0})");
+        return MoveTowardsTick(destination);
     }
 
     private bool IsNearShop(Vector3 destination)
     {
         var territoryId = _configuration.PreferredTerritoryId;
         if (_clientState.TerritoryType != territoryId) return false;
-        return PlayerHelper.GetDistanceToPlayer(destination) <= 40f;
+        return Player.DistanceTo(destination) <= 40f;
     }
 
     private StepResult LifestreamCheck()
@@ -232,14 +204,13 @@ public partial class CollectableAutomationHandler : FrameRunnerPipelineBase
         return StepResult.Success();
     }
     public List<(CollectablesShopItem item, string name, int left, int jobIndex)>? TurnInQueue { get; private set; } = null;
-    private DateTime _lastTurnIn;
-    private int _turnInPhase;
 
     private void PrimeTurnIn()
     {
         TurnInQueue = ItemHelper.GetLuminaItemsFromInventory()
                                 .Where(i => i.IsCollectable && _collectableByItemId.ContainsKey(i.RowId))
                                 .GroupBy(i => i.RowId)
+                                .Where(g => _collectableByItemId[g.Key].CollectablesShopRewardScrip.ValueNullable is not null)
                                 .Select(g => (_collectableByItemId[g.Key], _collectableByItemId[g.Key].Item.Value.Name.ExtractText(), g.Count(), int.MinValue))
                                 .ToList();
 
@@ -254,87 +225,134 @@ public partial class CollectableAutomationHandler : FrameRunnerPipelineBase
                 TurnInQueue[i] = item;
             }
         }
-        _lastTurnIn = DateTime.MinValue;
-        _cooldownUntil = DateTime.MinValue;
-        _turnInPhase = 0;
         CurrentItemName = null;
         LastEarnedCurrency = null;
         _currentJobIndex = int.MinValue;
     }
-
-    private StepResult MakeTurnInTick()
-    {
-        Plugin.State = PluginState.ExchangingItems;
-        if (TurnInQueue == null || TurnInQueue.Count == 0)
+    private FrameRunner.Step TurnInDriver() => new(
+        "TurnInAllCollectables",
+        ctx =>
         {
-            Plugin.State = PluginState.Idle;
-            return StepResult.Success();
-        }
-        ;
-        if (DateTime.UtcNow < _cooldownUntil) return StepResult.Continue();
+            Status.Set(PluginState.ExchangingItems);
+            if (TurnInQueue == null || TurnInQueue.Count == 0)
+                return StepResult.Success();
 
-        var h = TurnInQueue[0];
-        if (_turnInPhase < 2)
-        {
+            var h = TurnInQueue[0];
+
+            var currencyId = h.item.CollectablesShopRewardScrip.Value.Currency;
+            if (!_collectibleWindowHandler.TryGetScripCount(currencyId, out var current))
+                return StepResult.Fail("Collectables window closed during turn-in.");
+            var remaining = ScripCap - (int)current;
+            if (h.item.CollectablesShopRewardScrip.Value.HighReward > remaining)
+            {
+                Log.Debug($"Scrip cap reached for currency {currencyId}; skipping {h.name}");
+                ScripCapReached = true;
+                TurnInQueue.RemoveAt(0);
+                ctx.InjectNext(TurnInDriver());
+                return StepResult.Success();
+            }
+
+            var steps = new List<FrameRunner.Step>();
             if (h.jobIndex != int.MinValue && _currentJobIndex != h.jobIndex)
-            {
-                _collectibleWindowHandler.SelectJob((uint)h.jobIndex);
-                _currentJobIndex = h.jobIndex;
-                _cooldownUntil = DateTime.UtcNow + UiInteractDelay;
-                _turnInPhase = 1;
-                return StepResult.Continue();
-            }
-
+                steps.Add(SelectJobStep(h.jobIndex));
             if (!string.Equals(CurrentItemName, h.name, StringComparison.Ordinal))
-            {
-                if(!_collectibleWindowHandler.SelectItem(h.name)) return StepResult.Fail($"Could not select item {h.name}");
-                CurrentItemName = h.name;
-                _cooldownUntil = DateTime.UtcNow + UiInteractDelay;
-                _turnInPhase = 2;
-                return StepResult.Continue();
-            }
+                steps.Add(SelectItemStep(h.name));
+            steps.Add(SubmitItemStep(currencyId));
+            steps.Add(TurnInDriver());
 
-            _cooldownUntil = DateTime.UtcNow + UiInteractDelay;
-            _turnInPhase = 2;
-            return StepResult.Continue();
-        }
-        var currencyId = h.item.CollectablesShopRewardScrip.Value.Currency;
-        var current = _collectibleWindowHandler.GetScripCount(currencyId);
-        var remaining = ScripCap - current;
-
-        if (h.item.CollectablesShopRewardScrip.Value.HighReward > remaining) 
-        {
-            Log.Debug("Scrip cap reached, cancelling");
+            ctx.InjectNext(steps);
             return StepResult.Success();
-        }
+        },
+        TimeSpan.FromSeconds(10));
 
-        _collectibleWindowHandler.SubmitItem();
-        LastEarnedCurrency = CurrencyHelper.SpecialIdToItemId(currencyId);
-        OnScripsEarned?.Invoke(LastEarnedCurrency.Value, h.item.CollectablesShopRewardScrip.Value.HighReward);
-        _lastTurnIn = DateTime.UtcNow;
-        _cooldownUntil = _lastTurnIn + UiInteractDelay;
-        _turnInPhase = 0;
+    private FrameRunner.Step SelectJobStep(int jobIndex)
+        => FireAndSettle(
+            "SelectJob",
+            () =>
+            {
+                _collectibleWindowHandler.SelectJob((uint)jobIndex);
+                _currentJobIndex = jobIndex;
+            },
+            UiInteractDelay,
+            TimeSpan.FromSeconds(5));
 
-        h.left--;
-        if (h.left <= 0)
-        {
-            TurnInQueue.RemoveAt(0);
-            CurrentItemName = null;
-        }
-        else
-        {
-            TurnInQueue[0] = h;
-        }
-        return StepResult.Continue();
+    private FrameRunner.Step SelectItemStep(string name)
+    {
+        var fired = false;
+        DateTime until = default;
+        return new FrameRunner.Step(
+            "SelectItem",
+            () =>
+            {
+                if (!fired)
+                {
+                    if (!_collectibleWindowHandler.SelectItem(name))
+                        return StepResult.Fail($"Could not select item {name}");
+                    CurrentItemName = name;
+                    until = DateTime.UtcNow + UiInteractDelay;
+                    fired = true;
+                }
+                return DateTime.UtcNow >= until ? StepResult.Success() : StepResult.Continue();
+            },
+            TimeSpan.FromSeconds(10));
+    }
+
+    private FrameRunner.Step SubmitItemStep(uint currencyId)
+    {
+        var submitted = false;
+        uint scripsBefore = 0;
+        DateTime until = default;
+        return new FrameRunner.Step(
+            "SubmitItem",
+            () =>
+            {
+                if (!submitted)
+                {
+                    if (!_collectibleWindowHandler.TryGetScripCount(currencyId, out scripsBefore))
+                        return StepResult.Fail("Collectables window closed before submitting.");
+                    _collectibleWindowHandler.SubmitItem();
+                    LastEarnedCurrency = CurrencyHelper.SpecialIdToItemId(currencyId);
+                    until = DateTime.UtcNow + UiInteractDelay;
+                    submitted = true;
+                    return StepResult.Continue();
+                }
+
+                if (DateTime.UtcNow < until)
+                    return StepResult.Continue();
+
+                // Wait for the server to apply the trade, then credit the scrips actually
+                // received — the tier may pay Mid/Low, and SubmitItem silently no-ops when
+                // the addon isn't ready. Timing out fails the run instead of booking
+                // phantom progress.
+                if (!_collectibleWindowHandler.TryGetScripCount(currencyId, out var current) ||
+                    current <= scripsBefore)
+                    return StepResult.Continue();
+
+                OnScripsEarned?.Invoke(LastEarnedCurrency.Value, (int)(current - scripsBefore));
+
+                // TurnInQueue[0] is stable across this item's UI steps; re-read and write back.
+                var h = TurnInQueue![0];
+                h.left--;
+                if (h.left <= 0)
+                {
+                    TurnInQueue.RemoveAt(0);
+                    CurrentItemName = null;
+                }
+                else
+                {
+                    TurnInQueue[0] = h;
+                }
+                return StepResult.Success();
+            },
+            TimeSpan.FromSeconds(10));
     }
 
     private StepResult CollectableCheck()
     {
-        if (!HasCollectible)
-        {
-            Log.Debug("No collectables in inventory at check time; skipping turn-in.");
-            return StepResult.Success();
-        }
+        // PrimeTurnIn has run by now; if nothing in the inventory is actually
+        // turn-in eligible, cancel instead of teleporting to the shop for nothing.
+        if (TurnInQueue == null || TurnInQueue.Count == 0)
+            return StepResult.Cancel("No eligible collectables to turn in.");
         return StepResult.Success();
     }
 }

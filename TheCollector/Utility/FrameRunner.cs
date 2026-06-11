@@ -23,6 +23,16 @@ public readonly struct StepResult
     public static StepResult Fail(string error) => new(StepStatus.Failed, error);
 }
 
+public readonly struct StepContext
+{
+    private readonly FrameRunner _runner;
+    internal StepContext(FrameRunner runner) => _runner = runner;
+
+    public void Enqueue(FrameRunner.Step step) => _runner.Enqueue(step);
+    public void Enqueue(IEnumerable<FrameRunner.Step> steps) => _runner.Enqueue(steps);
+    public void InjectNext(params FrameRunner.Step[] steps) => _runner.InjectNext(steps);
+    public void InjectNext(IEnumerable<FrameRunner.Step> steps) => _runner.InjectNext(steps);
+}
 
 public sealed class FrameRunner
 {
@@ -30,16 +40,19 @@ public sealed class FrameRunner
     {
         public readonly string Name;
         public readonly Action? Begin;
-        public readonly Func<StepResult> Tick;
+        public readonly Func<StepContext, StepResult> Tick;
         public readonly TimeSpan Timeout;
 
-        public Step(string name, Func<StepResult> tick, TimeSpan timeout, Action? begin = null)
+        public Step(string name, Func<StepContext, StepResult> tick, TimeSpan timeout, Action? begin = null)
         {
             Name = name;
             Tick = tick;
             Timeout = timeout;
             Begin = begin;
         }
+
+        public Step(string name, Func<StepResult> tick, TimeSpan timeout, Action? begin = null)
+            : this(name, _ => tick(), timeout, begin) { }
     }
 
 
@@ -49,7 +62,7 @@ public sealed class FrameRunner
     private readonly Action<string> _onError;
     private readonly Action<bool> _onFinished;
 
-    private readonly Queue<Step> _q = new();
+    private readonly LinkedList<Step> _q = new();
     private Step _cur;
     private bool _hasCur;
     private DateTime _started;
@@ -68,7 +81,7 @@ public sealed class FrameRunner
     {
         if (_running) return;
         _q.Clear();
-        foreach (var s in steps) _q.Enqueue(s);
+        foreach (var s in steps) _q.AddLast(s);
         _running = true; _cancel = false; _err = null;
         _fw.Update += OnUpdate;
         Next();
@@ -81,6 +94,29 @@ public sealed class FrameRunner
         _err = reason;
     }
 
+    public void Abort(string reason = "Aborted")
+    {
+        if (!_running) return;
+        _onDone(_hasCur ? _cur.Name : "Aborted", StepStatus.Cancel, reason);
+        Stop(false);
+    }
+
+    public void Enqueue(Step step) => _q.AddLast(step);
+
+    public void Enqueue(IEnumerable<Step> steps)
+    {
+        foreach (var s in steps) _q.AddLast(s);
+    }
+
+    public void InjectNext(params Step[] steps) => InjectNext((IEnumerable<Step>)steps);
+
+    public void InjectNext(IEnumerable<Step> steps)
+    {
+        LinkedListNode<Step>? anchor = null;
+        foreach (var s in steps)
+            anchor = anchor is null ? _q.AddFirst(s) : _q.AddAfter(anchor, s);
+    }
+
     private void OnUpdate(IFramework _)
     {
         if(DateTime.UtcNow < _cooldownUntil) return;
@@ -89,6 +125,7 @@ public sealed class FrameRunner
 
         if (_cancel)
         {
+            _onDone(_hasCur ? _cur.Name : "Canceled", StepStatus.Cancel, _err);
             Stop(false);
             return;
         }
@@ -110,21 +147,27 @@ public sealed class FrameRunner
         StepResult result;
         try
         {
-            result = _cur.Tick();
+            result = _cur.Tick(new StepContext(this));
         }
         catch (Exception ex)
         {
-            _onDone(_cur.Name, StepStatus.Failed, ex.Message);
-            _onError($"Unhandled exception in step {_cur.Name}: {ex.Message}");
+            var msg = Describe(ex);
+            _onDone(_cur.Name, StepStatus.Failed, msg);
+            _onError($"Unhandled exception in step {_cur.Name}: {msg}");
             Stop(false);
             return;
         }
 
         if (result.Status == StepStatus.Continue) return;
         _onDone(_cur.Name, result.Status, result.Error);
-        if(result.Status == StepStatus.Failed)
+        if (result.Status == StepStatus.Failed)
         {
             _onError(result.Error ?? "Failed");
+            Stop(false);
+            return;
+        }
+        if (result.Status == StepStatus.Cancel)
+        {
             Stop(false);
             return;
         }
@@ -135,11 +178,29 @@ public sealed class FrameRunner
     private void Next()
     {
         if (_q.Count == 0) { _hasCur = false; return; }
-        _cur = _q.Dequeue();
+        _cur = _q.First!.Value;
+        _q.RemoveFirst();
         _hasCur = true;
         _started = DateTime.UtcNow;
         _onStart(_cur.Name);
-        _cur.Begin?.Invoke();
+        try
+        {
+            _cur.Begin?.Invoke();
+        }
+        catch (Exception ex)
+        {
+            var msg = Describe(ex);
+            _onDone(_cur.Name, StepStatus.Failed, msg);
+            _onError($"Unhandled exception starting step {_cur.Name}: {msg}");
+            Stop(false);
+        }
+    }
+
+    private static string Describe(Exception ex)
+    {
+        while (ex is System.Reflection.TargetInvocationException { InnerException: not null } tie)
+            ex = tie.InnerException;
+        return ex.Message;
     }
 
     private void Stop(bool ok)

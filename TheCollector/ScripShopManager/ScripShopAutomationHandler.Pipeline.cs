@@ -1,5 +1,4 @@
-﻿using System.Numerics;
-using FFXIVClientStructs.FFXIV.Application.Network.WorkDefinitions;
+﻿using ECommons.GameHelpers;
 using FFXIVClientStructs.FFXIV.Client.Game.Control;
 using FFXIVClientStructs.FFXIV.Client.Game.Object;
 using TheCollector.Ipc;
@@ -10,16 +9,12 @@ namespace TheCollector.ScripShopManager;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using FFXIVClientStructs.FFXIV.Client.UI;
 using TheCollector.Data;
 
 public partial class ScripShopAutomationHandler : FrameRunnerPipelineBase
 {
 
     private TimeSpan UiInteractDelay => TimeSpan.FromMilliseconds(_configuration.UiDelayMs);
-
-    private DateTime _cooldownUntil;
-    private int _buyPhase;
 
     private bool _attemptedTarget;
 
@@ -41,8 +36,12 @@ public partial class ScripShopAutomationHandler : FrameRunnerPipelineBase
             new FrameRunner.Step(
                 "MoveToShop",
                 () => MakeMoveTick(),
-                TimeSpan.FromSeconds(20),
-                () => Plugin.State = PluginState.SpendingScrip
+                TimeSpan.FromSeconds(60),
+                () =>
+                {
+                    Status.Set(PluginState.SpendingScrip);
+                    ResetMoveThrottle();
+                }
             ),
 
             new FrameRunner.Step(
@@ -78,11 +77,13 @@ public partial class ScripShopAutomationHandler : FrameRunnerPipelineBase
             ),
 
             new FrameRunner.Step(
-                "BuyConfigured",
-                () => MakeBuyTick(),
-                TimeSpan.FromSeconds(90),
+                "PrimeBuy",
+                () => StepResult.Success(),
+                TimeSpan.FromSeconds(2),
                 PrimeBuy
             ),
+
+            BuyDriver(),
 
             FrameRunner.Delay("PostBuyDelay", TimeSpan.FromMilliseconds(600)),
 
@@ -102,18 +103,17 @@ public partial class ScripShopAutomationHandler : FrameRunnerPipelineBase
     protected override void OnFinished(bool ok)
     {
         base.OnFinished(ok);
-        Plugin.State = PluginState.Idle;
         if(ok) OnFinishedTrading?.Invoke(_scripsSpentThisCycle);
     }
+
     protected override void OnCanceledOrFailed(string? error)
     {
         base.OnCanceledOrFailed(error);
-        Plugin.State = PluginState.Idle;
+        VNavmesh_IPCSubscriber.Path_Stop();
+        _scripShopWindowHandler.CloseShop();
     }
     private List<(int page, int subPage, int remaining, int cost, uint itemId, uint currencyId, bool isEquippable)> _buyQueue = new();
 
-    private DateTime _lastBuy;
-    private int _currentPurchaseAmount;
     private readonly Dictionary<uint, int> _scripsSpentThisCycle = new();
 
     private void PrimeBuy()
@@ -136,10 +136,6 @@ public partial class ScripShopAutomationHandler : FrameRunnerPipelineBase
              ))
             .ToList();
 
-        _lastBuy = DateTime.MinValue;
-        _cooldownUntil = DateTime.MinValue;
-        _buyPhase = 0;
-        _currentPurchaseAmount = 0;
         _scripsSpentThisCycle.Clear();
     }
     private StepResult InventoryCheck()
@@ -148,111 +144,96 @@ public partial class ScripShopAutomationHandler : FrameRunnerPipelineBase
                     ? StepResult.Success()
                     : StepResult.Fail("No free inventory slots available for purchases.");
     }
-
-    private StepResult MakeBuyTick()
-    {
-        if (_buyQueue.Count == 0) return StepResult.Success();
-        if (DateTime.UtcNow < _cooldownUntil) return StepResult.Continue();
-
-        var h = _buyQueue[0];
-
-        switch (_buyPhase)
+    private FrameRunner.Step BuyDriver() => new(
+        "BuyConfigured",
+        ctx =>
         {
-            case 0:
-                _scripShopWindowHandler.SelectPage(h.page);
-                _cooldownUntil = DateTime.UtcNow + UiInteractDelay;
-                _buyPhase = 1;
-                return StepResult.Continue();
+            if (_buyQueue.Count == 0) return StepResult.Success();
 
-            case 1:
-                _scripShopWindowHandler.SelectSubPage(h.subPage);
-                _cooldownUntil = DateTime.UtcNow + UiInteractDelay;
-                _buyPhase = 2;
-                return StepResult.Continue();
+            var h = _buyQueue[0];
 
-            case 2:
+            if (!_scripShopWindowHandler.TryGetScripCount(h.currencyId, out var scrips))
+                return StepResult.Fail("Scrip shop window closed while buying.");
+            Log.Debug($"Scripcount: {scrips}");
+            var spendable  = Math.Max(0, scrips - _configuration.ReserveScripAmount);
+            var maxByScrip = h.cost > 0 ? (spendable / h.cost) : h.remaining;
+            var amount = (int)(h.isEquippable
+                ? Math.Min(1, maxByScrip)
+                : Math.Min(h.remaining, Math.Min(maxByScrip, 99)));
+
+            if (amount <= 0)
+            {
+                _buyQueue.RemoveAt(0);
+                ctx.InjectNext(BuyDriver());
+                return StepResult.Success();
+            }
+
+            ctx.InjectNext(
+                UiStep("SelectPage",            () => _scripShopWindowHandler.SelectPage(h.page)),
+                UiStep("SelectSubPage",         () => _scripShopWindowHandler.SelectSubPage(h.subPage)),
+                SelectItemStep(h.itemId, amount),
+                UiStep("ConfirmPurchaseDialog", () => _scripShopWindowHandler.ConfirmPurchaseDialog()),
+                UiStep("ConfirmYesNo",          () => _scripShopWindowHandler.ConfirmYesNo()),
+                RecordPurchaseStep(h.itemId, h.currencyId, h.cost, amount, scrips),
+                BuyDriver());
+
+            return StepResult.Success();
+        },
+        TimeSpan.FromSeconds(5));
+    private FrameRunner.Step UiStep(string name, Action act)
+        => FireAndSettle(name, act, UiInteractDelay, UiInteractDelay + TimeSpan.FromSeconds(5));
+
+    private FrameRunner.Step SelectItemStep(uint itemId, int amount)
+    {
+        var selected = false;
+        DateTime until = default;
+        return new FrameRunner.Step(
+            "SelectItem",
+            () =>
+            {
+                if (!selected)
                 {
-
-                    var scrips = _scripShopWindowHandler.ScripCount(h.currencyId);
-                    Log.Debug($"Scripcount: {scrips}");
-                    var spendable  = Math.Max(0, scrips - _configuration.ReserveScripAmount);
-                    var maxByScrip = h.cost > 0 ? (spendable / h.cost) : h.remaining;
-                    var amount = h.isEquippable
-                        ? Math.Min(1, maxByScrip)
-                        : Math.Min(h.remaining, Math.Min(maxByScrip, 99));
-                    if (amount <= 0)
-                    {
-                        _buyQueue.RemoveAt(0);
-                        _buyPhase = 0;
-                        return StepResult.Continue();
-                    }
-
-
-                    _currentPurchaseAmount = (int)amount;
-                    _cooldownUntil = DateTime.UtcNow + UiInteractDelay;
-                    _buyPhase = 3;
-                    return StepResult.Continue();
+                    var r = _scripShopWindowHandler.SelectItem(itemId, amount);
+                    if (r.Status == StepStatus.Continue) return StepResult.Continue();
+                    if (r.Status == StepStatus.Failed) return r;
+                    selected = true;
+                    until = DateTime.UtcNow + UiInteractDelay;
                 }
-            case 3:
-                {
-                    var r = _scripShopWindowHandler.SelectItem(h.itemId, _currentPurchaseAmount);
-
-                    if (r.Status == StepStatus.Continue)
-                        return StepResult.Continue();
-
-                    if (r.Status == StepStatus.Failed)
-                        return r;
-
-                    _cooldownUntil = DateTime.UtcNow + UiInteractDelay;
-                    _buyPhase = 4;
-                    return StepResult.Continue();
-                }
-            case 4:
-                {
-                    _scripShopWindowHandler.ConfirmPurchaseDialog();
-                    _cooldownUntil = DateTime.UtcNow + UiInteractDelay;
-                    _buyPhase = 5;
-                    return StepResult.Continue();
-                }
-            case 5:
-                {
-                    _scripShopWindowHandler.ConfirmYesNo();
-                    _cooldownUntil = DateTime.UtcNow + UiInteractDelay;
-                    _buyPhase = 6;
-                    return StepResult.Continue();
-                }
-            case 6:
-                {
-                    _lastBuy = DateTime.UtcNow;
-                    _cooldownUntil = _lastBuy + UiInteractDelay;
-                    _buyPhase = 0;
-
-                    h.remaining -= _currentPurchaseAmount;
-                    _scripsSpentThisCycle.TryGetValue(h.currencyId, out var prev);
-                    _scripsSpentThisCycle[h.currencyId] = prev + h.cost * _currentPurchaseAmount;
-
-                    var cfgItem = _configuration.Goal.ItemsToPurchase.FirstOrDefault(x => x.Item.ItemId == h.itemId);
-                    if (cfgItem != null)
-                    {
-                        cfgItem.AmountPurchased += Math.Max(0, _currentPurchaseAmount);
-                        _configuration.Save();
-                    }
-
-                    _currentPurchaseAmount = 0;
-
-                    if (h.remaining <= 0)
-                        _buyQueue.RemoveAt(0);
-                    else
-                        _buyQueue[0] = h;
-
-                    return StepResult.Continue();
-                }
-        }
-
-        return StepResult.Continue();
+                return DateTime.UtcNow >= until ? StepResult.Success() : StepResult.Continue();
+            },
+            TimeSpan.FromSeconds(10));
     }
 
-    private DateTime _lastMove;
+    private FrameRunner.Step RecordPurchaseStep(uint itemId, uint currencyId, int cost, int amount, uint scripsBefore) => new(
+        "RecordPurchase",
+        () =>
+        {
+            if (!_scripShopWindowHandler.TryGetScripCount(currencyId, out var current))
+                return StepResult.Fail("Scrip shop window closed before the purchase could be verified.");
+            if ((long)scripsBefore - current < (long)cost * amount)
+                return StepResult.Continue();
+
+            _scripsSpentThisCycle.TryGetValue(currencyId, out var prev);
+            _scripsSpentThisCycle[currencyId] = prev + cost * amount;
+
+            var cfgItem = _configuration.Goal.ItemsToPurchase.FirstOrDefault(x => x.Item.ItemId == itemId);
+            if (cfgItem != null)
+            {
+                cfgItem.AmountPurchased += Math.Max(0, amount);
+                _configuration.Save();
+            }
+
+        
+            var h = _buyQueue[0];
+            h.remaining -= amount;
+            if (h.remaining <= 0)
+                _buyQueue.RemoveAt(0);
+            else
+                _buyQueue[0] = h;
+
+            return StepResult.Success();
+        },
+        TimeSpan.FromSeconds(10));
 
     private StepResult MakeMoveTick()
     {
@@ -260,37 +241,18 @@ public partial class ScripShopAutomationHandler : FrameRunnerPipelineBase
         if (vendor == null)
             return StepResult.Fail("No scrip vendor known for the preferred territory.");
 
-        var scripLoc = vendor.Position;
-
-        if ((DateTime.UtcNow - _lastMove).TotalMilliseconds >= 200)
-        {
-            if (!VNavmesh_IPCSubscriber.Path_IsRunning())
-                VNavmesh_IPCSubscriber.SimpleMove_PathfindAndMoveTo(scripLoc, false);
-
-            _lastMove = DateTime.UtcNow;
-        }
-        if (PlayerHelper.GetDistanceToPlayer(scripLoc) <= 3.5f)
-        {
-            VNavmesh_IPCSubscriber.Path_Stop();
-            return StepResult.Success();
-        }
-
-        return StepResult.Continue();
+        return MoveTowardsTick(vendor.Position);
     }
 
-    public unsafe StepResult TargetShop()
+    public StepResult TargetShop()
     {
         if (_attemptedTarget) return StepResult.Success();
 
         var vendor = _vendorCatalog.GetScripVendor(_configuration.PreferredTerritoryId);
         if (vendor == null) return StepResult.Fail("No scrip vendor known for the preferred territory.");
 
-        var gameObj = _objectTable.FirstOrDefault(o => o.DataId == vendor.DataId);
-        if (gameObj == null)
+        if (!TryInteractWithNpc(vendor.DataId))
             return StepResult.Continue();
-
-        TargetSystem.Instance()->Target = (GameObject*)gameObj.Address;
-        TargetSystem.Instance()->OpenObjectInteraction(TargetSystem.Instance()->Target);
 
         _attemptedTarget = true;
         return StepResult.Success();

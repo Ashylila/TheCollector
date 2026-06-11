@@ -28,6 +28,8 @@ public class Configuration : IPluginConfiguration
     public bool ResetEachQuantityAfterCompletingList { get; set; } = false;
     public bool CollectOnFinishedFishing { get; set; } = false;
     public int ArtisanListId { get; set; } = 0;
+    public bool PauseArtisanOnInventoryFull { get; set; } = true;
+    public int ArtisanInventoryFullThreshold { get; set; } = 3;
     public int LastSeenVersion { get; set; } = ChangelogUi.LastChangelogVersion;
     public bool CheckForVenturesBetweenRuns { get; set; } = false;
     public bool CheckForDeliverooBetweenRuns { get; set; } = false;
@@ -63,11 +65,6 @@ public class Configuration : IPluginConfiguration
     {
         var changed = false;
 
-        if (Version < 3)
-        {
-            changed |= Migrate_TerritoryId(PreferredCollectableShop);
-            Version = 3;
-        }
         if (Version < 4)
         {
             changed |= Migrate_ScripsSpentKeys();
@@ -122,8 +119,5 @@ public class Configuration : IPluginConfiguration
         TotalScripsSpent = migrated;
         return true;
     }
-
-    private bool Migrate_TerritoryId(CollectableShop _) => false;
-
 
 }
