@@ -9,7 +9,7 @@ using TheCollector.Data;
 
 namespace TheCollector.Utility;
 
-public class FishingWatcher
+public class FishingWatcher : IDisposable
 {
     private readonly IFramework _framework;
     
@@ -20,7 +20,7 @@ public class FishingWatcher
     public event Action<WatchType>? OnFishingFinished;
     public int PollInterval { get; set; } = 250;
     
-    public FishingWatcher(IFramework framework, Configuration config, ICondition condition)
+    public FishingWatcher(IFramework framework, ICondition condition)
     {
         _framework = framework;
         _condition = condition;
@@ -38,7 +38,7 @@ public class FishingWatcher
             return;
 
         UpdateWatch.Restart();
-        if (PlayerHelper.IsInDuty)
+        if (PlayerEx.IsInDuty)
             return;
 
         bool isFishing = _condition[ConditionFlag.Fishing];

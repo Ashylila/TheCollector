@@ -20,6 +20,7 @@ public class CraftingHandler : IDisposable
     private readonly TaskManager _taskManager;
     private readonly Configuration _configuration;
     private readonly GatherbuddyReborn_IPCSubscriber _gatherbuddyService;
+    private readonly Artisan_IPCSubscriber _artisanIpc;
     private readonly IChatGui _chat;
     private readonly IPluginLog _log;
     private readonly IDataManager _data;
@@ -34,6 +35,7 @@ public class CraftingHandler : IDisposable
         IDataManager data,
         TaskManager taskManager,
         GatherbuddyReborn_IPCSubscriber gatherBuddyService,
+        Artisan_IPCSubscriber artisanIpc,
         ICondition condition)
     {
         _taskManager = taskManager;
@@ -42,6 +44,7 @@ public class CraftingHandler : IDisposable
         _log = log;
         _data = data;
         _gatherbuddyService = gatherBuddyService;
+        _artisanIpc = artisanIpc;
         _condition = condition;
     }
     
@@ -65,7 +68,7 @@ public class CraftingHandler : IDisposable
         {
             _taskManager.Enqueue(TeleportToSafeArea);
             _taskManager.EnqueueDelay(7000);
-            _taskManager.Enqueue(() => PlayerHelper.CanAct);
+            _taskManager.Enqueue(() => PlayerEx.CanAct);
             _taskManager.Enqueue(MountCheck);
             _taskManager.Enqueue(Invoke);
         }
@@ -92,8 +95,15 @@ public class CraftingHandler : IDisposable
 
     public void Invoke()
     {
-        Chat.ExecuteCommand($"/artisan lists {_configuration.ArtisanListId} start");
-        _log.Debug("Artisan.Invoke");
+        if (_artisanIpc.IsEnabled && _artisanIpc.IsListRunning() && _artisanIpc.GetStopRequest())
+        {
+            _artisanIpc.SetStopRequest(false);
+            _log.Debug("Artisan list was paused; resuming instead of restarting.");
+            return;
+        }
+
+        _artisanIpc.StartListById(_configuration.ArtisanListId);
+        _log.Debug($"Artisan.StartListById({_configuration.ArtisanListId})");
     }
 
     private void TeleportToSafeArea()

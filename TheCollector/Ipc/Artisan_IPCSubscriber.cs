@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using ECommons.EzIpcManager;
 
 namespace TheCollector.Ipc;
@@ -6,7 +7,7 @@ namespace TheCollector.Ipc;
 public class Artisan_IPCSubscriber : IDisposable
 {
     private readonly EzIPCDisposalToken[] _disposalTokens;
-    
+
     public Artisan_IPCSubscriber()
     {
         _disposalTokens = EzIPC.Init(this, "Artisan", SafeWrapper.IPCException);
@@ -32,6 +33,12 @@ public class Artisan_IPCSubscriber : IDisposable
 
     [EzIPC("IsBusy")]
     public readonly Func<bool> IsBusy;
+
+    [EzIPC("GetLists")]
+    public readonly Func<Dictionary<int, string>> GetLists;
+
+    [EzIPC("StartListById")]
+    public readonly Action<int> StartListById;
 
     public bool IsEnabled => IPCSubscriber_Common.IsReady("Artisan");
 

@@ -11,8 +11,9 @@ public class StopUi : Window
 {
     private readonly AutomationHandler _automation;
     private readonly CollectableAutomationHandler _collectableHandler;
+    private readonly StatusService _status;
 
-    public StopUi(AutomationHandler automation, CollectableAutomationHandler collectableHandler)
+    public StopUi(AutomationHandler automation, CollectableAutomationHandler collectableHandler, StatusService status)
         : base("The Collector##CollectorStop",
                ImGuiWindowFlags.NoScrollbar
                | ImGuiWindowFlags.NoScrollWithMouse
@@ -22,6 +23,7 @@ public class StopUi : Window
     {
         _automation = automation;
         _collectableHandler = collectableHandler;
+        _status = status;
 
         SizeConstraints = new WindowSizeConstraints
         {
@@ -57,16 +59,7 @@ public class StopUi : Window
 
     private void DrawStatusInfo()
     {
-        var (color, label, isActive) = Plugin.State switch
-        {
-            PluginState.Teleporting               => (UiTheme.Warning, "Teleporting",            true),
-            PluginState.MovingToCollectableVendor => (UiTheme.Warning, "Moving to vendor",       true),
-            PluginState.ExchangingItems           => (UiTheme.Success, "Exchanging items",       true),
-            PluginState.SpendingScrip             => (UiTheme.Success, "Spending scrip",         true),
-            PluginState.AutoRetainer              => (UiTheme.Info,    "AutoRetainer running",   true),
-            PluginState.Deliveroo                 => (UiTheme.Info,    "Deliveroo running",      true),
-            _                                     => (UiTheme.Idle,   "Idle",                   false)
-        };
+        var (color, label, isActive) = PluginStatePresentation.Describe(_status.Current, _status.Detail);
 
         ImGuiHelper.StatusDot(color, pulse: isActive);
         ImGui.SameLine();
@@ -75,7 +68,7 @@ public class StopUi : Window
         ImGui.TextUnformatted(label);
         ImGui.PopStyleColor();
 
-        if (Plugin.State == PluginState.ExchangingItems)
+        if (_status.Current == PluginState.ExchangingItems)
         {
             var q = _collectableHandler.TurnInQueue;
             if (q != null && q.Count != 0)

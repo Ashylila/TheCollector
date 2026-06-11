@@ -302,7 +302,7 @@ public class ScripPlannerService
     public static bool IsObtainable(CollectableInfo c)
     {
         if (c.JobId < 0) return true; // unknown job → don't gate
-        var playerLevel = PlayerHelper.GetLevelForCollectableJob(c.JobId);
+        var playerLevel = PlayerEx.GetLevelForCollectableJob(c.JobId);
         if (playerLevel <= 0) return false;
         return playerLevel >= c.Level;
     }
