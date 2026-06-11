@@ -41,6 +41,7 @@ public class ChangelogUi
         Add_0_5_8(Book);
         Add_0_6_0(Book);
         Add_0_6_1(Book);
+        Add_0_6_2(Book);
 
         Window = new ChangelogWindow("TheCollector_Changelog", Book, GetConfig, SetConfig);
     }
@@ -63,6 +64,18 @@ public class ChangelogUi
         }
         if (dirty) _config.Save();
     }
+
+    private static void Add_0_6_2(ChangelogBook book) =>
+        book.NextVersion("Version 0.6.2")
+            .RegisterHighlight("Added a 'Copy troubleshooting info' button (Settings → General and on the hard-fail banner) — paste it along with your issue report")
+            .RegisterHighlight("Purchases and turn-ins are now verified against your actual scrip count, so a missed dialog can no longer record progress that didn't happen")
+            .RegisterEntry("Fixed the Deliveroo run crashing right after teleporting (now waits for the navmesh to be ready) and disabling Deliveroo mid-list")
+            .RegisterEntry("Fixed the stop button fighting the Artisan inventory-full watcher — stopping now sticks")
+            .RegisterEntry("Fixed the Artisan inventory-full pause giving up silently and timing out while the last craft finished")
+            .RegisterEntry("Inventory space is now only checked when actually buying, not when starting automation")
+            .RegisterEntry("Summoning bells in inns and player housing are recognized again for AutoRetainer")
+            .RegisterEntry("Vendor data now loads in the background instead of stalling the game on login")
+            .RegisterEntry("Planner tab is much lighter on the framerate");
 
     private static void Add_0_6_1(ChangelogBook book) =>
         book.NextVersion("Version 0.6.1")
