@@ -49,12 +49,12 @@ public partial class CollectableAutomationHandler : FrameRunnerPipelineBase
             new FrameRunner.Step(
                 "CanActCheck",
                 () => PlayerEx.CanAct ?  StepResult.Success() : StepResult.Continue(),
-                TimeSpan.FromSeconds(20),
-                        PrimeTurnIn),
+                TimeSpan.FromSeconds(120)),
             new FrameRunner.Step(
                 "CollectableCheck",
                 CollectableCheck,
-                TimeSpan.FromSeconds(5)),
+                TimeSpan.FromSeconds(5),
+                PrimeTurnIn),
             new FrameRunner.Step(
                 "TeleportToPreferredShop",
                 () => MakeTeleportTick(territoryId),

@@ -250,6 +250,8 @@ public class AutomationHandler : IDisposable
         // stopped, since everything is halting) so the watcher isn't permanently stuck.
         if (_artisanWatcher.IsPausedByUs)
             _artisanWatcher.AbandonPause();
+        else
+            _artisanWatcher.SuppressAutoInvoke();
         _pipelineRegistry.StopAll(reason);
     }
 

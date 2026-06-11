@@ -14,18 +14,21 @@ public class ArtisanWatcher : IDisposable
     private readonly Stopwatch UpdateWatch = new();
     private bool _wasCrafting;
     private bool _pausedByUs;
-    private bool _turnInUnavailable;
+    private DateTime _turnInRetryAt = DateTime.MinValue;
+    private DateTime _suppressUntil = DateTime.MinValue;
     private readonly Configuration _configuration;
+    private readonly PlogonLog _log;
     public event Action<WatchType>? OnCraftingFinished;
     public event Action? OnInventoryFullDuringCrafting;
     public int PollInterval { get; set; } = 250;
     public bool IsPausedByUs => _pausedByUs;
 
-    public ArtisanWatcher(IFramework framework, Artisan_IPCSubscriber artisanIpc, Configuration config)
+    public ArtisanWatcher(IFramework framework, Artisan_IPCSubscriber artisanIpc, Configuration config, PlogonLog log)
     {
         _framework = framework;
         ArtisanIpc = artisanIpc;
         _configuration = config;
+        _log = log;
         Init();
     }
 
@@ -47,19 +50,25 @@ public class ArtisanWatcher : IDisposable
         if (_pausedByUs)
             return;
 
+        if (DateTime.UtcNow < _suppressUntil)
+        {
+            _wasCrafting = ArtisanIpc.IsListRunning();
+            return;
+        }
+
         bool isCrafting = ArtisanIpc.IsListRunning();
 
         if (_wasCrafting && !isCrafting)
         {
-            _turnInUnavailable = false;
+            _turnInRetryAt = DateTime.MinValue;
             OnCraftingFinished?.Invoke(WatchType.Crafting);
         }
         else if (!_wasCrafting && isCrafting)
         {
-            _turnInUnavailable = false;
+            _turnInRetryAt = DateTime.MinValue;
         }
         else if (isCrafting
-                 && !_turnInUnavailable
+                 && DateTime.UtcNow >= _turnInRetryAt
                  && _configuration.PauseArtisanOnInventoryFull
                  && ShouldPauseForInventory())
         {
@@ -98,14 +107,21 @@ public class ArtisanWatcher : IDisposable
         if (ArtisanIpc.IsEnabled)
             ArtisanIpc.SetStopRequest(false);
         _pausedByUs = false;
-        _turnInUnavailable = true;
+        _turnInRetryAt = DateTime.UtcNow.AddSeconds(60);
+        _log.Debug("Inventory-full turn-in could not start; retrying in 60s.");
     }
 
     public void AbandonPause()
     {
         _pausedByUs = false;
         _wasCrafting = false;
-        _turnInUnavailable = false;
+        _turnInRetryAt = DateTime.MinValue;
+        SuppressAutoInvoke();
+    }
+
+    public void SuppressAutoInvoke()
+    {
+        _suppressUntil = DateTime.UtcNow + TimeSpan.FromSeconds(90);
     }
 
     public void Dispose()

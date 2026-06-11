@@ -28,12 +28,6 @@ public partial class ScripShopAutomationHandler : FrameRunnerPipelineBase
             FrameRunner.Delay("InitialDelay", TimeSpan.FromSeconds(1)),
 
             new FrameRunner.Step(
-                "InventoryCheck",
-                () => InventoryCheck(),
-                TimeSpan.FromSeconds(2)
-            ),
-
-            new FrameRunner.Step(
                 "MoveToShop",
                 () => MakeMoveTick(),
                 TimeSpan.FromSeconds(60),
@@ -138,12 +132,6 @@ public partial class ScripShopAutomationHandler : FrameRunnerPipelineBase
 
         _scripsSpentThisCycle.Clear();
     }
-    private StepResult InventoryCheck()
-    {
-        return ItemHelper.GetFreeInventorySlots() > 0
-                    ? StepResult.Success()
-                    : StepResult.Fail("No free inventory slots available for purchases.");
-    }
     private FrameRunner.Step BuyDriver() => new(
         "BuyConfigured",
         ctx =>
@@ -167,6 +155,9 @@ public partial class ScripShopAutomationHandler : FrameRunnerPipelineBase
                 ctx.InjectNext(BuyDriver());
                 return StepResult.Success();
             }
+
+            if (ItemHelper.GetFreeInventorySlots() <= 0)
+                return StepResult.Fail("No free inventory slots available for purchases.");
 
             ctx.InjectNext(
                 UiStep("SelectPage",            () => _scripShopWindowHandler.SelectPage(h.page)),
