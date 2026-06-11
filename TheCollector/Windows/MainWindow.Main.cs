@@ -28,6 +28,7 @@ public partial class MainWindow
         {
             configuration.ActiveRunSource = source;
             configuration.Save();
+            SelectedScripItem = null;
         }
 
         ImGui.Spacing();

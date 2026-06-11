@@ -1,10 +1,13 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
+using System.Text;
 using System.Text.Json;
 using Dalamud.Bindings.ImGui;
 using ECommons.DalamudServices;
+using ECommons.GameHelpers;
 using TheCollector.CollectableManager;
 using TheCollector.Ipc;
 using TheCollector.ScripShopManager;
@@ -14,6 +17,10 @@ namespace TheCollector.Windows;
 
 public partial class MainWindow
 {
+    private Dictionary<int, string>? _artisanLists;
+    private DateTime _artisanListsFetchedAt = DateTime.MinValue;
+    private static readonly JsonSerializerOptions DebugJsonOpts = new() { WriteIndented = true };
+
     private void DrawSettingsTab()
     {
         DrawInstalledPlugins();
@@ -118,6 +125,9 @@ public partial class MainWindow
         ImGui.PushItemWidth(-1);
         if (ImGui.BeginCombo("##shopselection", currentLabel))
         {
+            if (!catalog.IsReady)
+                ImGui.TextDisabled("Scanning vendor data...");
+
             foreach (var territoryId in catalog.ServedTerritoryIds)
             {
                 bool requiresLifestream = TerritoryRouting.RequiresAethernet(territoryId);
@@ -179,6 +189,116 @@ public partial class MainWindow
         }
         if (ImGui.IsItemHovered())
             ImGui.SetTooltip("Purchases will leave at least this many scrips of each currency unspent.");
+
+        ImGui.Spacing();
+        ImGuiHelper.SectionHeader("Troubleshooting");
+        DrawCopyTroubleshootingButton();
+    }
+
+    private DateTime _troubleshootCopiedAt = DateTime.MinValue;
+
+    private void DrawCopyTroubleshootingButton()
+    {
+        if (ImGui.Button("Copy troubleshooting info"))
+        {
+            ImGui.SetClipboardText(BuildTroubleshootingInfo());
+            _troubleshootCopiedAt = DateTime.UtcNow;
+        }
+        if (ImGui.IsItemHovered())
+            ImGui.SetTooltip("Copies plugin state, settings and dependency status to the clipboard.\nPaste it along with your issue report.");
+        if ((DateTime.UtcNow - _troubleshootCopiedAt).TotalSeconds < 2)
+        {
+            ImGui.SameLine();
+            ImGui.TextColored(UiTheme.Success, "Copied!");
+        }
+    }
+
+    private string BuildTroubleshootingInfo()
+    {
+        var collectable  = ServiceWrapper.Get<CollectableAutomationHandler>();
+        var scripShop    = ServiceWrapper.Get<ScripShopAutomationHandler>();
+        var retainer     = ServiceWrapper.Get<AutoRetainerManager>();
+        var deliveroo    = ServiceWrapper.Get<DeliverooManager>();
+        var catalog      = ServiceWrapper.Get<VendorCatalog>();
+
+        var sb = new StringBuilder();
+        sb.AppendLine("=== TheCollector troubleshooting info ===");
+        sb.AppendLine($"Generated (UTC): {DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}");
+        sb.AppendLine($"Plugin version:  {Assembly.GetExecutingAssembly().GetName().Version} (dev: {pluginInterface.IsDev})");
+
+        sb.AppendLine();
+        sb.AppendLine("[State]");
+        sb.AppendLine($"Status:          {_status.Current}{(string.IsNullOrEmpty(_status.Detail) ? "" : $" ({_status.Detail})")}");
+        sb.AppendLine($"Hard fail:       {configuration.HardFailReason ?? "<none>"}");
+        sb.AppendLine($"Running:         {_automationHandler.IsRunning} (collectable={collectable.IsRunning}, scripshop={scripShop.IsRunning}, autoretainer={retainer.IsRunning}, deliveroo={deliveroo.IsRunning})");
+        var terId = Svc.ClientState.TerritoryType;
+        sb.AppendLine($"Territory:       {terId} ({VendorCatalog.GetTerritoryDisplayName(terId)})");
+        sb.AppendLine($"Has collectible: {collectable.HasCollectible}");
+        sb.AppendLine($"Free inv slots:  {ItemHelper.GetFreeInventorySlots()}");
+        sb.AppendLine($"Current item:    {collectable.CurrentItemName ?? "<none>"}");
+        if (collectable.TurnInQueue is { Count: > 0 } queue)
+            sb.AppendLine($"Turn-in queue:   {string.Join(", ", queue.Select(t => $"{t.name}×{t.left} (job {t.jobIndex})"))}");
+
+        sb.AppendLine();
+        sb.AppendLine("[Dependencies]");
+        foreach (var (key, required) in new[]
+                 {
+                     ("vnavmesh", true), ("Lifestream", true), ("GatherBuddyReborn", false),
+                     ("Artisan", false), ("AutoRetainer", false), ("Deliveroo", false),
+                 })
+            sb.AppendLine($"{key,-18} {(IPCSubscriber_Common.IsReady(key) ? "ready" : "NOT READY")}{(required ? " (required)" : "")}");
+
+        sb.AppendLine();
+        sb.AppendLine("[Settings]");
+        var prefId = configuration.PreferredTerritoryId;
+        sb.AppendLine($"Config version:        {configuration.Version}");
+        sb.AppendLine($"Preferred territory:   {prefId} ({(prefId == 0 ? "<none>" : VendorCatalog.GetTerritoryDisplayName(prefId))})");
+        sb.AppendLine($"Active source:         {configuration.ActiveRunSource}");
+        sb.AppendLine($"UI delay:              {configuration.UiDelayMs}ms");
+        sb.AppendLine($"Reserve scrips:        {configuration.ReserveScripAmount}");
+        sb.AppendLine($"Buy after each:        {configuration.BuyAfterEachCollect}");
+        sb.AppendLine($"Reset qty on complete: {configuration.ResetEachQuantityAfterCompletingList}");
+        sb.AppendLine($"Stop when complete:    {configuration.Goal.StopGatheringWhenComplete}");
+        sb.AppendLine($"Autogather on finish:  {configuration.EnableAutogatherOnFinish}");
+        sb.AppendLine($"Collect on craft/fish/gather: {configuration.CollectOnFinishCraftingList}/{configuration.CollectOnFinishedFishing}/{configuration.CollectOnAutogatherFinish}");
+        sb.AppendLine($"Craft on autogather:   {configuration.ShouldCraftOnAutogatherChanged} (Artisan list {configuration.ArtisanListId})");
+        sb.AppendLine($"Artisan inv pause:     {configuration.PauseArtisanOnInventoryFull} (threshold {configuration.ArtisanInventoryFullThreshold})");
+        sb.AppendLine($"AutoRetainer between:  {configuration.CheckForVenturesBetweenRuns}");
+        sb.AppendLine($"Deliveroo between:     {configuration.CheckForDeliverooBetweenRuns}");
+        var stop = configuration.Stop;
+        sb.AppendLine($"Stop conditions:       scrips={stop.StopOnScripsEarnedEnabled}({stop.MaxScripsEarned}) cycles={stop.StopOnBuyCyclesEnabled}({stop.MaxBuyCycles}) time={stop.StopOnSessionTimeEnabled}({stop.MaxSessionMinutes}m)");
+
+        sb.AppendLine();
+        sb.AppendLine("[Catalogs]");
+        sb.AppendLine($"Vendor catalog:  {(catalog.IsReady ? "ready" : "still building")}, {catalog.AllVendors.Count} placements, {catalog.ServedTerritoryIds.Count} served territories");
+        var cv = catalog.GetCollectableVendor(prefId);
+        var sv = catalog.GetScripVendor(prefId);
+        sb.AppendLine($"Collectable NPC: {(cv == null ? "<none>" : $"{cv.Name} @ ({cv.Position.X:F1}, {cv.Position.Y:F1}, {cv.Position.Z:F1})")}");
+        sb.AppendLine($"Scrip NPC:       {(sv == null ? "<none>" : $"{sv.Name} @ ({sv.Position.X:F1}, {sv.Position.Y:F1}, {sv.Position.Z:F1})")}");
+        sb.AppendLine($"Scrip shop items: {ScripShopItemManager.ShopItems.Count}");
+
+        sb.AppendLine();
+        sb.AppendLine("[Purchase list]");
+        if (configuration.Goal.ItemsToPurchase.Count == 0)
+            sb.AppendLine("<empty>");
+        else
+            foreach (var item in configuration.Goal.ItemsToPurchase)
+            {
+                var currency = CurrencyHelper.GetCurrencyName(CurrencyHelper.GetCurrencyIdForItem(item.Item.ItemId));
+                sb.AppendLine($"{item.Name}: {item.AmountPurchased}/{item.Quantity} ({currency})");
+            }
+
+        sb.AppendLine();
+        sb.AppendLine("[Session]");
+        sb.AppendLine($"Started (UTC):   {_automationHandler.SessionStarted?.ToString("yyyy-MM-dd HH:mm:ss") ?? "<not started>"}");
+        sb.AppendLine($"Turn-ins:        {_automationHandler.SessionCollectablesTurnedIn}");
+        sb.AppendLine($"Buy cycles:      {_automationHandler.SessionItemsPurchased}");
+        foreach (var (currencyId, amount) in _automationHandler.SessionScripsEarned)
+            sb.AppendLine($"Earned:          {amount:N0} {CurrencyHelper.GetCurrencyName(currencyId)}");
+        foreach (var (currencyId, amount) in _automationHandler.SessionScripsSpent)
+            sb.AppendLine($"Spent:           {amount:N0} {CurrencyHelper.GetCurrencyName(currencyId)}");
+
+        return sb.ToString();
     }
 
     private void DrawSettingsIntegrations()
@@ -245,16 +365,7 @@ public partial class MainWindow
 
         ImGui.BeginDisabled(!craftOnAutogather);
 
-        ImGui.TextUnformatted("Artisan List ID:");
-        ImGui.SameLine();
-        var listId = configuration.ArtisanListId;
-        ImGui.PushItemWidth(80);
-        if (ImGui.InputInt("##ArtisanListID", ref listId, 0, 0))
-        {
-            configuration.ArtisanListId = listId;
-            configuration.Save();
-        }
-        ImGui.PopItemWidth();
+        DrawArtisanListPicker();
 
         var collectOnFinish = configuration.CollectOnFinishCraftingList;
         if (ImGui.Checkbox("Collect on finish crafting an Artisan list", ref collectOnFinish))
@@ -264,6 +375,33 @@ public partial class MainWindow
         }
 
         ImGui.EndDisabled();
+
+        ImGui.Spacing();
+        var pauseOnFull = configuration.PauseArtisanOnInventoryFull;
+        if (ImGui.Checkbox("Pause Artisan when inventory is full, turn in, then resume", ref pauseOnFull))
+        {
+            configuration.PauseArtisanOnInventoryFull = pauseOnFull;
+            configuration.Save();
+        }
+        if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
+            ImGui.SetTooltip("When the running Artisan list drops below the free-slot threshold and\n" +
+                             "you have collectables, pause the list, run the turn-in cascade, then\n" +
+                             "resume the list from where it left off.");
+
+        ImGui.BeginDisabled(!pauseOnFull);
+        ImGui.AlignTextToFramePadding();
+        ImGui.TextUnformatted("Pause when free slots ≤");
+        ImGui.SameLine();
+        var threshold = configuration.ArtisanInventoryFullThreshold;
+        ImGui.PushItemWidth(80);
+        if (ImGui.InputInt("##InvFullThreshold", ref threshold, 1, 5))
+        {
+            configuration.ArtisanInventoryFullThreshold = Math.Clamp(threshold, 0, 140);
+            configuration.Save();
+        }
+        ImGui.PopItemWidth();
+        ImGui.EndDisabled();
+
         ImGui.EndDisabled();
 
         ImGui.Spacing();
@@ -287,7 +425,7 @@ public partial class MainWindow
         ImGuiHelper.SectionHeader("Deliveroo");
 
         bool deliverooReady = IPCSubscriber_Common.IsReady("Deliveroo");
-        bool isMaelstrom = PlayerHelper.GetGrandCompany() == 1;
+        bool isMaelstrom = (uint)Player.GrandCompany == 1;
         bool lifestreamReady = IPCSubscriber_Common.IsReady("Lifestream");
         bool deliverooDisabled = !deliverooReady || (isMaelstrom && !lifestreamReady);
         ImGui.BeginDisabled(deliverooDisabled);
@@ -310,6 +448,57 @@ public partial class MainWindow
 
         ImGui.Spacing();
         DrawSettingsDiscord();
+    }
+
+    private void DrawArtisanListPicker()
+    {
+        ImGui.AlignTextToFramePadding();
+        ImGui.TextUnformatted("Artisan List:");
+        ImGui.SameLine();
+
+        var artisanIpc = ServiceWrapper.Get<Artisan_IPCSubscriber>();
+        if (_artisanLists == null || (DateTime.UtcNow - _artisanListsFetchedAt).TotalSeconds >= 5)
+        {
+            _artisanLists = artisanIpc.IsEnabled
+                ? artisanIpc.GetLists() ?? new Dictionary<int, string>()
+                : new Dictionary<int, string>();
+            _artisanListsFetchedAt = DateTime.UtcNow;
+        }
+        var lists = _artisanLists;
+
+        if (lists.Count == 0)
+        {
+            var manualId = configuration.ArtisanListId;
+            ImGui.SetNextItemWidth(120);
+            if (ImGui.InputInt("##ArtisanListID", ref manualId, 0, 0))
+            {
+                configuration.ArtisanListId = manualId;
+                configuration.Save();
+            }
+            ImGui.SameLine();
+            ImGui.TextDisabled(artisanIpc.IsEnabled ? "(no lists in Artisan)" : "(Artisan not ready)");
+            return;
+        }
+
+        var currentId = configuration.ArtisanListId;
+        var currentLabel = lists.TryGetValue(currentId, out var name)
+            ? $"[{currentId}] {name}"
+            : currentId == 0 ? "Select a list" : $"[{currentId}] (not found)";
+
+        ImGui.SetNextItemWidth(-1);
+        if (ImGui.BeginCombo("##ArtisanListID", currentLabel))
+        {
+            foreach (var (id, listName) in lists.OrderBy(kv => kv.Value, StringComparer.OrdinalIgnoreCase))
+            {
+                var label = $"[{id}] {listName}";
+                if (ImGui.Selectable(label, id == currentId))
+                {
+                    configuration.ArtisanListId = id;
+                    configuration.Save();
+                }
+            }
+            ImGui.EndCombo();
+        }
     }
 
     private void DrawSettingsDiscord()
@@ -521,7 +710,7 @@ public partial class MainWindow
             var prefId  = configuration.PreferredTerritoryId;
             var prefName = prefId == 0 ? "<none>" : VendorCatalog.GetTerritoryDisplayName(prefId);
 
-            Row("Plugin state",       Plugin.State.ToString());
+            Row("Plugin state",       string.IsNullOrEmpty(_status.Detail) ? _status.Current.ToString() : $"{_status.Current} ({_status.Detail})");
             Row("Territory",          $"{terId} ({terName})");
             Row("Preferred",          $"{prefId} ({prefName})");
             Row("Active source",      configuration.ActiveRunSource.ToString());
@@ -624,8 +813,6 @@ public partial class MainWindow
         ImGui.Spacing();
         ImGuiHelper.SectionHeader("Dump to log");
 
-        var jsonOpts = new JsonSerializerOptions { WriteIndented = true };
-
         if (ImGui.Button("Vendor catalog"))
         {
             var payload = vendorCatalog.AllVendors.Select(v => new
@@ -634,7 +821,7 @@ public partial class MainWindow
                 Position = new { v.Position.X, v.Position.Y, v.Position.Z },
                 v.IsScripVendor, v.IsCollectableVendor,
             });
-            _log.Debug($"VendorCatalog ({vendorCatalog.AllVendors.Count} entries):\n{JsonSerializer.Serialize(payload, jsonOpts)}");
+            _log.Debug($"VendorCatalog ({vendorCatalog.AllVendors.Count} entries):\n{JsonSerializer.Serialize(payload, DebugJsonOpts)}");
         }
         ImGui.SameLine();
         if (ImGui.Button("Turn-in queue"))
@@ -651,12 +838,12 @@ public partial class MainWindow
             {
                 s.ItemId, name = s.Name, s.Page, s.SubPage, s.ItemCost, s.CurrencyId,
             });
-            _log.Debug($"ScripShopItems ({ScripShopItemManager.ShopItems.Count}):\n{JsonSerializer.Serialize(payload, jsonOpts)}");
+            _log.Debug($"ScripShopItems ({ScripShopItemManager.ShopItems.Count}):\n{JsonSerializer.Serialize(payload, DebugJsonOpts)}");
         }
         ImGui.SameLine();
         if (ImGui.Button("Full config"))
         {
-            _log.Debug($"Configuration:\n{JsonSerializer.Serialize(configuration, jsonOpts)}");
+            _log.Debug($"Configuration:\n{JsonSerializer.Serialize(configuration, DebugJsonOpts)}");
         }
     }
 

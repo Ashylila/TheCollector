@@ -18,6 +18,9 @@ public partial class MainWindow
     private bool _sessionOpen = true;
     private const int CollectablePageSize = 10;
     private readonly Dictionary<uint, int> _collectableVisibleCount = new();
+    private PlanSummary? _planCache;
+    private DateTime _planCacheAt = DateTime.MinValue;
+    private Dictionary<uint, uint>? _recipeIdByItemId;
 
     private void DrawPlannerTab()
     {
@@ -27,7 +30,12 @@ public partial class MainWindow
             return;
         }
 
-        var plan = _plannerService.Calculate();
+        if (_planCache == null || (DateTime.UtcNow - _planCacheAt).TotalMilliseconds >= 500)
+        {
+            _planCache = _plannerService.Calculate();
+            _planCacheAt = DateTime.UtcNow;
+        }
+        var plan = _planCache;
 
         DrawPlannerOverview(plan);
         DrawPlannerCostBreakdown(plan);
@@ -207,7 +215,7 @@ public partial class MainWindow
                     ImGui.TableNextRow();
 
                     ImGui.TableSetColumnIndex(0);
-                    var playerLvl = PlayerHelper.GetLevelForCollectableJob(col.JobId);
+                    var playerLvl = PlayerEx.GetLevelForCollectableJob(col.JobId);
                     bool levelMet = col.JobId < 0 || (playerLvl > 0 && playerLvl >= col.Level);
                     if (levelMet)
                         ImGui.TextDisabled($"{col.Level}");
@@ -247,16 +255,15 @@ public partial class MainWindow
                     ImGui.TextUnformatted($"{turnIns}");
 
                     ImGui.TableSetColumnIndex(4);
-                    var recipeSheet = Svc.Data.GetExcelSheet<Recipe>();
-                    var recipe = recipeSheet?.FirstOrDefault(r => r.ItemResult.RowId == col.ItemId);
-                    if (recipe is { RowId: > 0 })
+                    var recipeId = GetRecipeIdForItem(col.ItemId);
+                    if (recipeId != 0)
                     {
                         if (ImGui.SmallButton($"Recipe##{col.ItemId}"))
                         {
                             unsafe
                             {
                                 var agent = AgentRecipeNote.Instance();
-                                agent->OpenRecipeByRecipeId(recipe.Value.RowId);
+                                agent->OpenRecipeByRecipeId(recipeId);
                             }
                         }
                     }
@@ -279,6 +286,20 @@ public partial class MainWindow
                 ImGui.Spacing();
             }
         });
+    }
+
+    private uint GetRecipeIdForItem(uint itemId)
+    {
+        if (_recipeIdByItemId == null)
+        {
+            _recipeIdByItemId = new Dictionary<uint, uint>();
+            var sheet = Svc.Data.GetExcelSheet<Recipe>();
+            if (sheet != null)
+                foreach (var r in sheet)
+                    if (r.ItemResult.RowId != 0)
+                        _recipeIdByItemId.TryAdd(r.ItemResult.RowId, r.RowId);
+        }
+        return _recipeIdByItemId.TryGetValue(itemId, out var id) ? id : 0u;
     }
 
     private void DrawPlannerSession()

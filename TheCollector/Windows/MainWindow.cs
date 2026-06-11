@@ -25,11 +25,12 @@ public partial class MainWindow : Window, IDisposable
     private readonly ScripPlannerService _plannerService;
     private readonly AutomationHandler _automationHandler;
     private readonly DiscordWebhookService _discord;
+    private readonly StatusService _status;
     private ScripShopItem? SelectedScripItem = null;
 
     public MainWindow(Plugin plugin, IDalamudPluginInterface pluginInterface, PlogonLog log,
         ScripPlannerService plannerService, AutomationHandler automationHandler, DiscordWebhookService discord,
-        CharacterBalanceTracker balanceTracker)
+        CharacterBalanceTracker balanceTracker, StatusService status)
         : base("The Collector##CollectorMain", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse)
     {
         SizeConstraints = new WindowSizeConstraints
@@ -42,6 +43,7 @@ public partial class MainWindow : Window, IDisposable
         _automationHandler = automationHandler;
         _discord = discord;
         _balanceTracker = balanceTracker;
+        _status = status;
         configuration = plugin.Configuration;
         this.pluginInterface = pluginInterface;
     }
@@ -60,12 +62,6 @@ public partial class MainWindow : Window, IDisposable
 
     public override void Draw()
     {
-        if (ScripShopItemManager.IsLoading)
-        {
-            ImGui.TextDisabled("Loading items...");
-            return;
-        }
-
         DrawHero();
         DrawHardFailBanner();
         DrawStatusRow();
@@ -134,6 +130,8 @@ public partial class MainWindow : Window, IDisposable
             ImGui.Spacing();
             if (ImGuiHelper.DangerButton("Acknowledge", new Vector2(120, 26)))
                 _automationHandler.AcknowledgeHardFail();
+            ImGui.SameLine();
+            DrawCopyTroubleshootingButton();
         });
     }
 
@@ -141,16 +139,7 @@ public partial class MainWindow : Window, IDisposable
     {
         ImGuiHelper.Panel("StatusBar", () =>
         {
-            var (color, label, isActive) = Plugin.State switch
-            {
-                PluginState.Teleporting               => (UiTheme.Warning, "Teleporting",            true),
-                PluginState.MovingToCollectableVendor => (UiTheme.Warning, "Moving to vendor",       true),
-                PluginState.ExchangingItems           => (UiTheme.Success, "Exchanging items",       true),
-                PluginState.SpendingScrip             => (UiTheme.Success, "Spending scrip",         true),
-                PluginState.AutoRetainer              => (UiTheme.Info,    "AutoRetainer running",   true),
-                PluginState.Deliveroo                 => (UiTheme.Info,    "Deliveroo running",      true),
-                _                                     => (UiTheme.Idle,   "Idle",                   false)
-            };
+            var (color, label, isActive) = PluginStatePresentation.Describe(_status.Current, _status.Detail);
 
             ImGuiHelper.StatusDot(color, pulse: isActive);
             ImGui.SameLine();
@@ -161,8 +150,11 @@ public partial class MainWindow : Window, IDisposable
 
             if (configuration.Goal.ItemsToPurchase.Count > 0)
             {
-                int completed = configuration.Goal.ItemsToPurchase.Count(i => i.Quantity > 0 && i.AmountPurchased >= i.Quantity);
-                int total     = configuration.Goal.ItemsToPurchase.Count;
+                int completed = 0;
+                foreach (var i in configuration.Goal.ItemsToPurchase)
+                    if (i.Quantity > 0 && i.AmountPurchased >= i.Quantity)
+                        completed++;
+                int total = configuration.Goal.ItemsToPurchase.Count;
                 var chipColor = completed == total ? UiTheme.Success : UiTheme.Accent;
 
                 var summary = $"{completed}/{total} done";

@@ -13,9 +13,6 @@ public class ScripShopItemManager
     public static FrozenDictionary<uint, ScripShopItem> ByItemId { get; private set; } =
         FrozenDictionary<uint, ScripShopItem>.Empty;
 
-
-    public static bool IsLoading => false;
-
     private readonly PlogonLog _log;
 
     public ScripShopItemManager(PlogonLog log)
