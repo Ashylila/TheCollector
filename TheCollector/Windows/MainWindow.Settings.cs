@@ -230,6 +230,13 @@ public partial class MainWindow
         sb.AppendLine("[State]");
         sb.AppendLine($"Status:          {_status.Current}{(string.IsNullOrEmpty(_status.Detail) ? "" : $" ({_status.Detail})")}");
         sb.AppendLine($"Hard fail:       {configuration.HardFailReason ?? "<none>"}");
+        if (_status.Errors.Count > 0)
+        {
+            var lastError = _status.Errors[^1];
+            sb.AppendLine($"Last error:      [{lastError.Source}] {lastError.Message} at {lastError.LastAtUtc:HH:mm:ss} UTC");
+        }
+        else
+            sb.AppendLine("Last error:      <none>");
         sb.AppendLine($"Running:         {_automationHandler.IsRunning} (collectable={collectable.IsRunning}, scripshop={scripShop.IsRunning}, autoretainer={retainer.IsRunning}, deliveroo={deliveroo.IsRunning})");
         var terId = Svc.ClientState.TerritoryType;
         sb.AppendLine($"Territory:       {terId} ({VendorCatalog.GetTerritoryDisplayName(terId)})");
@@ -286,6 +293,19 @@ public partial class MainWindow
             {
                 var currency = CurrencyHelper.GetCurrencyName(CurrencyHelper.GetCurrencyIdForItem(item.Item.ItemId));
                 sb.AppendLine($"{item.Name}: {item.AmountPurchased}/{item.Quantity} ({currency})");
+            }
+
+        sb.AppendLine();
+        sb.AppendLine("[Recent errors]");
+        if (_status.Errors.Count == 0)
+            sb.AppendLine("<none>");
+        else
+            foreach (var err in _status.Errors)
+            {
+                var when = err.Count == 1
+                    ? $"{err.FirstAtUtc:HH:mm:ss}"
+                    : $"{err.FirstAtUtc:HH:mm:ss}–{err.LastAtUtc:HH:mm:ss} ×{err.Count}";
+                sb.AppendLine($"{when} UTC [{err.Source}] {err.Message}");
             }
 
         sb.AppendLine();

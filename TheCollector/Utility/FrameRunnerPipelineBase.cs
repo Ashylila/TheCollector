@@ -67,7 +67,10 @@ public abstract class FrameRunnerPipelineBase : IPipeline
             (string name, StepStatus status, string? error) =>
             {
                 if (status is StepStatus.Failed or StepStatus.Cancel)
+                {
+                    Status.ReportError($"{Key}/{name}", $"{status}: {error ?? "<no detail>"}");
                     OnCanceledOrFailed(error);
+                }
 
                 Log.Debug($"{name} -> {status}{(error is null ? "" : $" ({error})")}");
                 OnStepStatus(name, status, error);
