@@ -8,6 +8,7 @@ using ECommons.GameHelpers;
 using TheCollector.CollectableManager;
 using TheCollector.Data;
 using TheCollector.Data.Models;
+using TheCollector.Data.ScripSystem;
 using TheCollector.Ipc;
 using TheCollector.ScripShopManager;
 using TheCollector.Utility;
@@ -17,9 +18,9 @@ namespace TheCollector;
 public class AutomationHandler : IDisposable
 {
     private readonly PlogonLog _log;
-    private readonly CollectableAutomationHandler _collectableAutomationHandler;
+    private readonly ScripSystemSelector _selector;
     private readonly Configuration _config;
-    private readonly ScripShopAutomationHandler _scripShopAutomationHandler;
+    private readonly FirmamentCatalog _firmamentCatalog;
     private readonly IChatGui _chatGui;
     private readonly GatherbuddyReborn_IPCSubscriber _gatherbuddyReborn_IPCSubscriber;
     private readonly ArtisanWatcher _artisanWatcher;
@@ -30,6 +31,7 @@ public class AutomationHandler : IDisposable
     private readonly AutoRetainerManager _autoretainerManager;
     private readonly DeliverooManager _deliverooManager;
     private readonly ScripPlannerService _plannerService;
+    private readonly FirmamentPlannerService _firmamentPlannerService;
     private readonly DiscordWebhookService _discord;
     private readonly CharacterBalanceTracker _balanceTracker;
     private readonly VendorCatalog _vendorCatalog;
@@ -47,13 +49,13 @@ public class AutomationHandler : IDisposable
     private const int HardFailThreshold = 2;
 
     public AutomationHandler(
-        PlogonLog log, CollectableAutomationHandler collectableAutomationHandler, Configuration config, ScripShopAutomationHandler scripShopAutomationHandler, IChatGui chatGui, GatherbuddyReborn_IPCSubscriber gatherbuddyReborn_IPCSubscriber, ArtisanWatcher artisanWatcher, IFramework framework, FishingWatcher fishingWatcher, CraftingHandler craftingHandler, PipelineRegistry registry, AutoRetainerManager retainer, DeliverooManager deliveroo, ScripPlannerService plannerService, DiscordWebhookService discord, CharacterBalanceTracker balanceTracker, VendorCatalog vendorCatalog)
+        PlogonLog log, ScripSystemSelector selector, Configuration config, FirmamentCatalog firmamentCatalog, IChatGui chatGui, GatherbuddyReborn_IPCSubscriber gatherbuddyReborn_IPCSubscriber, ArtisanWatcher artisanWatcher, IFramework framework, FishingWatcher fishingWatcher, CraftingHandler craftingHandler, PipelineRegistry registry, AutoRetainerManager retainer, DeliverooManager deliveroo, ScripPlannerService plannerService, FirmamentPlannerService firmamentPlannerService, DiscordWebhookService discord, CharacterBalanceTracker balanceTracker, VendorCatalog vendorCatalog)
     {
         _log = log;
         _gatherbuddyReborn_IPCSubscriber = gatherbuddyReborn_IPCSubscriber;
-        _collectableAutomationHandler = collectableAutomationHandler;
+        _selector = selector;
         _config = config;
-        _scripShopAutomationHandler = scripShopAutomationHandler;
+        _firmamentCatalog = firmamentCatalog;
         _chatGui = chatGui;
         _artisanWatcher = artisanWatcher;
         _framework = framework;
@@ -63,6 +65,7 @@ public class AutomationHandler : IDisposable
         _autoretainerManager = retainer;
         _deliverooManager = deliveroo;
         _plannerService = plannerService;
+        _firmamentPlannerService = firmamentPlannerService;
         _discord = discord;
         _balanceTracker = balanceTracker;
         _vendorCatalog = vendorCatalog;
@@ -70,11 +73,14 @@ public class AutomationHandler : IDisposable
 
     public void Init()
     {
-        _collectableAutomationHandler.OnError += OnError;
-        _collectableAutomationHandler.OnFinishCollecting += OnFinishedCollecting;
-        _collectableAutomationHandler.OnScripsEarned += OnScripsEarned;
-        _scripShopAutomationHandler.OnError += OnError;
-        _scripShopAutomationHandler.OnFinishedTrading += OnFinishedTrading;
+        foreach (var system in _selector.All)
+        {
+            system.TurnIn.OnError += OnError;
+            system.TurnIn.OnFinished += OnFinishedCollecting;
+            system.TurnIn.OnScripsEarned += OnScripsEarned;
+            system.Buy.OnError += OnError;
+            system.Buy.OnFinishedTrading += OnFinishedTrading;
+        }
         _gatherbuddyReborn_IPCSubscriber.OnAutoGatherStatusChanged += OnAutoGatherStatusChanged;
         _artisanWatcher.OnCraftingFinished += OnFinishedWatching;
         _artisanWatcher.OnInventoryFullDuringCrafting += OnArtisanInventoryFull;
@@ -105,14 +111,22 @@ public class AutomationHandler : IDisposable
             _chatGui.PrintError($"Automation halted: {_config.HardFailReason}. Acknowledge it in the main window before retrying.", "TheCollector");
             return false;
         }
-        if (_config.PreferredTerritoryId == 0)
+        if (_config.ActiveSystem == ScripSystemId.Normal)
         {
-            _chatGui.PrintError("Please configure your preferred shop territory in the Settings tab!", "TheCollector");
-            return false;
+            if (_config.PreferredTerritoryId == 0)
+            {
+                _chatGui.PrintError("Please configure your preferred shop territory in the Settings tab!", "TheCollector");
+                return false;
+            }
+            if (!_vendorCatalog.IsReady)
+            {
+                _chatGui.PrintError("Still scanning vendor data — try again in a few seconds.", "TheCollector");
+                return false;
+            }
         }
-        if (!_vendorCatalog.IsReady)
+        else if (!_firmamentCatalog.IsReady)
         {
-            _chatGui.PrintError("Still scanning vendor data — try again in a few seconds.", "TheCollector");
+            _chatGui.PrintError("Still scanning Firmament data — try again in a few seconds.", "TheCollector");
             return false;
         }
         if (Svc.Condition[ConditionFlag.InCombat])
@@ -120,14 +134,15 @@ public class AutomationHandler : IDisposable
             _chatGui.PrintError("Cannot start automation while in combat.", "TheCollector");
             return false;
         }
-        if (PlayerEx.IsInDuty)
+        
+        if (PlayerEx.IsInDuty && Svc.ClientState.TerritoryType != _firmamentCatalog.TerritoryId)
         {
             _chatGui.PrintError("Cannot start automation while in a duty.", "TheCollector");
             return false;
         }
         SessionStarted ??= DateTime.UtcNow;
         _consecutiveEmptyBuyCycles = 0;
-        _collectableAutomationHandler.Start();
+        _selector.Active.TurnIn.Start();
         return true;
     }
 
@@ -143,13 +158,18 @@ public class AutomationHandler : IDisposable
             _chatGui.PrintError($"Automation halted: {_config.HardFailReason}. Acknowledge it in the main window before retrying.", "TheCollector");
             return false;
         }
-        if (!_vendorCatalog.IsReady)
+        if (_config.ActiveSystem == ScripSystemId.Normal && !_vendorCatalog.IsReady)
         {
             _chatGui.PrintError("Still scanning vendor data — try again in a few seconds.", "TheCollector");
             return false;
         }
+        if (_config.ActiveSystem == ScripSystemId.Firmament && !_firmamentCatalog.IsReady)
+        {
+            _chatGui.PrintError("Still scanning Firmament data — try again in a few seconds.", "TheCollector");
+            return false;
+        }
         SessionStarted ??= DateTime.UtcNow;
-        _scripShopAutomationHandler.Start();
+        _selector.Active.Buy.Start();
         return true;
     }
 
@@ -299,7 +319,7 @@ public class AutomationHandler : IDisposable
         SessionCollectablesTurnedIn++;
         _balanceTracker.SampleNow();
 
-        if (_collectableAutomationHandler.LastEarnedCurrency is { } earned)
+        if (_selector.Active.TurnIn.LastEarnedCurrency is { } earned)
         {
             var source = CurrencyHelper.GetRunSource(earned);
             if (_config.ActiveRunSource != source)
@@ -311,11 +331,11 @@ public class AutomationHandler : IDisposable
 
         if (TryStopOnConditionMet()) return;
 
-        if (_collectableAutomationHandler.ScripCapReached || _config.BuyAfterEachCollect)
+        if (_selector.Active.TurnIn.CapReached || _config.BuyAfterEachCollect)
         {
-            if (_collectableAutomationHandler.ScripCapReached)
+            if (_selector.Active.TurnIn.CapReached)
                 _discord.Notify(DiscordEvent.ScripCap, "💰 TheCollector: scrip cap reached, moving to shop.");
-            _scripShopAutomationHandler.Start();
+            _selector.Active.Buy.Start();
             return;
         }
         RunPostRunCascade(PostRunStage.ResumeArtisan);
@@ -335,9 +355,31 @@ public class AutomationHandler : IDisposable
             totalSpent += amount;
         }
         _config.Save();
+        var activeIsFirmament = _selector.Active.Id == ScripSystemId.Firmament;
+        var activeGoal = activeIsFirmament ? _config.FirmamentGoal : _config.Goal;
+
         if (_config.ResetEachQuantityAfterCompletingList)
-            ResetIfAllComplete(_config.Goal.ItemsToPurchase);
-        if (_config.Goal.StopGatheringWhenComplete && _plannerService.IsGoalComplete())
+        {
+            if (activeIsFirmament)
+            {
+                if (activeGoal.ItemsToPurchase.Count > 0 &&
+                    activeGoal.ItemsToPurchase.All(i => i.Quantity > 0 && i.AmountPurchased >= i.Quantity))
+                {
+                    foreach (var item in activeGoal.ItemsToPurchase)
+                        item.AmountPurchased = 0;
+                    _config.Save();
+                }
+            }
+            else
+            {
+                ResetIfAllComplete(_config.Goal.ItemsToPurchase);
+            }
+        }
+
+        var goalComplete = activeIsFirmament
+            ? _firmamentPlannerService.IsGoalComplete()
+            : _plannerService.IsGoalComplete();
+        if (activeGoal.StopGatheringWhenComplete && goalComplete)
         {
             _chatGui.Print("Purchase list complete! Stopping automation.", "TheCollector");
             _log.Debug("Goal complete — all items purchased. Stopping.");
@@ -351,7 +393,7 @@ public class AutomationHandler : IDisposable
 
         if (TryStopOnConditionMet()) return;
 
-        if (_collectableAutomationHandler.HasCollectible)
+        if (_selector.Active.TurnIn.HasCollectible)
         {
             if (totalSpent == 0)
             {
@@ -367,7 +409,7 @@ public class AutomationHandler : IDisposable
                 _consecutiveEmptyBuyCycles = 0;
             }
 
-            _collectableAutomationHandler.Start();
+            _selector.Active.TurnIn.Start();
             return;
         }
         _consecutiveEmptyBuyCycles = 0;
@@ -400,15 +442,18 @@ public class AutomationHandler : IDisposable
 
     public void Dispose()
     {
-        _collectableAutomationHandler.OnError -= OnError;
-        _scripShopAutomationHandler.OnError -= OnError;
-        _scripShopAutomationHandler.OnFinishedTrading -= OnFinishedTrading;
+        foreach (var system in _selector.All)
+        {
+            system.TurnIn.OnError -= OnError;
+            system.TurnIn.OnFinished -= OnFinishedCollecting;
+            system.TurnIn.OnScripsEarned -= OnScripsEarned;
+            system.Buy.OnError -= OnError;
+            system.Buy.OnFinishedTrading -= OnFinishedTrading;
+        }
         _gatherbuddyReborn_IPCSubscriber.OnAutoGatherStatusChanged -= OnAutoGatherStatusChanged;
         _artisanWatcher.OnCraftingFinished -= OnFinishedWatching;
         _artisanWatcher.OnInventoryFullDuringCrafting -= OnArtisanInventoryFull;
         _fishingWatcher.OnFishingFinished -= OnFinishedWatching;
-        _collectableAutomationHandler.OnFinishCollecting -= OnFinishedCollecting;
-        _collectableAutomationHandler.OnScripsEarned -= OnScripsEarned;
         _autoretainerManager.OnError -= OnError;
         _autoretainerManager.OnRetainerFinish -= OnAutoRetainerFinish;
         _deliverooManager.OnDeliverooFinish -= OnDeliverooFinish;

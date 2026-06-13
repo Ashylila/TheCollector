@@ -114,45 +114,49 @@ public partial class MainWindow
 
     private void DrawSettingsGeneral()
     {
-        ImGuiHelper.SectionHeader("Collectable Shop");
-
-        var catalog = ServiceWrapper.Get<VendorCatalog>();
-        var currentTerritory = configuration.PreferredTerritoryId;
-        var currentLabel = currentTerritory == 0
-            ? "Select a territory"
-            : VendorCatalog.GetTerritoryDisplayName(currentTerritory);
-
-        ImGui.PushItemWidth(-1);
-        if (ImGui.BeginCombo("##shopselection", currentLabel))
+        if (configuration.ActiveSystem == TheCollector.Data.ScripSystem.ScripSystemId.Normal)
         {
-            if (!catalog.IsReady)
-                ImGui.TextDisabled("Scanning vendor data...");
+            ImGuiHelper.SectionHeader("Collectable Shop");
 
-            foreach (var territoryId in catalog.ServedTerritoryIds)
+            var catalog = ServiceWrapper.Get<VendorCatalog>();
+            var currentTerritory = configuration.PreferredTerritoryId;
+            var currentLabel = currentTerritory == 0
+                ? "Select a territory"
+                : VendorCatalog.GetTerritoryDisplayName(currentTerritory);
+
+            ImGui.PushItemWidth(-1);
+            if (ImGui.BeginCombo("##shopselection", currentLabel))
             {
-                bool requiresLifestream = TerritoryRouting.RequiresAethernet(territoryId);
-                bool lifestreamMissing = requiresLifestream && !IPCSubscriber_Common.IsReady("Lifestream");
-                ImGui.BeginDisabled(lifestreamMissing);
+                if (!catalog.IsReady)
+                    ImGui.TextDisabled("Scanning vendor data...");
 
-                var label = VendorCatalog.GetTerritoryDisplayName(territoryId);
-                if (lifestreamMissing) label = $"{label} (Lifestream required)";
-
-                if (ImGui.Selectable(label, territoryId == currentTerritory))
+                foreach (var territoryId in catalog.ServedTerritoryIds)
                 {
-                    configuration.PreferredTerritoryId = territoryId;
-                    configuration.Save();
+                    bool requiresLifestream = TerritoryRouting.RequiresAethernet(territoryId);
+                    bool lifestreamMissing = requiresLifestream && !IPCSubscriber_Common.IsReady("Lifestream");
+                    ImGui.BeginDisabled(lifestreamMissing);
+
+                    var label = VendorCatalog.GetTerritoryDisplayName(territoryId);
+                    if (lifestreamMissing) label = $"{label} (Lifestream required)";
+
+                    if (ImGui.Selectable(label, territoryId == currentTerritory))
+                    {
+                        configuration.PreferredTerritoryId = territoryId;
+                        configuration.Save();
+                    }
+                    if (lifestreamMissing && ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
+                        ImGui.SetTooltip("Lifestream plugin is required to reach this territory.");
+
+                    ImGui.EndDisabled();
                 }
-                if (lifestreamMissing && ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
-                    ImGui.SetTooltip("Lifestream plugin is required to reach this territory.");
 
-                ImGui.EndDisabled();
+                ImGui.EndCombo();
             }
+            ImGui.PopItemWidth();
 
-            ImGui.EndCombo();
+            ImGui.Spacing();
         }
-        ImGui.PopItemWidth();
 
-        ImGui.Spacing();
         ImGuiHelper.SectionHeader("Automation");
 
         var buyAfterEach = configuration.BuyAfterEachCollect;
@@ -228,6 +232,7 @@ public partial class MainWindow
 
         sb.AppendLine();
         sb.AppendLine("[State]");
+        sb.AppendLine($"Active system:   {configuration.ActiveSystem}");
         sb.AppendLine($"Status:          {_status.Current}{(string.IsNullOrEmpty(_status.Detail) ? "" : $" ({_status.Detail})")}");
         sb.AppendLine($"Hard fail:       {configuration.HardFailReason ?? "<none>"}");
         sb.AppendLine($"Running:         {_automationHandler.IsRunning} (collectable={collectable.IsRunning}, scripshop={scripShop.IsRunning}, autoretainer={retainer.IsRunning}, deliveroo={deliveroo.IsRunning})");
@@ -276,6 +281,29 @@ public partial class MainWindow
         sb.AppendLine($"Collectable NPC: {(cv == null ? "<none>" : $"{cv.Name} @ ({cv.Position.X:F1}, {cv.Position.Y:F1}, {cv.Position.Z:F1})")}");
         sb.AppendLine($"Scrip NPC:       {(sv == null ? "<none>" : $"{sv.Name} @ ({sv.Position.X:F1}, {sv.Position.Y:F1}, {sv.Position.Z:F1})")}");
         sb.AppendLine($"Scrip shop items: {ScripShopItemManager.ShopItems.Count}");
+
+        sb.AppendLine();
+        sb.AppendLine("[Firmament]");
+        var firmCatalog = ServiceWrapper.Get<FirmamentCatalog>();
+        var firmTurnIn  = ServiceWrapper.Get<FirmamentManager.FirmamentTurnInHandler>();
+        var firmShop    = ServiceWrapper.Get<FirmamentManager.FirmamentShopHandler>();
+        sb.AppendLine($"Catalog:         {(firmCatalog.IsReady ? "ready" : "still building")} (territory {firmCatalog.TerritoryId}, cap {firmCatalog.HoldingCap})");
+        sb.AppendLine($"Appraisers/exch: {firmCatalog.Appraisers.Count}/{firmCatalog.Exchanges.Count}, turn-in items {firmCatalog.TurnInItemIds.Count}");
+        sb.AppendLine($"Wares:           {firmCatalog.Wares.Count} across {firmCatalog.ShopOrder.Count} sub-shops [{string.Join(", ", firmCatalog.ShopOrder)}]");
+        sb.AppendLine($"Pipelines:       turnIn={firmTurnIn.IsRunning}, shop={firmShop.IsRunning}");
+        if (configuration.FirmamentGoal.ItemsToPurchase.Count == 0)
+            sb.AppendLine("Purchase list:   <empty>");
+        else
+        {
+            sb.AppendLine("Purchase list:");
+            foreach (var item in configuration.FirmamentGoal.ItemsToPurchase)
+            {
+                var placement = firmCatalog.TryGetPlacement(item.Item.ItemId, out var shopId, out var tab)
+                    ? $"shop {shopId}, tab {tab}"
+                    : "unmapped";
+                sb.AppendLine($"  {item.Name}: {item.AmountPurchased}/{item.Quantity} ({placement})");
+            }
+        }
 
         sb.AppendLine();
         sb.AppendLine("[Purchase list]");

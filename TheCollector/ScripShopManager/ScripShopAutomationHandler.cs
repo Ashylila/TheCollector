@@ -6,7 +6,7 @@ using TheCollector.Utility;
 
 namespace TheCollector.ScripShopManager;
 
-public partial class ScripShopAutomationHandler
+public partial class ScripShopAutomationHandler : TheCollector.Data.ScripSystem.IBuyPipeline
 {
     public override string Key => "scripshop";
     private readonly Configuration _configuration;

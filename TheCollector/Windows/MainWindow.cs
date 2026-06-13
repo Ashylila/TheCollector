@@ -10,6 +10,7 @@ using Dalamud.Plugin.Services;
 using TheCollector.CollectableManager;
 using TheCollector.Data;
 using TheCollector.Data.Models;
+using TheCollector.Data.ScripSystem;
 using TheCollector.Ipc;
 using TheCollector.Utility;
 
@@ -23,13 +24,16 @@ public partial class MainWindow : Window, IDisposable
 
     private readonly PlogonLog _log;
     private readonly ScripPlannerService _plannerService;
+    private readonly FirmamentCatalog _firmamentCatalog;
     private readonly AutomationHandler _automationHandler;
     private readonly DiscordWebhookService _discord;
     private readonly StatusService _status;
     private ScripShopItem? SelectedScripItem = null;
 
     public MainWindow(Plugin plugin, IDalamudPluginInterface pluginInterface, PlogonLog log,
-        ScripPlannerService plannerService, AutomationHandler automationHandler, DiscordWebhookService discord,
+        ScripPlannerService plannerService,
+        FirmamentCatalog firmamentCatalog,
+        AutomationHandler automationHandler, DiscordWebhookService discord,
         CharacterBalanceTracker balanceTracker, StatusService status)
         : base("The Collector##CollectorMain", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse)
     {
@@ -40,6 +44,7 @@ public partial class MainWindow : Window, IDisposable
         };
         _log = log;
         _plannerService = plannerService;
+        _firmamentCatalog = firmamentCatalog;
         _automationHandler = automationHandler;
         _discord = discord;
         _balanceTracker = balanceTracker;
@@ -65,6 +70,7 @@ public partial class MainWindow : Window, IDisposable
         DrawHero();
         DrawHardFailBanner();
         DrawStatusRow();
+        DrawSystemToggle();
 
         ImGui.Dummy(new Vector2(0, 4f));
 
@@ -77,7 +83,8 @@ public partial class MainWindow : Window, IDisposable
                 ImGui.EndTabItem();
             }
 
-            if (ImGui.BeginTabItem("Planner"))
+            // The planner is Normal-system only; it has no meaningful equivalent in Firmament mode.
+            if (configuration.ActiveSystem != ScripSystemId.Firmament && ImGui.BeginTabItem("Planner"))
             {
                 ImGui.Spacing();
                 if (ImGui.BeginChild("##PlannerScroll", new Vector2(0, -1), false))
@@ -148,13 +155,17 @@ public partial class MainWindow : Window, IDisposable
             ImGui.TextUnformatted(label);
             ImGui.PopStyleColor();
 
-            if (configuration.Goal.ItemsToPurchase.Count > 0)
+            var statusGoal = configuration.ActiveSystem == ScripSystemId.Firmament
+                ? configuration.FirmamentGoal
+                : configuration.Goal;
+
+            if (statusGoal.ItemsToPurchase.Count > 0)
             {
                 int completed = 0;
-                foreach (var i in configuration.Goal.ItemsToPurchase)
+                foreach (var i in statusGoal.ItemsToPurchase)
                     if (i.Quantity > 0 && i.AmountPurchased >= i.Quantity)
                         completed++;
-                int total = configuration.Goal.ItemsToPurchase.Count;
+                int total = statusGoal.ItemsToPurchase.Count;
                 var chipColor = completed == total ? UiTheme.Success : UiTheme.Accent;
 
                 var summary = $"{completed}/{total} done";
@@ -166,6 +177,35 @@ public partial class MainWindow : Window, IDisposable
                 ImGuiHelper.Chip(summary, chipColor);
             }
         });
+    }
+
+    private void DrawSystemToggle()
+    {
+        ImGuiHelper.Panel("SystemToggle", () =>
+        {
+            ImGui.AlignTextToFramePadding();
+            ImGui.TextUnformatted("System");
+            ImGui.SameLine();
+            DrawSystemOption("Normal Scrips", ScripSystemId.Normal);
+            ImGui.SameLine();
+            DrawSystemOption("Firmament", ScripSystemId.Firmament);
+        });
+    }
+
+    private void DrawSystemOption(string label, ScripSystemId id)
+    {
+        bool active = configuration.ActiveSystem == id;
+        if (active) ImGui.PushStyleColor(ImGuiCol.Button, UiTheme.Accent);
+        ImGui.BeginDisabled(!active && _automationHandler.IsRunning);
+        if (ImGui.Button(label) && !active)
+        {
+            configuration.ActiveSystem = id;
+            configuration.Save();
+            _plannerService.InvalidateCache();
+            _planCache = null;
+        }
+        ImGui.EndDisabled();
+        if (active) ImGui.PopStyleColor();
     }
 
     private static void DrawSupportButton()

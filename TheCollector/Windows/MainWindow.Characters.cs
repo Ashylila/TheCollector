@@ -37,7 +37,7 @@ public partial class MainWindow
         {
             const ImGuiTableFlags flags =
                 ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.PadOuterX | ImGuiTableFlags.RowBg;
-            if (!ImGui.BeginTable("##CharsTable", 6, flags)) return;
+            if (!ImGui.BeginTable("##CharsTable", 7, flags)) return;
 
             // Column headers come from Lumina so they always match the
             // game's current item names (e.g. "Purple Crafters' Scrip") and
@@ -48,6 +48,7 @@ public partial class MainWindow
             ImGui.TableSetupColumn(CurrencyHelper.GetCurrencyName(CurrencyHelper.PurpleGathererScripItemId), ImGuiTableColumnFlags.WidthFixed, 95f);
             ImGui.TableSetupColumn(CurrencyHelper.GetCurrencyName(CurrencyHelper.OrangeCrafterScripItemId),  ImGuiTableColumnFlags.WidthFixed, 95f);
             ImGui.TableSetupColumn(CurrencyHelper.GetCurrencyName(CurrencyHelper.OrangeGathererScripItemId), ImGuiTableColumnFlags.WidthFixed, 95f);
+            ImGui.TableSetupColumn(CurrencyHelper.GetCurrencyName(Data.Firmament.FirmamentAnchors.ScripItemId), ImGuiTableColumnFlags.WidthFixed, 95f);
             ImGui.TableHeadersRow();
 
             var now = DateTime.UtcNow;
@@ -75,6 +76,7 @@ public partial class MainWindow
                 DrawBalance(c, 3, CurrencyHelper.PurpleGathererScripItemId);
                 DrawBalance(c, 4, CurrencyHelper.OrangeCrafterScripItemId);
                 DrawBalance(c, 5, CurrencyHelper.OrangeGathererScripItemId);
+                DrawBalance(c, 6, Data.Firmament.FirmamentAnchors.ScripItemId);
             }
 
             ImGui.EndTable();
