@@ -57,6 +57,10 @@ public class Configuration : IPluginConfiguration
 
     public RunSource ActiveRunSource { get; set; } = RunSource.Gathering;
 
+    public Data.ScripSystem.ScripSystemId ActiveSystem { get; set; } = Data.ScripSystem.ScripSystemId.Normal;
+
+    public ScripGoal FirmamentGoal { get; set; } = new();
+
     public void Save()
     {
         Svc.PluginInterface.SavePluginConfig(this);

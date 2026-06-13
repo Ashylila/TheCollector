@@ -9,8 +9,16 @@ using TheCollector.Utility;
 
 namespace TheCollector.CollectableManager;
 
-public partial class CollectableAutomationHandler
+public partial class CollectableAutomationHandler : TheCollector.Data.ScripSystem.ITurnInPipeline
 {
+    event System.Action TheCollector.Data.ScripSystem.ITurnInPipeline.OnFinished
+    {
+        add => OnFinishCollecting += value;
+        remove => OnFinishCollecting -= value;
+    }
+
+    bool TheCollector.Data.ScripSystem.ITurnInPipeline.CapReached => ScripCapReached;
+
     private readonly CollectableWindowHandler _collectibleWindowHandler;
     private readonly IDataManager _dataManager;
     private readonly Configuration _configuration;

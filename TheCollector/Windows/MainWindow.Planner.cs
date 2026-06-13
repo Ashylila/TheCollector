@@ -6,6 +6,7 @@ using Dalamud.Bindings.ImGui;
 using ECommons.DalamudServices;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using Lumina.Excel.Sheets;
+using TheCollector.Data.ScripSystem;
 using TheCollector.Utility;
 
 namespace TheCollector.Windows;

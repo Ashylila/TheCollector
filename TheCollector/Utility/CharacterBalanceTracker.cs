@@ -17,6 +17,7 @@ public class CharacterBalanceTracker : IDisposable
         CurrencyHelper.PurpleGathererScripItemId,
         CurrencyHelper.OrangeCrafterScripItemId,
         CurrencyHelper.OrangeGathererScripItemId,
+        Data.Firmament.FirmamentAnchors.ScripItemId,
     };
 
     private readonly Configuration _config;
