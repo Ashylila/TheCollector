@@ -1,4 +1,4 @@
-using TheCollector.Data.Models;
+﻿using TheCollector.Data.Models;
 using TheCollector.Utility;
 
 namespace TheCollector.Windows;
@@ -42,6 +42,7 @@ public class ChangelogUi
         Add_0_6_0(Book);
         Add_0_6_1(Book);
         Add_0_6_2(Book);
+        Add_0_7_0(Book);
 
         Window = new ChangelogWindow("TheCollector_Changelog", Book, GetConfig, SetConfig);
     }
@@ -64,6 +65,11 @@ public class ChangelogUi
         }
         if (dirty) _config.Save();
     }
+
+    private static void Add_0_7_0(ChangelogBook book) =>
+        book.NextVersion("Version 0.7.0")
+            .RegisterHighlight("Experimental Firmament (Skybuilders' Scrip) support — turn in Skybuilders' collectables and buy from the Firmament scrip shop.")
+            .RegisterImportant("Firmament mode is experimental — in the System toggle, hold Shift and click 'Firmament' to enable it. Expect rough edges, and please report anything that breaks");
 
     private static void Add_0_6_2(ChangelogBook book) =>
         book.NextVersion("Version 0.6.2")

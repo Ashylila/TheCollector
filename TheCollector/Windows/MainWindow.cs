@@ -188,24 +188,31 @@ public partial class MainWindow : Window, IDisposable
             ImGui.SameLine();
             DrawSystemOption("Normal Scrips", ScripSystemId.Normal);
             ImGui.SameLine();
-            DrawSystemOption("Firmament", ScripSystemId.Firmament);
+            DrawSystemOption("Firmament", ScripSystemId.Firmament, requireShift: true);
         });
     }
 
-    private void DrawSystemOption(string label, ScripSystemId id)
+    private void DrawSystemOption(string label, ScripSystemId id, bool requireShift = false)
     {
         bool active = configuration.ActiveSystem == id;
         if (active) ImGui.PushStyleColor(ImGuiCol.Button, UiTheme.Accent);
         ImGui.BeginDisabled(!active && _automationHandler.IsRunning);
-        if (ImGui.Button(label) && !active)
+        bool clicked = ImGui.Button(label);
+        ImGui.EndDisabled();
+        if (active) ImGui.PopStyleColor();
+
+        if (requireShift && ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
+            ImGui.SetTooltip(active
+                ? "Experimental feature."
+                : "Experimental — hold Shift and click to enable.");
+
+        if (clicked && !active && (!requireShift || ImGui.GetIO().KeyShift))
         {
             configuration.ActiveSystem = id;
             configuration.Save();
             _plannerService.InvalidateCache();
             _planCache = null;
         }
-        ImGui.EndDisabled();
-        if (active) ImGui.PopStyleColor();
     }
 
     private static void DrawSupportButton()
