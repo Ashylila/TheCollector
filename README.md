@@ -9,7 +9,9 @@
 saves you time by automating collectable turn-ins and buying items the
 moment you hit a scrip cap. It works alongside **GatherBuddyReborn**
 and **Artisan** so you can set up complete gather, craft, and turn-in
-loops without babysitting the client.
+loops without babysitting the client. There's also a new, still
+experimental **Firmament** mode for handing in Skybuilders' collectables
+and shopping the Firmament scrip vendor the same hands-off way.
 
 > Note: TheCollector is still in active development. Bugs may occur.
 
@@ -17,24 +19,25 @@ loops without babysitting the client.
 
 ## Features
 
-- Automated collectable turn-ins — no manual clicks per item
-- Auto-buy scrip items the moment you hit cap
-- Integration with **Artisan** and **GatherBuddyReborn** for full
-  gather / craft / turn-in loops
-- Planner with the best picks per currency, gated to your job level
-  and crediting collectables already in your bags
-- Multi-character scrip dashboard, with balances refreshed after every
-  turn-in and buy cycle
-- Stop conditions: halt automation at a scrip target, buy-cycle count,
-  or session time limit
-- Optional Discord webhook for run notifications
-- Optional AutoRetainer piggyback for venture checks between runs
+- Turns in your collectables for you, no clicking through them one at a
+  time
+- Buys your scrip items automatically the moment you hit cap
+- Plays nicely with **Artisan** and **GatherBuddyReborn**, so you can
+  leave a whole gather, craft, and turn-in loop running on its own
+- A new **Firmament** mode that hands in Skybuilders' collectables and
+  shops the Firmament scrip vendor the same way — still experimental, so
+  expect the odd rough edge
+- A planner that picks the best items for each currency, sticks to your
+  job level, and counts what's already sitting in your bags
+- A Characters tab that keeps every alt's scrip balances in one place
+- Can ping a Discord webhook when a run finishes or something needs you
+- Hands off to **AutoRetainer** for venture checks and to **Deliveroo**  for Grand Company turn-ins between runs
 
 ---
 
 ## Installation
 
-1. In Dalamud, open **Plugin Settings → Custom Plugin Repositories**
+1. In Dalamud, open **Dalamud Settings → Experimental → Custom Plugin Repositories**
 
 2. Add this repo link:
 
