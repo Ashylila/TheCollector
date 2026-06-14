@@ -73,7 +73,7 @@ public class DeliverooManager : FrameRunnerPipelineBase
         steps.Add(new FrameRunner.Step("EnableDeliveroo", EnableDeliveroo, TimeSpan.FromSeconds(1)));
         steps.Add(FrameRunner.Delay("EngageDelay", TimeSpan.FromSeconds(2)));
         steps.Add(new FrameRunner.Step("WaitDeliverooFinish", WaitDeliverooFinish, TimeSpan.FromMinutes(10),
-            () => _deliverooIdleSince = DateTime.MinValue));
+            () => { _deliverooIdleSince = DateTime.MinValue; _deliverooIdleFalseChecks = 0; }));
         steps.Add(FrameRunner.Delay("PostDelay", TimeSpan.FromSeconds(1)));
 
         return steps.ToArray();
@@ -110,18 +110,33 @@ public class DeliverooManager : FrameRunnerPipelineBase
     }
 
     private DateTime _deliverooIdleSince = DateTime.MinValue;
+    private int _deliverooIdleFalseChecks = 0;
+    private const int DeliverooIdleCheckIntervalSeconds = 5;
+    private const int DeliverooIdleConfirmChecks = 3;
 
     private StepResult WaitDeliverooFinish()
     {
-        if (Deliveroo_IPCSubscriber.IsTurnInRunning())
+        var isRunning = Deliveroo_IPCSubscriber.IsTurnInRunning();
+        if (isRunning || !PlayerEx.CanAct)
         {
             _deliverooIdleSince = DateTime.MinValue;
+            _deliverooIdleFalseChecks = 0;
             return StepResult.Continue();
         }
 
         if (_deliverooIdleSince == DateTime.MinValue)
+        {
             _deliverooIdleSince = DateTime.UtcNow;
-        if ((DateTime.UtcNow - _deliverooIdleSince).TotalSeconds < 10)
+            return StepResult.Continue();
+        }
+
+        if ((DateTime.UtcNow - _deliverooIdleSince).TotalSeconds < DeliverooIdleCheckIntervalSeconds)
+            return StepResult.Continue();
+
+        _deliverooIdleSince = DateTime.UtcNow;
+        _deliverooIdleFalseChecks++;
+
+        if (_deliverooIdleFalseChecks < DeliverooIdleConfirmChecks)
             return StepResult.Continue();
 
         Chat.ExecuteCommand("/deliveroo d");
