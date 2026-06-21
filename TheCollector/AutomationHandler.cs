@@ -7,6 +7,7 @@ using ECommons.DalamudServices;
 using ECommons.GameHelpers;
 using TheCollector.CollectableManager;
 using TheCollector.Data;
+using TheCollector.FirmamentManager;
 using TheCollector.Data.Models;
 using TheCollector.Data.ScripSystem;
 using TheCollector.Ipc;
@@ -35,6 +36,8 @@ public class AutomationHandler : IDisposable
     private readonly DiscordWebhookService _discord;
     private readonly CharacterBalanceTracker _balanceTracker;
     private readonly VendorCatalog _vendorCatalog;
+    private readonly KupoOfFortuneHandler _kupo;
+    private readonly FirmamentTurnInWindowHandler _firmamentTurnInWindow;
     public bool IsRunning => _pipelineRegistry.All.Any(p => p.IsRunning);
 
     public int SessionCollectablesTurnedIn { get; private set; }
@@ -48,8 +51,12 @@ public class AutomationHandler : IDisposable
     private int _consecutiveEmptyBuyCycles;
     private const int HardFailThreshold = 2;
 
+    // True while a Kupo of Fortune run was started manually (debug/test button) rather than
+    // by the turn-in loop, so its completion does not spill into the post-turn-in cascade.
+    private bool _kupoStartedManually;
+
     public AutomationHandler(
-        PlogonLog log, ScripSystemSelector selector, Configuration config, FirmamentCatalog firmamentCatalog, IChatGui chatGui, GatherbuddyReborn_IPCSubscriber gatherbuddyReborn_IPCSubscriber, ArtisanWatcher artisanWatcher, IFramework framework, FishingWatcher fishingWatcher, CraftingHandler craftingHandler, PipelineRegistry registry, AutoRetainerManager retainer, DeliverooManager deliveroo, ScripPlannerService plannerService, FirmamentPlannerService firmamentPlannerService, DiscordWebhookService discord, CharacterBalanceTracker balanceTracker, VendorCatalog vendorCatalog)
+        PlogonLog log, ScripSystemSelector selector, Configuration config, FirmamentCatalog firmamentCatalog, IChatGui chatGui, GatherbuddyReborn_IPCSubscriber gatherbuddyReborn_IPCSubscriber, ArtisanWatcher artisanWatcher, IFramework framework, FishingWatcher fishingWatcher, CraftingHandler craftingHandler, PipelineRegistry registry, AutoRetainerManager retainer, DeliverooManager deliveroo, ScripPlannerService plannerService, FirmamentPlannerService firmamentPlannerService, DiscordWebhookService discord, CharacterBalanceTracker balanceTracker, VendorCatalog vendorCatalog, KupoOfFortuneHandler kupo, FirmamentTurnInWindowHandler firmamentTurnInWindow)
     {
         _log = log;
         _gatherbuddyReborn_IPCSubscriber = gatherbuddyReborn_IPCSubscriber;
@@ -69,6 +76,8 @@ public class AutomationHandler : IDisposable
         _discord = discord;
         _balanceTracker = balanceTracker;
         _vendorCatalog = vendorCatalog;
+        _kupo = kupo;
+        _firmamentTurnInWindow = firmamentTurnInWindow;
     }
 
     public void Init()
@@ -89,6 +98,8 @@ public class AutomationHandler : IDisposable
         _autoretainerManager.OnError += OnError;
         _deliverooManager.OnDeliverooFinish += OnDeliverooFinish;
         _deliverooManager.OnError += OnError;
+        _kupo.OnFinishedPlaying += OnKupoFinished;
+        _kupo.OnError += OnKupoError;
     }
 
     private void OnAutoGatherStatusChanged(bool enabled)
@@ -170,6 +181,25 @@ public class AutomationHandler : IDisposable
         }
         SessionStarted ??= DateTime.UtcNow;
         _selector.Active.Buy.Start();
+        return true;
+    }
+
+    // Standalone Kupo of Fortune run for testing — plays the minigame at Lizbeth without
+    // running (or continuing into) the rest of the automation loop.
+    public bool InvokeKupo()
+    {
+        if (IsRunning)
+        {
+            _chatGui.PrintError("Automation is already running.", "TheCollector");
+            return false;
+        }
+        if (!_firmamentCatalog.IsReady)
+        {
+            _chatGui.PrintError("Still scanning Firmament data — try again in a few seconds.", "TheCollector");
+            return false;
+        }
+        _kupoStartedManually = true;
+        _kupo.Start();
         return true;
     }
 
@@ -331,6 +361,53 @@ public class AutomationHandler : IDisposable
 
         if (TryStopOnConditionMet()) return;
 
+        // Drain Kupo of Fortune cards (Firmament-only) before the buy/cascade flow; it
+        // resumes via ContinueAfterCollect on finish, or OnKupoError on failure.
+        if (ShouldPlayKupo())
+        {
+            _kupoStartedManually = false;
+            _kupo.Start();
+            return;
+        }
+
+        ContinueAfterCollect();
+    }
+
+    private void OnKupoFinished()
+    {
+        // A manual test run ends here without spilling into the buy/cascade flow.
+        if (_kupoStartedManually) { _kupoStartedManually = false; return; }
+
+        // The turn-in pauses when vouchers hit the threshold; having drained them, resume
+        // turning in if collectables remain (and we're not at the scrip cap). This interleaves
+        // turn-in and Kupo so vouchers never pile up past the cap.
+        if (!_selector.Active.TurnIn.CapReached && _selector.Active.TurnIn.HasCollectible)
+        {
+            _selector.Active.TurnIn.Start();
+            return;
+        }
+        ContinueAfterCollect();
+    }
+
+    private bool ShouldPlayKupo()
+    {
+        // Firmament-only, gated on the voucher count sampled from the turn-in window so we
+        // only detour to Lizbeth once the held vouchers reach the threshold (default = cap).
+        return _config.KupoOfFortuneEnabled &&
+               _selector.Active.Id == ScripSystemId.Firmament &&
+               _firmamentTurnInWindow.LastVoucherCount >= _config.KupoOfFortuneThreshold;
+    }
+
+    private void OnKupoError(Exception ex)
+    {
+        // A failed minigame must not hard-fail the whole run — just log and carry on.
+        _log.Error(ex, "Kupo of Fortune play failed; continuing with the post-turn-in flow.");
+        if (_kupoStartedManually) { _kupoStartedManually = false; return; }
+        ContinueAfterCollect();
+    }
+
+    private void ContinueAfterCollect()
+    {
         if (_selector.Active.TurnIn.CapReached || _config.BuyAfterEachCollect)
         {
             if (_selector.Active.TurnIn.CapReached)

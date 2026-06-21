@@ -156,6 +156,35 @@ public partial class MainWindow
 
             ImGui.Spacing();
         }
+        else
+        {
+            ImGuiHelper.SectionHeader("Kupo of Fortune");
+
+            var kupoEnabled = configuration.KupoOfFortuneEnabled;
+            if (ImGui.Checkbox("Play Kupo of Fortune to spend held cards", ref kupoEnabled))
+            {
+                configuration.KupoOfFortuneEnabled = kupoEnabled;
+                configuration.Save();
+            }
+            if (ImGui.IsItemHovered())
+                ImGui.SetTooltip("After a Firmament turn-in, walk to Lizbeth and play any Kupo of Fortune\n" +
+                                 "cards you hold so vouchers earned past the 10-card cap aren't wasted.");
+
+            ImGui.BeginDisabled(!kupoEnabled);
+            ImGui.AlignTextToFramePadding();
+            ImGui.TextUnformatted("Play when cards held reach:");
+            ImGui.SameLine();
+            var threshold = configuration.KupoOfFortuneThreshold;
+            ImGui.SetNextItemWidth(-1);
+            if (ImGui.SliderInt("##KupoThreshold", ref threshold, 1, 10))
+            {
+                configuration.KupoOfFortuneThreshold = Math.Clamp(threshold, 1, 10);
+                configuration.Save();
+            }
+            ImGui.EndDisabled();
+
+            ImGui.Spacing();
+        }
 
         ImGuiHelper.SectionHeader("Automation");
 
@@ -806,6 +835,11 @@ public partial class MainWindow
         if (ImGui.Button("Start autoretainer")) retainer.Start();
         ImGui.SameLine();
         if (ImGui.Button("Start deliveroo")) deliveroo.Start();
+
+        if (ImGui.Button("Start Kupo of Fortune")) _automationHandler.InvokeKupo();
+        if (ImGui.IsItemHovered())
+            ImGui.SetTooltip("Walk to Lizbeth in the Firmament and play any held Kupo of Fortune\n" +
+                             "cards. Runs standalone — won't trigger the buy/cascade flow.");
 
         if (ImGui.Button("Force stop all"))
             _automationHandler.ForceStop("Stopped from debug panel");

@@ -29,6 +29,7 @@ public sealed class FirmamentCatalog
 
     public IReadOnlyList<Placement> Appraisers { get; private set; } = Array.Empty<Placement>();
     public IReadOnlyList<Placement> Exchanges { get; private set; } = Array.Empty<Placement>();
+    public IReadOnlyList<Placement> Lizbeths { get; private set; } = Array.Empty<Placement>();
     public IReadOnlySet<uint> TurnInItemIds { get; private set; } = new HashSet<uint>();
     public IReadOnlyDictionary<uint, int> CrafterJobByItemId { get; private set; } = new Dictionary<uint, int>();
     public IReadOnlyList<FirmamentWare> Wares { get; private set; } = Array.Empty<FirmamentWare>();
@@ -67,8 +68,12 @@ public sealed class FirmamentCatalog
 
     public uint[] AppraiserDataIds => Appraisers.Select(p => p.DataId).ToArray();
     public uint[] ExchangeDataIds => Exchanges.Select(p => p.DataId).ToArray();
+    public uint[] LizbethDataIds => Lizbeths.Select(p => p.DataId).ToArray();
     public Vector3 AppraiserPosition => Appraisers.Count > 0 ? Appraisers[0].Position : Vector3.Zero;
     public Vector3 ExchangePosition => Exchanges.Count > 0 ? Exchanges[0].Position : Vector3.Zero;
+    // Lizbeth stands next to the appraiser; fall back to the appraiser spot if her
+    // placement could not be resolved so movement still lands in the right area.
+    public Vector3 LizbethPosition => Lizbeths.Count > 0 ? Lizbeths[0].Position : AppraiserPosition;
 
     public FirmamentCatalog(PlogonLog log)
     {
@@ -107,8 +112,13 @@ public sealed class FirmamentCatalog
             if (npc.ENpcData.Any(e => e.RowId == FirmamentAnchors.ExchangeTalkId)) exchangeNpcIds.Add(npc.RowId);
         }
 
+        var lizbethNpcIds = FirmamentAnchors.LizbethNpcIds.ToHashSet();
+
         var appraisers = new List<Placement>();
         var exchanges = new List<Placement>();
+        // Several NPCs share the name "Lizbeth"; keep each candidate with its territory so
+        // we can pick the one in the Firmament once the territory is resolved below.
+        var lizbethCandidates = new List<(Placement placement, uint territory)>();
         var territoryVotes = new Dictionary<uint, int>();
         foreach (var lv in levelSheet)
         {
@@ -123,11 +133,23 @@ public sealed class FirmamentCatalog
             }
             if (exchangeNpcIds.Contains(npcId))
                 exchanges.Add(new Placement(npcId, pos));
+            if (lizbethNpcIds.Contains(npcId))
+                lizbethCandidates.Add((new Placement(npcId, pos), lv.Territory.RowId));
         }
 
         TerritoryId = territoryVotes.Count > 0
             ? territoryVotes.OrderByDescending(kv => kv.Value).First().Key
             : 0;
+
+        var lizbeths = lizbethCandidates
+            .Where(c => TerritoryId != 0 && c.territory == TerritoryId)
+            .Select(c => c.placement)
+            .ToList();
+
+        // Pin the in-game-confirmed Lizbeth first, with her verified position, so movement
+        // and interaction always have a working anchor even if the scan above came up empty.
+        lizbeths.RemoveAll(p => p.DataId == FirmamentAnchors.LizbethNpcId);
+        lizbeths.Insert(0, new Placement(FirmamentAnchors.LizbethNpcId, FirmamentAnchors.LizbethPosition));
 
         var turnInItems = new HashSet<uint>();
         foreach (var row in crafterSheet)
@@ -177,6 +199,7 @@ public sealed class FirmamentCatalog
 
         Appraisers = appraisers;
         Exchanges = exchanges;
+        Lizbeths = lizbeths;
         TurnInItemIds = turnInItems;
         CrafterJobByItemId = jobByItem;
         Wares = wares;
@@ -184,6 +207,6 @@ public sealed class FirmamentCatalog
         _shopOrder = wares.Select(w => w.ShopId).Where(s => s != 0).Distinct().OrderBy(s => s).ToList();
 
         _log.Debug($"FirmamentCatalog: territory={TerritoryId} cap={HoldingCap} appraisers={appraisers.Count} " +
-                   $"exchanges={exchanges.Count} turnInItems={turnInItems.Count} wares={wares.Count}.");
+                   $"exchanges={exchanges.Count} lizbeths={lizbeths.Count} turnInItems={turnInItems.Count} wares={wares.Count}.");
     }
 }

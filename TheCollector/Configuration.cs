@@ -61,6 +61,13 @@ public class Configuration : IPluginConfiguration
 
     public ScripGoal FirmamentGoal { get; set; } = new();
 
+    // When enabled, after a Firmament turn-in run the plugin will walk to Lizbeth and
+    // play the Kupo of Fortune minigame to drain held cards (which otherwise cap at 10,
+    // wasting any further vouchers earned). Only triggers when the held-card count is at
+    // or above KupoOfFortuneThreshold. Firmament-only; off by default.
+    public bool KupoOfFortuneEnabled { get; set; } = false;
+    public int KupoOfFortuneThreshold { get; set; } = 10;
+
     public void Save()
     {
         Svc.PluginInterface.SavePluginConfig(this);

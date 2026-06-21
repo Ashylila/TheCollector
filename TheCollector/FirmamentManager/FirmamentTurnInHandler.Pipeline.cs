@@ -83,7 +83,15 @@ public partial class FirmamentTurnInHandler
             TurnInDriver(),
             FrameRunner.Delay("PostTurnInBuffer", TimeSpan.FromSeconds(1)),
             new FrameRunner.Step("CloseAppraiser",
-                () => { _window.CloseWindow(); _targetManager.Target = null; return StepResult.Success(); },
+                () =>
+                {
+                    // Sample the Kupo voucher count while the window is still open so the
+                    // post-turn-in flow can decide whether to play Kupo of Fortune.
+                    _window.TryGetVoucherCount(out _);
+                    _window.CloseWindow();
+                    _targetManager.Target = null;
+                    return StepResult.Success();
+                },
                 TimeSpan.FromSeconds(5)),
             FrameRunner.Delay("FinalDelay", TimeSpan.FromSeconds(1)),
         };
@@ -136,6 +144,17 @@ public partial class FirmamentTurnInHandler
             {
                 Log.Debug("Skybuilders' Scrip cap reached; stopping turn-in.");
                 CapReached = true;
+                return StepResult.Success();
+            }
+
+            // Pause the batch when held Kupo vouchers reach the threshold so the orchestrator
+            // can play them off (and we resume turning in afterwards) — otherwise vouchers
+            // earned past the cap of 10 are wasted before the run ends.
+            if (_configuration.KupoOfFortuneEnabled &&
+                _window.TryGetVoucherCount(out var vouchers) &&
+                vouchers >= _configuration.KupoOfFortuneThreshold)
+            {
+                Log.Debug($"Kupo voucher threshold reached ({vouchers}/{_configuration.KupoOfFortuneThreshold}); pausing turn-in to play.");
                 return StepResult.Success();
             }
 
