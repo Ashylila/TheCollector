@@ -69,8 +69,13 @@ public static class ServiceWrapper
         collection.AddSingleton<FirmamentManager.KupoOfFortuneHandler>();
         collection.AddSingleton<IPipeline>(sp => sp.GetRequiredService<FirmamentManager.KupoOfFortuneHandler>());
 
+        collection.AddSingleton<ResourceInspectionManager.ResourceInspectionWindowHandler>();
+        collection.AddSingleton<ResourceInspectionManager.ResourceInspectionHandler>();
+        collection.AddSingleton<IPipeline>(sp => sp.GetRequiredService<ResourceInspectionManager.ResourceInspectionHandler>());
+
         collection.AddSingleton<Data.ScripSystem.NormalScripSystem>();
         collection.AddSingleton<Data.ScripSystem.FirmamentScripSystem>();
+        collection.AddSingleton<Data.ScripSystem.ResourceInspectionScripSystem>();
         collection.AddSingleton<Data.ScripSystem.ScripSystemSelector>();
         collection.AddSingleton<ScripShopItemManager>();
         collection.AddSingleton<CraftingHandler>();

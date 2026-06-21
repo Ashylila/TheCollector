@@ -42,6 +42,7 @@ public class AutomationHandler : IDisposable
 
     public int SessionCollectablesTurnedIn { get; private set; }
     public int SessionItemsPurchased { get; private set; }
+    public int SessionFullLoops { get; private set; }
     public Dictionary<uint, int> SessionScripsSpent { get; } = new();
     public Dictionary<uint, int> SessionScripsEarned { get; } = new();
     public DateTime? SessionStarted { get; private set; }
@@ -82,13 +83,18 @@ public class AutomationHandler : IDisposable
 
     public void Init()
     {
-        foreach (var system in _selector.All)
+        // Distinct() because systems can share pipeline instances (Inspection reuses the
+        // Firmament shop buy) — subscribing per-system would double-fire those events.
+        foreach (var turnIn in _selector.All.Select(s => s.TurnIn).Distinct())
         {
-            system.TurnIn.OnError += OnError;
-            system.TurnIn.OnFinished += OnFinishedCollecting;
-            system.TurnIn.OnScripsEarned += OnScripsEarned;
-            system.Buy.OnError += OnError;
-            system.Buy.OnFinishedTrading += OnFinishedTrading;
+            turnIn.OnError += OnError;
+            turnIn.OnFinished += OnFinishedCollecting;
+            turnIn.OnScripsEarned += OnScripsEarned;
+        }
+        foreach (var buy in _selector.All.Select(s => s.Buy).Distinct())
+        {
+            buy.OnError += OnError;
+            buy.OnFinishedTrading += OnFinishedTrading;
         }
         _gatherbuddyReborn_IPCSubscriber.OnAutoGatherStatusChanged += OnAutoGatherStatusChanged;
         _artisanWatcher.OnCraftingFinished += OnFinishedWatching;
@@ -102,11 +108,27 @@ public class AutomationHandler : IDisposable
         _kupo.OnError += OnKupoError;
     }
 
+    // Set when an autogather-triggered resource inspection should be followed by an Artisan
+    // list (gather -> inspect -> craft). Consumed once at the inspection run's terminal so the
+    // later post-craft turn-in doesn't restart crafting.
+    private bool _pendingCraftAfterInspection;
+
+    // When set, the loop drives this turn-in instead of the active system's. ActiveSystem stays
+    // Firmament (so the buy, goal, and post-craft/inventory-full/`collect` turn-ins use the
+    // appraiser); the Resource Inspection runs transiently — only after gathering or via
+    // /collector inspect — through this override. Cleared whenever Invoke()/ForceStop runs the
+    // active turn-in, so inspection never hijacks the other commands.
+    private ITurnInPipeline? _turnInOverride;
+    private ITurnInPipeline CurrentTurnIn => _turnInOverride ?? _selector.Active.TurnIn;
+
     private void OnAutoGatherStatusChanged(bool enabled)
     {
         if (enabled) return;
-        if (_config.ShouldCraftOnAutogatherChanged)
-            _craftingHandler.ShouldStartCrafting();
+        if (_config.RunInspectionOnAutogatherFinish)
+        {
+            _pendingCraftAfterInspection = _config.CraftOnInspectionFinish;
+            if (!InvokeInspection()) _pendingCraftAfterInspection = false;
+        }
         else if (_config.CollectOnAutogatherFinish)
             Invoke();
     }
@@ -153,7 +175,53 @@ public class AutomationHandler : IDisposable
         }
         SessionStarted ??= DateTime.UtcNow;
         _consecutiveEmptyBuyCycles = 0;
+        // A plain Invoke always runs the active system's turn-in (collect / post-craft /
+        // inventory-full), so drop any lingering inspection override.
+        _turnInOverride = null;
         _selector.Active.TurnIn.Start();
+        return true;
+    }
+
+    // Runs the Resource Inspection as a transient turn-in. ActiveSystem is kept on Firmament so
+    // the scrip cap -> buy uses the Firmament shop and every other turn-in (post-craft,
+    // inventory-full, /collector collect) still goes to the appraiser.
+    public bool InvokeInspection()
+    {
+        if (IsRunning)
+        {
+            _log.Debug("Automation is already running; ignoring inspection request.");
+            return false;
+        }
+        if (_config.HardFailReason != null)
+        {
+            _chatGui.PrintError($"Automation halted: {_config.HardFailReason}. Acknowledge it in the main window before retrying.", "TheCollector");
+            return false;
+        }
+        if (!_firmamentCatalog.IsReady)
+        {
+            _chatGui.PrintError("Still scanning Firmament data — try again in a few seconds.", "TheCollector");
+            return false;
+        }
+        if (Svc.Condition[ConditionFlag.InCombat])
+        {
+            _chatGui.PrintError("Cannot start automation while in combat.", "TheCollector");
+            return false;
+        }
+        if (PlayerEx.IsInDuty && Svc.ClientState.TerritoryType != _firmamentCatalog.TerritoryId)
+        {
+            _chatGui.PrintError("Cannot start automation while in a duty.", "TheCollector");
+            return false;
+        }
+        // Inspection is Firmament content; align the persistent system so the buy/goal/appraiser flow matches.
+        if (_config.ActiveSystem != ScripSystemId.Firmament)
+        {
+            _config.ActiveSystem = ScripSystemId.Firmament;
+            _config.Save();
+        }
+        SessionStarted ??= DateTime.UtcNow;
+        _consecutiveEmptyBuyCycles = 0;
+        _turnInOverride = _selector.Inspection.TurnIn;
+        _turnInOverride.Start();
         return true;
     }
 
@@ -174,7 +242,7 @@ public class AutomationHandler : IDisposable
             _chatGui.PrintError("Still scanning vendor data — try again in a few seconds.", "TheCollector");
             return false;
         }
-        if (_config.ActiveSystem == ScripSystemId.Firmament && !_firmamentCatalog.IsReady)
+        if (_config.ActiveSystem.IsFirmamentLike() && !_firmamentCatalog.IsReady)
         {
             _chatGui.PrintError("Still scanning Firmament data — try again in a few seconds.", "TheCollector");
             return false;
@@ -250,7 +318,7 @@ public class AutomationHandler : IDisposable
     }
 
 
-    private enum PostRunStage { ResumeArtisan, AutoRetainer, Deliveroo, Autogather }
+    private enum PostRunStage { ResumeArtisan, StartCraft, AutoRetainer, Deliveroo, Autogather }
 
     private bool TryStartStage(PostRunStage stage)
     {
@@ -260,6 +328,16 @@ public class AutomationHandler : IDisposable
                 if (!_artisanWatcher.IsPausedByUs) return false;
                 _artisanWatcher.ResumeAfterTurnIn();
                 _chatGui.Print("Turn-in done — resuming Artisan list.", "TheCollector");
+                return true;
+
+            case PostRunStage.StartCraft:
+                // After an autogather-triggered inspection, kick off the Artisan list once
+                // (gather -> inspect -> craft). ResumeArtisan above already handled the
+                // inventory-full-during-crafting case, so we only reach here for a fresh start.
+                if (!_pendingCraftAfterInspection) return false;
+                _pendingCraftAfterInspection = false;
+                _craftingHandler.ShouldStartCrafting();
+                _chatGui.Print("Resource inspection done — starting Artisan list.", "TheCollector");
                 return true;
 
             case PostRunStage.AutoRetainer:
@@ -277,6 +355,18 @@ public class AutomationHandler : IDisposable
 
             case PostRunStage.Autogather:
                 if (!_config.EnableAutogatherOnFinish) return false;
+                // Re-enabling autogather closes one full loop and starts the next. Count it, and
+                // honour the iteration cap by stopping here instead of re-gathering (the current
+                // cycle is already complete).
+                SessionFullLoops++;
+                var stop = _config.Stop;
+                if (stop.StopOnFullLoopsEnabled && stop.MaxFullLoops > 0 && SessionFullLoops >= stop.MaxFullLoops)
+                {
+                    var reason = $"Reached full-loop limit ({SessionFullLoops}/{stop.MaxFullLoops}).";
+                    _chatGui.Print($"Stop condition met: {reason}", "TheCollector");
+                    _discord.Notify(DiscordEvent.StopCondition, $"🛑 TheCollector stopped: {reason}");
+                    return true; // handled — stop without re-enabling autogather
+                }
                 _gatherbuddyReborn_IPCSubscriber.SetAutoGatherEnabled(true);
                 return true;
 
@@ -296,6 +386,8 @@ public class AutomationHandler : IDisposable
     public void OnDeliverooFinish() => RunPostRunCascade(PostRunStage.Autogather);
     public void ForceStop(string reason)
     {
+        _pendingCraftAfterInspection = false;
+        _turnInOverride = null;
         // If we're mid-turn-in on a self-pause, drop the bookkeeping (leaving Artisan
         // stopped, since everything is halting) so the watcher isn't permanently stuck.
         if (_artisanWatcher.IsPausedByUs)
@@ -349,7 +441,7 @@ public class AutomationHandler : IDisposable
         SessionCollectablesTurnedIn++;
         _balanceTracker.SampleNow();
 
-        if (_selector.Active.TurnIn.LastEarnedCurrency is { } earned)
+        if (CurrentTurnIn.LastEarnedCurrency is { } earned)
         {
             var source = CurrencyHelper.GetRunSource(earned);
             if (_config.ActiveRunSource != source)
@@ -408,13 +500,17 @@ public class AutomationHandler : IDisposable
 
     private void ContinueAfterCollect()
     {
-        if (_selector.Active.TurnIn.CapReached || _config.BuyAfterEachCollect)
+        if (CurrentTurnIn.CapReached || _config.BuyAfterEachCollect)
         {
-            if (_selector.Active.TurnIn.CapReached)
+            if (CurrentTurnIn.CapReached)
                 _discord.Notify(DiscordEvent.ScripCap, "💰 TheCollector: scrip cap reached, moving to shop.");
+            // Keep the override across the buy so OnFinishedTrading resumes the same turn-in.
             _selector.Active.Buy.Start();
             return;
         }
+        // Turn-in fully done — drop any inspection override so the cascade and the next turn-in
+        // (post-craft / inventory-full / collect) use the active system's appraiser.
+        _turnInOverride = null;
         RunPostRunCascade(PostRunStage.ResumeArtisan);
     }
     private void OnFinishedTrading(Dictionary<uint, int> scripsSpent)
@@ -432,7 +528,7 @@ public class AutomationHandler : IDisposable
             totalSpent += amount;
         }
         _config.Save();
-        var activeIsFirmament = _selector.Active.Id == ScripSystemId.Firmament;
+        var activeIsFirmament = _selector.Active.Id.IsFirmamentLike();
         var activeGoal = activeIsFirmament ? _config.FirmamentGoal : _config.Goal;
 
         if (_config.ResetEachQuantityAfterCompletingList)
@@ -465,12 +561,13 @@ public class AutomationHandler : IDisposable
             // bookkeeping or the watcher stays blind forever (Artisan stays stopped on purpose).
             if (_artisanWatcher.IsPausedByUs)
                 _artisanWatcher.AbandonPause();
+            _turnInOverride = null;
             return;
         }
 
         if (TryStopOnConditionMet()) return;
 
-        if (_selector.Active.TurnIn.HasCollectible)
+        if (CurrentTurnIn.HasCollectible)
         {
             if (totalSpent == 0)
             {
@@ -486,10 +583,11 @@ public class AutomationHandler : IDisposable
                 _consecutiveEmptyBuyCycles = 0;
             }
 
-            _selector.Active.TurnIn.Start();
+            CurrentTurnIn.Start();
             return;
         }
         _consecutiveEmptyBuyCycles = 0;
+        _turnInOverride = null;
         RunPostRunCascade(PostRunStage.ResumeArtisan);
     }
 
@@ -519,13 +617,16 @@ public class AutomationHandler : IDisposable
 
     public void Dispose()
     {
-        foreach (var system in _selector.All)
+        foreach (var turnIn in _selector.All.Select(s => s.TurnIn).Distinct())
         {
-            system.TurnIn.OnError -= OnError;
-            system.TurnIn.OnFinished -= OnFinishedCollecting;
-            system.TurnIn.OnScripsEarned -= OnScripsEarned;
-            system.Buy.OnError -= OnError;
-            system.Buy.OnFinishedTrading -= OnFinishedTrading;
+            turnIn.OnError -= OnError;
+            turnIn.OnFinished -= OnFinishedCollecting;
+            turnIn.OnScripsEarned -= OnScripsEarned;
+        }
+        foreach (var buy in _selector.All.Select(s => s.Buy).Distinct())
+        {
+            buy.OnError -= OnError;
+            buy.OnFinishedTrading -= OnFinishedTrading;
         }
         _gatherbuddyReborn_IPCSubscriber.OnAutoGatherStatusChanged -= OnAutoGatherStatusChanged;
         _artisanWatcher.OnCraftingFinished -= OnFinishedWatching;
