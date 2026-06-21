@@ -20,6 +20,7 @@ public class ArtisanWatcher : IDisposable
     private readonly Configuration _configuration;
     private readonly PlogonLog _log;
     private readonly FirmamentCatalog _firmamentCatalog;
+    private readonly StatusService _status;
     public event Action<WatchType>? OnCraftingFinished;
     public event Action? OnInventoryFullDuringCrafting;
     public int PollInterval { get; set; } = 250;
@@ -31,13 +32,14 @@ public class ArtisanWatcher : IDisposable
     private bool InFirmament => _firmamentCatalog.TerritoryId != 0
                                && Svc.ClientState.TerritoryType == _firmamentCatalog.TerritoryId;
 
-    public ArtisanWatcher(IFramework framework, Artisan_IPCSubscriber artisanIpc, Configuration config, PlogonLog log, FirmamentCatalog firmamentCatalog)
+    public ArtisanWatcher(IFramework framework, Artisan_IPCSubscriber artisanIpc, Configuration config, PlogonLog log, FirmamentCatalog firmamentCatalog, StatusService status)
     {
         _framework = framework;
         ArtisanIpc = artisanIpc;
         _configuration = config;
         _log = log;
         _firmamentCatalog = firmamentCatalog;
+        _status = status;
         Init();
     }
 
@@ -86,7 +88,25 @@ public class ArtisanWatcher : IDisposable
             OnInventoryFullDuringCrafting?.Invoke();
         }
 
+        UpdateCraftingStatus(isCrafting);
         _wasCrafting = isCrafting;
+    }
+
+    // Surface a dedicated status while a list crafts. Only ever toggle between Idle and
+    // our own state so we never clobber a status a turn-in/buy pipeline currently owns.
+    // (During our own inventory-full pause we return early above, leaving status to the
+    // turn-in pipeline.)
+    private void UpdateCraftingStatus(bool isCrafting)
+    {
+        if (isCrafting)
+        {
+            if (_status.Current == PluginState.Idle)
+                _status.Set(PluginState.ProcessingArtisanList);
+        }
+        else if (_status.Current == PluginState.ProcessingArtisanList)
+        {
+            _status.SetIdle();
+        }
     }
 
     private bool ShouldPauseForInventory()
