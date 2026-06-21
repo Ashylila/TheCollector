@@ -14,7 +14,7 @@ public partial class MainWindow
 {
     private void DrawMainTab()
     {
-        if (configuration.ActiveSystem == ScripSystemId.Firmament)
+        if (configuration.ActiveSystem.IsFirmamentLike())
         {
             DrawFirmamentMainTab();
             return;

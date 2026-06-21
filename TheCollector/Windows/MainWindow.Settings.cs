@@ -273,12 +273,13 @@ public partial class MainWindow
         sb.AppendLine($"Stop when complete:    {configuration.Goal.StopGatheringWhenComplete}");
         sb.AppendLine($"Autogather on finish:  {configuration.EnableAutogatherOnFinish}");
         sb.AppendLine($"Collect on craft/fish/gather: {configuration.CollectOnFinishCraftingList}/{configuration.CollectOnFinishedFishing}/{configuration.CollectOnAutogatherFinish}");
-        sb.AppendLine($"Craft on autogather:   {configuration.ShouldCraftOnAutogatherChanged} (Artisan list {configuration.ArtisanListId})");
+        sb.AppendLine($"Inspect on gather:     {configuration.RunInspectionOnAutogatherFinish}");
+        sb.AppendLine($"Craft on inspection:   {configuration.CraftOnInspectionFinish} (Artisan list {configuration.ArtisanListId})");
         sb.AppendLine($"Artisan inv pause:     {configuration.PauseArtisanOnInventoryFull} (threshold {configuration.ArtisanInventoryFullThreshold})");
         sb.AppendLine($"AutoRetainer between:  {configuration.CheckForVenturesBetweenRuns}");
         sb.AppendLine($"Deliveroo between:     {configuration.CheckForDeliverooBetweenRuns}");
         var stop = configuration.Stop;
-        sb.AppendLine($"Stop conditions:       scrips={stop.StopOnScripsEarnedEnabled}({stop.MaxScripsEarned}) cycles={stop.StopOnBuyCyclesEnabled}({stop.MaxBuyCycles}) time={stop.StopOnSessionTimeEnabled}({stop.MaxSessionMinutes}m)");
+        sb.AppendLine($"Stop conditions:       scrips={stop.StopOnScripsEarnedEnabled}({stop.MaxScripsEarned}) cycles={stop.StopOnBuyCyclesEnabled}({stop.MaxBuyCycles}) time={stop.StopOnSessionTimeEnabled}({stop.MaxSessionMinutes}m) loops={stop.StopOnFullLoopsEnabled}({stop.MaxFullLoops})");
 
         sb.AppendLine();
         sb.AppendLine("[Catalogs]");
@@ -365,16 +366,31 @@ public partial class MainWindow
         if (!gbrReady && ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
             ImGui.SetTooltip("GatherbuddyReborn is not installed or not ready.");
 
-        bool craftOnAutogatherActive = configuration.ShouldCraftOnAutogatherChanged;
-        ImGui.BeginDisabled(craftOnAutogatherActive);
+        // Two mutually-exclusive actions to take when autogather finishes.
+        bool inspectOnAutogatherActive = configuration.RunInspectionOnAutogatherFinish;
+        ImGui.BeginDisabled(inspectOnAutogatherActive);
         var collectOnAutogather = configuration.CollectOnAutogatherFinish;
         if (ImGui.Checkbox("Turn in collectables on autogather finish", ref collectOnAutogather))
         {
             configuration.CollectOnAutogatherFinish = collectOnAutogather;
             configuration.Save();
         }
-        if (craftOnAutogatherActive && ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
-            ImGui.SetTooltip("Disabled while \"Craft selected Artisan list on autogather finish\" is enabled (Artisan section).");
+        if (inspectOnAutogatherActive && ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
+            ImGui.SetTooltip("Disabled while \"Run resource inspection on autogather finish\" is enabled.");
+        else if (!gbrReady && ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
+            ImGui.SetTooltip("GatherbuddyReborn is not installed or not ready.");
+        ImGui.EndDisabled();
+
+        bool collectOnAutogatherActive = configuration.CollectOnAutogatherFinish;
+        ImGui.BeginDisabled(collectOnAutogatherActive);
+        var inspectOnAutogather = configuration.RunInspectionOnAutogatherFinish;
+        if (ImGui.Checkbox("Run resource inspection on autogather finish", ref inspectOnAutogather))
+        {
+            configuration.RunInspectionOnAutogatherFinish = inspectOnAutogather;
+            configuration.Save();
+        }
+        if (collectOnAutogatherActive && ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
+            ImGui.SetTooltip("Disabled while \"Turn in collectables on autogather finish\" is enabled.");
         else if (!gbrReady && ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
             ImGui.SetTooltip("GatherbuddyReborn is not installed or not ready.");
         ImGui.EndDisabled();
@@ -397,21 +413,19 @@ public partial class MainWindow
 
         ImGui.BeginDisabled(!artisanSectionReady);
 
-        bool collectOnAutogatherActiveArtisan = configuration.CollectOnAutogatherFinish;
-        ImGui.BeginDisabled(collectOnAutogatherActiveArtisan);
-        var craftOnAutogather = configuration.ShouldCraftOnAutogatherChanged;
-        if (ImGui.Checkbox("Craft selected Artisan list on autogather finish", ref craftOnAutogather))
+        var craftOnInspection = configuration.CraftOnInspectionFinish;
+        if (ImGui.Checkbox("Craft selected Artisan list on resource inspection finish", ref craftOnInspection))
         {
-            configuration.ShouldCraftOnAutogatherChanged = craftOnAutogather;
+            configuration.CraftOnInspectionFinish = craftOnInspection;
             configuration.Save();
         }
-        if (collectOnAutogatherActiveArtisan && ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
-            ImGui.SetTooltip("Disabled while \"Turn in collectables on autogather finish\" is enabled (GatherBuddyReborn section).");
-        else if (artisanDisabledReason != null && ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
+        if (artisanDisabledReason != null && ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
             ImGui.SetTooltip(artisanDisabledReason);
-        ImGui.EndDisabled();
+        else if (ImGui.IsItemHovered())
+            ImGui.SetTooltip("After a resource-inspection run finishes (gather → inspect → craft),\n" +
+                             "start the selected Artisan list.");
 
-        ImGui.BeginDisabled(!craftOnAutogather);
+        ImGui.BeginDisabled(!craftOnInspection);
 
         DrawArtisanListPicker();
 
@@ -685,6 +699,18 @@ public partial class MainWindow
                 configuration.Save();
             }
         }
+        {
+            var en = configuration.Stop.StopOnFullLoopsEnabled;
+            var v  = configuration.Stop.MaxFullLoops;
+            if (DrawStopConditionRow("Stop after full loops", ref en, ref v, 1, 1000, 1,
+                "One full loop = a complete gather → inspect → craft cycle, counted when\n" +
+                "autogather is re-enabled. Stops after finishing the current cycle."))
+            {
+                configuration.Stop.StopOnFullLoopsEnabled = en;
+                configuration.Stop.MaxFullLoops = v;
+                configuration.Save();
+            }
+        }
 
         ImGui.Spacing();
         ImGuiHelper.SectionHeader("Planner");
@@ -738,6 +764,7 @@ public partial class MainWindow
         var scripShop     = ServiceWrapper.Get<ScripShopAutomationHandler>();
         var retainer      = ServiceWrapper.Get<AutoRetainerManager>();
         var deliveroo     = ServiceWrapper.Get<DeliverooManager>();
+        var inspection    = ServiceWrapper.Get<ResourceInspectionManager.ResourceInspectionHandler>();
         var vendorCatalog = ServiceWrapper.Get<VendorCatalog>();
 
         ImGuiHelper.SectionHeader("State");
@@ -774,6 +801,7 @@ public partial class MainWindow
             Row("Session started",    _automationHandler.SessionStarted?.ToLocalTime().ToString("HH:mm:ss") ?? "-");
             Row("Turn-ins",           _automationHandler.SessionCollectablesTurnedIn.ToString());
             Row("Items purchased",    _automationHandler.SessionItemsPurchased.ToString());
+            Row("Full loops",         _automationHandler.SessionFullLoops.ToString());
             Row("Scrips earned",      _automationHandler.SessionScripsEarnedTotal.ToString());
             Row("Current item",       collectable.CurrentItemName ?? "-");
 
@@ -806,6 +834,8 @@ public partial class MainWindow
         if (ImGui.Button("Start autoretainer")) retainer.Start();
         ImGui.SameLine();
         if (ImGui.Button("Start deliveroo")) deliveroo.Start();
+        ImGui.SameLine();
+        if (ImGui.Button("Start resource inspection")) inspection.Start();
 
         if (ImGui.Button("Force stop all"))
             _automationHandler.ForceStop("Stopped from debug panel");
@@ -902,6 +932,7 @@ public partial class MainWindow
         {
             nameof(AutomationHandler.SessionCollectablesTurnedIn),
             nameof(AutomationHandler.SessionItemsPurchased),
+            nameof(AutomationHandler.SessionFullLoops),
         })
             t.GetProperty(name)?.GetSetMethod(nonPublic: true)?.Invoke(_automationHandler, new object[] { 0 });
 

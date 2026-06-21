@@ -22,8 +22,11 @@ public class Configuration : IPluginConfiguration
     public List<ItemToPurchase> ItemsToPurchase { get; set; } = new List<ItemToPurchase>();
     public bool EnableAutogatherOnFinish { get; set; } = false;
     public bool CollectOnFinishCraftingList { get; set; } = false;
-    public bool ShouldCraftOnAutogatherChanged { get; set; } = false;
+    // Start the Artisan list once a resource-inspection run completes (gather -> inspect -> craft).
+    public bool CraftOnInspectionFinish { get; set; } = false;
     public bool CollectOnAutogatherFinish { get; set; } = false;
+    // Run the Skybuilders' resource inspection when GatherBuddyReborn autogather finishes.
+    public bool RunInspectionOnAutogatherFinish { get; set; } = false;
     public bool BuyAfterEachCollect { get; set; } = false;
     public bool ResetEachQuantityAfterCompletingList { get; set; } = false;
     public bool CollectOnFinishedFishing { get; set; } = false;
