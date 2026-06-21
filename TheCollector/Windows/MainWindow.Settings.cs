@@ -181,6 +181,31 @@ public partial class MainWindow
                 configuration.KupoOfFortuneThreshold = Math.Clamp(threshold, 1, 10);
                 configuration.Save();
             }
+
+            const string leftLabel = "Left chest (2nd-4th prizes)";
+            const string rightLabel = "Random right chest (all 5 prizes)";
+            ImGui.AlignTextToFramePadding();
+            ImGui.TextUnformatted("Chest to scratch:");
+            ImGui.SameLine();
+            ImGui.SetNextItemWidth(-1);
+            var pick = configuration.KupoChestPick;
+            if (ImGui.BeginCombo("##KupoChest", pick == Data.KupoChestPick.RandomRight ? rightLabel : leftLabel))
+            {
+                if (ImGui.Selectable(leftLabel, pick == Data.KupoChestPick.Left))
+                {
+                    configuration.KupoChestPick = Data.KupoChestPick.Left;
+                    configuration.Save();
+                }
+                if (ImGui.Selectable(rightLabel, pick == Data.KupoChestPick.RandomRight))
+                {
+                    configuration.KupoChestPick = Data.KupoChestPick.RandomRight;
+                    configuration.Save();
+                }
+                ImGui.EndCombo();
+            }
+            if (ImGui.IsItemHovered())
+                ImGui.SetTooltip("Left can only win 2nd-4th prize (avoids the jackpot and the\n" +
+                                 "consolation). Random right can win any of the 5 prizes.");
             ImGui.EndDisabled();
 
             ImGui.Spacing();

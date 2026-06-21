@@ -68,6 +68,10 @@ public class Configuration : IPluginConfiguration
     public bool KupoOfFortuneEnabled { get; set; } = false;
     public int KupoOfFortuneThreshold { get; set; } = 10;
 
+    // Which chest to scratch on each Kupo of Fortune card. Left only wins 2nd-4th prize;
+    // the three right chests can win any of the 5 (incl. the jackpot and the consolation).
+    public KupoChestPick KupoChestPick { get; set; } = KupoChestPick.Left;
+
     public void Save()
     {
         Svc.PluginInterface.SavePluginConfig(this);

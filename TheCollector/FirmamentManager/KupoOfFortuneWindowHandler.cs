@@ -5,11 +5,17 @@ using ValueType = FFXIVClientStructs.FFXIV.Component.GUI.AtkValueType;
 namespace TheCollector.FirmamentManager;
 
 // Drives the "HWDLottery" addon — the Kupo of Fortune scratch card you play at Lizbeth.
-// Scratch a chest with the (0, 1) callback, then once the reward is shown and the Close
-// button (node id 36) is enabled, click it to claim and dismiss the card.
+// Scratch a chest with the (0, chestIndex) callback, then once the reward is shown and the
+// Close button (node id 36) is enabled, click it to claim and dismiss the card.
 public unsafe class KupoOfFortuneWindowHandler
 {
     public const string AddonName = "HWDLottery";
+
+    // Scratch-callback chest indices (second arg of the (0, index) callback). The card has one
+    // chest on the left and three on the right; the previously hard-coded index was 1 (a right
+    // chest). Confirm the left/right mapping in-game and swap these if it turns out inverted.
+    public const int LeftChestIndex = 0;
+    public static readonly int[] RightChestIndices = { 1, 2, 3 };
 
     // The Close/claim button on the lottery result view (node id 36), verified in-game via
     // the addon dump. It only becomes enabled once a chest has been scratched and the reward
@@ -28,7 +34,7 @@ public unsafe class KupoOfFortuneWindowHandler
         GenericHelpers.TryGetAddonByName<AtkUnitBase>("SelectYesno", out var addon) &&
         GenericHelpers.IsAddonReady(addon);
 
-    public void Scratch()
+    public void Scratch(int chestIndex)
     {
         if (!GenericHelpers.TryGetAddonByName<AtkUnitBase>(AddonName, out var addon) ||
             !GenericHelpers.IsAddonReady(addon))
@@ -36,7 +42,7 @@ public unsafe class KupoOfFortuneWindowHandler
 
         var values = stackalloc AtkValue[2];
         values[0] = new AtkValue { Type = ValueType.Int, Int = 0 };
-        values[1] = new AtkValue { Type = ValueType.Int, Int = 1 };
+        values[1] = new AtkValue { Type = ValueType.Int, Int = chestIndex };
         addon->FireCallback(2, values, true);
     }
 

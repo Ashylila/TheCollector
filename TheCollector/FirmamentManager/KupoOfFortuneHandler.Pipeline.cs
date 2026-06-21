@@ -152,7 +152,9 @@ public partial class KupoOfFortuneHandler
                         {
                             if (!cardScratched)
                             {
-                                _window.Scratch();
+                                var chestIndex = PickChestIndex();
+                                _window.Scratch(chestIndex);
+                                Log.Debug($"Kupo of Fortune: scratching chest index {chestIndex} ({_configuration.KupoChestPick}).");
                                 cardScratched = true;
                                 settleUntil = now + ScratchSettle;
                                 return StepResult.Continue();
