@@ -29,16 +29,7 @@ public unsafe class ResourceInspectionWindowHandler
     public ResourceInspectionWindowHandler(PlogonLog log) => _log = log;
 
     private bool TryGetAddon(out AtkUnitBase* addon)
-    {
-        addon = null;
-        if (GenericHelpers.TryGetAddonByName<AtkUnitBase>(AddonName, out var a) &&
-            GenericHelpers.IsAddonReady(a))
-        {
-            addon = a;
-            return true;
-        }
-        return false;
-    }
+        => Addons.TryGetReady(AddonName, out addon);
 
     public bool IsReady => TryGetAddon(out _);
 
@@ -96,8 +87,7 @@ public unsafe class ResourceInspectionWindowHandler
     // Advance a one-page Talk dialogue Flotpassant may show before the window opens.
     public bool ProgressTalk()
     {
-        if (!GenericHelpers.TryGetAddonByName<AtkUnitBase>("Talk", out var addon) ||
-            !GenericHelpers.IsAddonReady(addon))
+        if (!Addons.TryGetReady("Talk", out var addon))
             return false;
         new ECommons.UIHelpers.AddonMasterImplementations.AddonMaster.Talk(addon).Click();
         return true;
@@ -106,8 +96,7 @@ public unsafe class ResourceInspectionWindowHandler
     // Confirmation popup that may appear after Request Inspection.
     public bool ConfirmYesNo()
     {
-        if (!GenericHelpers.TryGetAddonByName<AtkUnitBase>("SelectYesno", out var addon) ||
-            !GenericHelpers.IsAddonReady(addon))
+        if (!Addons.TryGetReady("SelectYesno", out var addon))
             return false;
         new ECommons.UIHelpers.AddonMasterImplementations.AddonMaster.SelectYesno(addon).Yes();
         return true;
@@ -124,8 +113,7 @@ public unsafe class ResourceInspectionWindowHandler
 
     public void CloseWindow()
     {
-        if (GenericHelpers.TryGetAddonByName<AtkUnitBase>(AddonName, out var addon) &&
-            GenericHelpers.IsAddonReady(addon))
+        if (Addons.TryGetReady(AddonName, out var addon))
             addon->Close(true);
     }
 }

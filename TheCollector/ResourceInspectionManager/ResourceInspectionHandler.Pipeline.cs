@@ -10,7 +10,7 @@ namespace TheCollector.ResourceInspectionManager;
 
 public partial class ResourceInspectionHandler
 {
-    private TimeSpan UiInteractDelay => TimeSpan.FromMilliseconds(_configuration.UiDelayMs);
+    private TimeSpan UiInteractDelay => TimeSpan.FromMilliseconds(_configuration.GetUiDelayMs(Key));
     // How long to wait for the server to apply an inspection (scrip/inventory change) before
     // concluding the current job has no more eligible materials.
     private static readonly TimeSpan ChangeTimeout = TimeSpan.FromSeconds(5);

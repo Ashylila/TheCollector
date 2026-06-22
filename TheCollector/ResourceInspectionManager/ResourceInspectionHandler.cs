@@ -13,7 +13,7 @@ namespace TheCollector.ResourceInspectionManager;
 // turn-in -> (scrip cap) -> buy -> turn-in loop, paired with the Firmament shop buy.
 public partial class ResourceInspectionHandler : FrameRunnerPipelineBase, ITurnInPipeline
 {
-    public override string Key => "resource-inspection";
+    public override string Key => AddonDelays.ResourceInspection;
 
     private readonly ResourceInspectionWindowHandler _window;
     private readonly FirmamentCatalog _catalog;

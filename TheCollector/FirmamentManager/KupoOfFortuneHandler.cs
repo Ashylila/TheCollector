@@ -11,7 +11,7 @@ namespace TheCollector.FirmamentManager;
 // gates it on Configuration.KupoOfFortuneEnabled and the active scrip system.
 public partial class KupoOfFortuneHandler : FrameRunnerPipelineBase
 {
-    public override string Key => "kupo-of-fortune";
+    public override string Key => AddonDelays.KupoOfFortune;
 
     private readonly KupoOfFortuneWindowHandler _window;
     private readonly FirmamentCatalog _catalog;

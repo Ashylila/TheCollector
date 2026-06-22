@@ -1,5 +1,6 @@
 using ECommons;
 using FFXIVClientStructs.FFXIV.Component.GUI;
+using TheCollector.Utility;
 using ValueType = FFXIVClientStructs.FFXIV.Component.GUI.AtkValueType;
 
 namespace TheCollector.FirmamentManager;
@@ -22,22 +23,15 @@ public unsafe class KupoOfFortuneWindowHandler
     // is shown, so its enabled state is our "ready to close" signal.
     private const int CloseButtonNodeIndex = 7;
 
-    public bool IsLotteryOpen =>
-        GenericHelpers.TryGetAddonByName<AtkUnitBase>(AddonName, out var addon) &&
-        GenericHelpers.IsAddonReady(addon);
+    public bool IsLotteryOpen => Addons.Ready(AddonName);
 
-    public bool IsTalkOpen =>
-        GenericHelpers.TryGetAddonByName<AtkUnitBase>("Talk", out var addon) &&
-        GenericHelpers.IsAddonReady(addon);
+    public bool IsTalkOpen => Addons.Ready("Talk");
 
-    public bool IsYesNoOpen =>
-        GenericHelpers.TryGetAddonByName<AtkUnitBase>("SelectYesno", out var addon) &&
-        GenericHelpers.IsAddonReady(addon);
+    public bool IsYesNoOpen => Addons.Ready("SelectYesno");
 
     public void Scratch(int chestIndex)
     {
-        if (!GenericHelpers.TryGetAddonByName<AtkUnitBase>(AddonName, out var addon) ||
-            !GenericHelpers.IsAddonReady(addon))
+        if (!Addons.TryGetReady(AddonName, out var addon))
             return;
 
         var values = stackalloc AtkValue[2];
@@ -52,8 +46,7 @@ public unsafe class KupoOfFortuneWindowHandler
     {
         get
         {
-            if (!GenericHelpers.TryGetAddonByName<AtkUnitBase>(AddonName, out var addon) ||
-                !GenericHelpers.IsAddonReady(addon))
+            if (!Addons.TryGetReady(AddonName, out var addon))
                 return false;
             var closeButton = GetCloseButton(addon);
             return closeButton != null && closeButton->IsEnabled;
@@ -62,8 +55,7 @@ public unsafe class KupoOfFortuneWindowHandler
 
     public bool CloseLottery()
     {
-        if (!GenericHelpers.TryGetAddonByName<AtkUnitBase>(AddonName, out var addon) ||
-            !GenericHelpers.IsAddonReady(addon))
+        if (!Addons.TryGetReady(AddonName, out var addon))
             return false;
 
         var closeButton = GetCloseButton(addon);
@@ -89,8 +81,7 @@ public unsafe class KupoOfFortuneWindowHandler
     // opens; reuse the same advance helpers the appraiser flow uses.
     public bool ProgressTalk()
     {
-        if (!GenericHelpers.TryGetAddonByName<AtkUnitBase>("Talk", out var addon) ||
-            !GenericHelpers.IsAddonReady(addon))
+        if (!Addons.TryGetReady("Talk", out var addon))
             return false;
         new ECommons.UIHelpers.AddonMasterImplementations.AddonMaster.Talk(addon).Click();
         return true;
@@ -98,8 +89,7 @@ public unsafe class KupoOfFortuneWindowHandler
 
     public bool ConfirmYesNo()
     {
-        if (!GenericHelpers.TryGetAddonByName<AtkUnitBase>("SelectYesno", out var addon) ||
-            !GenericHelpers.IsAddonReady(addon))
+        if (!Addons.TryGetReady("SelectYesno", out var addon))
             return false;
         new ECommons.UIHelpers.AddonMasterImplementations.AddonMaster.SelectYesno(addon).Yes();
         return true;

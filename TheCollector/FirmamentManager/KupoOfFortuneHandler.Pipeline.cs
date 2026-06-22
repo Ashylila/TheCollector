@@ -14,11 +14,11 @@ public partial class KupoOfFortuneHandler
     // miscount can never spin the loop forever.
     private const int MaxCardsPerRun = 12;
 
-    // Delay between UI interactions, driven by the shared, user-configurable UI Delay setting
-    // (Configuration.UiDelayMs) just like every other automation here. Kupo previously used its
-    // own hardcoded 700ms/600ms timings and ignored this setting; routing it through UiDelayMs
-    // makes the pace consistent and tunable from the Settings tab.
-    private TimeSpan UiInteractDelay => TimeSpan.FromMilliseconds(_configuration.UiDelayMs);
+    // Delay between UI interactions, driven by the shared, per-addon UI Delay setting just like
+    // every other automation here. Kupo previously used its own hardcoded 700ms/600ms timings and
+    // ignored this setting; routing it through the per-addon delay makes the pace consistent and
+    // tunable from the Settings tab.
+    private TimeSpan UiInteractDelay => TimeSpan.FromMilliseconds(_configuration.GetUiDelayMs(Key));
     // Dwell after scratching so the choice registers before we close the result.
     private TimeSpan ScratchSettle => UiInteractDelay;
     // A freshly opened Talk/SelectYesno/lottery addon reports "ready" (visible) a frame or two

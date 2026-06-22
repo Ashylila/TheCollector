@@ -30,8 +30,7 @@ public unsafe class FirmamentTurnInWindowHandler
     public bool TryGetVoucherCount(out int current)
     {
         current = -1;
-        if (!GenericHelpers.TryGetAddonByName<AtkUnitBase>(AddonName, out var addon) ||
-            !GenericHelpers.IsAddonReady(addon))
+        if (!Addons.TryGetReady(AddonName, out var addon))
             return false;
 
         for (var i = 0; i < addon->AtkValuesCount; i++)
