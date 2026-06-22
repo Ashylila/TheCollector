@@ -313,6 +313,7 @@ public partial class MainWindow
             {
                 ImGui.TextUnformatted($"Turn-ins:    {_automationHandler.SessionCollectablesTurnedIn}");
                 ImGui.TextUnformatted($"Buy cycles:  {_automationHandler.SessionItemsPurchased}");
+                ImGui.TextUnformatted($"Full loops:  {_automationHandler.SessionFullLoops}");
                 ImGui.TextUnformatted($"Scrips earned: {_automationHandler.SessionScripsEarnedTotal:N0}");
 
                 if (_automationHandler.SessionScripsEarned.Count > 0)

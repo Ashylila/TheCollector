@@ -22,8 +22,11 @@ public class Configuration : IPluginConfiguration
     public List<ItemToPurchase> ItemsToPurchase { get; set; } = new List<ItemToPurchase>();
     public bool EnableAutogatherOnFinish { get; set; } = false;
     public bool CollectOnFinishCraftingList { get; set; } = false;
-    public bool ShouldCraftOnAutogatherChanged { get; set; } = false;
+    // Start the Artisan list once a resource-inspection run completes (gather -> inspect -> craft).
+    public bool CraftOnInspectionFinish { get; set; } = false;
     public bool CollectOnAutogatherFinish { get; set; } = false;
+    // Run the Skybuilders' resource inspection when GatherBuddyReborn autogather finishes.
+    public bool RunInspectionOnAutogatherFinish { get; set; } = false;
     public bool BuyAfterEachCollect { get; set; } = false;
     public bool ResetEachQuantityAfterCompletingList { get; set; } = false;
     public bool CollectOnFinishedFishing { get; set; } = false;
@@ -74,6 +77,17 @@ public class Configuration : IPluginConfiguration
     public Data.ScripSystem.ScripSystemId ActiveSystem { get; set; } = Data.ScripSystem.ScripSystemId.Normal;
 
     public ScripGoal FirmamentGoal { get; set; } = new();
+
+    // When enabled, after a Firmament turn-in run the plugin will walk to Lizbeth and
+    // play the Kupo of Fortune minigame to drain held cards (which otherwise cap at 10,
+    // wasting any further vouchers earned). Only triggers when the held-card count is at
+    // or above KupoOfFortuneThreshold. Firmament-only; off by default.
+    public bool KupoOfFortuneEnabled { get; set; } = false;
+    public int KupoOfFortuneThreshold { get; set; } = 10;
+
+    // Which chest to scratch on each Kupo of Fortune card. Left only wins 2nd-4th prize;
+    // the three right chests can win any of the 5 (incl. the jackpot and the consolation).
+    public KupoChestPick KupoChestPick { get; set; } = KupoChestPick.Left;
 
     public void Save()
     {

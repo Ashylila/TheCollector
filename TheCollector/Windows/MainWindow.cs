@@ -83,8 +83,8 @@ public partial class MainWindow : Window, IDisposable
                 ImGui.EndTabItem();
             }
 
-            // The planner is Normal-system only; it has no meaningful equivalent in Firmament mode.
-            if (configuration.ActiveSystem != ScripSystemId.Firmament && ImGui.BeginTabItem("Planner"))
+            // The planner is Normal-system only; it has no meaningful equivalent in Firmament/Inspection mode.
+            if (!configuration.ActiveSystem.IsFirmamentLike() && ImGui.BeginTabItem("Planner"))
             {
                 ImGui.Spacing();
                 if (ImGui.BeginChild("##PlannerScroll", new Vector2(0, -1), false))
@@ -155,7 +155,7 @@ public partial class MainWindow : Window, IDisposable
             ImGui.TextUnformatted(label);
             ImGui.PopStyleColor();
 
-            var statusGoal = configuration.ActiveSystem == ScripSystemId.Firmament
+            var statusGoal = configuration.ActiveSystem.IsFirmamentLike()
                 ? configuration.FirmamentGoal
                 : configuration.Goal;
 
@@ -194,19 +194,23 @@ public partial class MainWindow : Window, IDisposable
 
     private void DrawSystemOption(string label, ScripSystemId id, bool requireShift = false)
     {
-        bool active = configuration.ActiveSystem == id;
-        if (active) ImGui.PushStyleColor(ImGuiCol.Button, UiTheme.Accent);
-        ImGui.BeginDisabled(!active && _automationHandler.IsRunning);
+        bool isCurrent = configuration.ActiveSystem == id;
+        // Resource Inspection is a sub-activity of Firmament, so keep the Firmament button lit
+        // while it's the active (internal) system.
+        bool highlight = isCurrent ||
+                         (id == ScripSystemId.Firmament && configuration.ActiveSystem == ScripSystemId.Inspection);
+        if (highlight) ImGui.PushStyleColor(ImGuiCol.Button, UiTheme.Accent);
+        ImGui.BeginDisabled(!isCurrent && _automationHandler.IsRunning);
         bool clicked = ImGui.Button(label);
         ImGui.EndDisabled();
-        if (active) ImGui.PopStyleColor();
+        if (highlight) ImGui.PopStyleColor();
 
         if (requireShift && ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
-            ImGui.SetTooltip(active
+            ImGui.SetTooltip(highlight
                 ? "Experimental feature."
                 : "Experimental — hold Shift and click to enable.");
 
-        if (clicked && !active && (!requireShift || ImGui.GetIO().KeyShift))
+        if (clicked && !isCurrent && (!requireShift || ImGui.GetIO().KeyShift))
         {
             configuration.ActiveSystem = id;
             configuration.Save();

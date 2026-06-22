@@ -15,6 +15,7 @@ public enum PluginState
     [Description("Idle")]                 Idle,
     [Description("AutoRetainer running")] AutoRetainer,
     [Description("Deliveroo running")]    Deliveroo,
+    [Description("Crafting Artisan list")] ProcessingArtisanList,
 }
 
 public static class PluginStateExtensions
