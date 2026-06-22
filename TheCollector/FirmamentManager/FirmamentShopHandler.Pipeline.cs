@@ -11,7 +11,7 @@ namespace TheCollector.FirmamentManager;
 
 public partial class FirmamentShopHandler
 {
-    private TimeSpan UiInteractDelay => TimeSpan.FromMilliseconds(_configuration.UiDelayMs);
+    private TimeSpan UiInteractDelay => TimeSpan.FromMilliseconds(_configuration.GetUiDelayMs(Key));
     private bool _attemptedTarget;
 
     private List<(int remaining, int cost, uint itemId, bool isEquippable)> _buyQueue = new();

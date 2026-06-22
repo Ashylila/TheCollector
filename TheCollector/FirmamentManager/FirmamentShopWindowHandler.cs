@@ -43,9 +43,9 @@ public unsafe class FirmamentShopWindowHandler
         _catalog = catalog;
     }
 
-    private TimeSpan UiDelay => TimeSpan.FromMilliseconds(_configuration.UiDelayMs);
+    private TimeSpan UiDelay => TimeSpan.FromMilliseconds(_configuration.GetUiDelayMs(AddonDelays.FirmamentShop));
 
-    public bool IsReady => IsAddonOpen(MenuAddon) || IsAddonOpen(ShopAddon);
+    public bool IsReady => Addons.Ready(MenuAddon) || Addons.Ready(ShopAddon);
 
     public void OpenShop() => ResetNavigation();
 
@@ -66,7 +66,7 @@ public unsafe class FirmamentShopWindowHandler
 
         var havePlacement = _catalog.TryGetPlacement(itemId, out var targetShop, out var targetTab);
 
-        if (TryGetAddon(ShopAddon, out var shopAddon) && GenericHelpers.IsAddonReady(shopAddon))
+        if (Addons.TryGetReady(ShopAddon, out var shopAddon))
         {
             var items = new AddonMaster.ShopExchangeCurrency(shopAddon).BasicShopItems;
 
@@ -99,7 +99,7 @@ public unsafe class FirmamentShopWindowHandler
             return SweepTabsOrAdvance(shopAddon, items);
         }
 
-        if (TryGetAddon(MenuAddon, out var menuAddon) && GenericHelpers.IsAddonReady(menuAddon))
+        if (Addons.TryGetReady(MenuAddon, out var menuAddon))
         {
             var entries = new AddonMaster.SelectString(menuAddon).Entries;
             var lastSelectable = entries.Length - 1;
@@ -161,13 +161,13 @@ public unsafe class FirmamentShopWindowHandler
 
     public void ConfirmPurchaseDialog()
     {
-        if (TryGetAddon(ShopDialogAddon, out var addon) && GenericHelpers.IsAddonReady(addon))
+        if (Addons.TryGetReady(ShopDialogAddon, out var addon))
             new AddonMaster.ShopExchangeCurrencyDialog(addon).Exchange();
     }
 
     public bool ConfirmYesNo()
     {
-        if (TryGetAddon(YesNoAddon, out var addon) && GenericHelpers.IsAddonReady(addon))
+        if (Addons.TryGetReady(YesNoAddon, out var addon))
         {
             new AddonMaster.SelectYesno(addon).Yes();
             return true;
@@ -188,9 +188,9 @@ public unsafe class FirmamentShopWindowHandler
     public void CloseShop()
     {
         ResetNavigation();
-        if (TryGetAddon(ShopAddon, out var shopAddon) && GenericHelpers.IsAddonReady(shopAddon))
+        if (Addons.TryGetReady(ShopAddon, out var shopAddon))
             shopAddon->Close(true);
-        if (TryGetAddon(MenuAddon, out var menuAddon) && GenericHelpers.IsAddonReady(menuAddon))
+        if (Addons.TryGetReady(MenuAddon, out var menuAddon))
             menuAddon->Close(true);
     }
 
@@ -221,10 +221,4 @@ public unsafe class FirmamentShopWindowHandler
         _seenInShop.Clear();
     }
 
-    private static bool TryGetAddon(string name, out AtkUnitBase* addon)
-        => GenericHelpers.TryGetAddonByName(name, out addon);
-
-    private static bool IsAddonOpen(string name)
-        => GenericHelpers.TryGetAddonByName<AtkUnitBase>(name, out var addon) &&
-           GenericHelpers.IsAddonReady(addon);
 }

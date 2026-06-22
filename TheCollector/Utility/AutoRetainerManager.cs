@@ -119,7 +119,7 @@ public unsafe class AutoRetainerManager : FrameRunnerPipelineBase
     {
         for (int i = 0; i < AddonsToClose.Length; i++)
         {
-            if (GenericHelpers.TryGetAddonByName(AddonsToClose[i], out AtkUnitBase* atkUnitBase) && atkUnitBase->IsReady())
+            if (Addons.TryGet(AddonsToClose[i], out var atkUnitBase) && atkUnitBase->IsReady())
             {
                 Log.Debug("Closing Addon " + AddonsToClose[i]);
                 atkUnitBase->FireCallbackInt(-1);

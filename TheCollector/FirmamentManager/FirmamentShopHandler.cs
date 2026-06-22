@@ -11,7 +11,7 @@ namespace TheCollector.FirmamentManager;
 
 public partial class FirmamentShopHandler : FrameRunnerPipelineBase, IBuyPipeline
 {
-    public override string Key => "firmament-shop";
+    public override string Key => AddonDelays.FirmamentShop;
 
     private readonly Configuration _configuration;
     private readonly FirmamentShopWindowHandler _window;

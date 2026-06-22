@@ -75,6 +75,7 @@ public sealed class Plugin : IDalamudPlugin
     {
         _automationHandler.Init();
         ServiceWrapper.Get<ArtisanWatcher>();
+        ServiceWrapper.Get<CollectableTurnInWatcher>();
         _ = ServiceWrapper.Get<ScripShopItemManager>();
         var tracker = ServiceWrapper.Get<CharacterBalanceTracker>();
         Svc.Framework.RunOnFrameworkThread(() => tracker.SampleNow());

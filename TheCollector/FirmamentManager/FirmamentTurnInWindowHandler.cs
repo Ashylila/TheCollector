@@ -16,14 +16,11 @@ public unsafe class FirmamentTurnInWindowHandler
 
     public FirmamentTurnInWindowHandler(PlogonLog log) => _log = log;
 
-    public bool IsReady =>
-        GenericHelpers.TryGetAddonByName<AtkUnitBase>(AddonName, out var addon) &&
-        GenericHelpers.IsAddonReady(addon);
+    public bool IsReady => Addons.Ready(AddonName);
 
     public void SelectJob(int jobIndex)
     {
-        if (!GenericHelpers.TryGetAddonByName<AtkUnitBase>(AddonName, out var addon) ||
-            !GenericHelpers.IsAddonReady(addon))
+        if (!Addons.TryGetReady(AddonName, out var addon))
             return;
 
         var values = stackalloc AtkValue[2];
@@ -34,27 +31,28 @@ public unsafe class FirmamentTurnInWindowHandler
 
     public int FindRowIndex(uint itemId)
     {
-        if (!GenericHelpers.TryGetAddonByName<AtkUnitBase>(AddonName, out var addon))
+        if (!Addons.TryGet(AddonName, out var addon))
             return -1;
 
         var target = itemId + CollectableOffset;
-        var ordinal = 0;
-        for (var i = 0; i < addon->AtkValuesCount; i++)
+
+        const int indexOffset = 18;
+        for (var i = 0; i + indexOffset < addon->AtkValuesCount; i++)
         {
             ref var v = ref addon->AtkValues[i];
-            if (v.Type != ValueType.UInt) continue;
-            var u = v.UInt;
-            if (u < CollectableOffset || u >= 600000) continue;
-            if (u == target) return ordinal;
-            ordinal++;
+            if (v.Type != ValueType.UInt || v.UInt != target)
+                continue;
+
+            ref var idx = ref addon->AtkValues[i + indexOffset];
+            return idx.Type == ValueType.UInt ? (int)idx.UInt : -1;
         }
+
         return -1;
     }
 
     public bool SelectItem(uint itemId)
     {
-        if (!GenericHelpers.TryGetAddonByName<AtkUnitBase>(AddonName, out var addon) ||
-            !GenericHelpers.IsAddonReady(addon))
+        if (!Addons.TryGetReady(AddonName, out var addon))
             return false;
 
         var row = FindRowIndex(itemId);
@@ -71,16 +69,13 @@ public unsafe class FirmamentTurnInWindowHandler
         return true;
     }
 
-    public bool IsRequestOpen =>
-        GenericHelpers.TryGetAddonByName<AtkUnitBase>(RequestAddon, out var addon) &&
-        GenericHelpers.IsAddonReady(addon);
+    public bool IsRequestOpen => Addons.Ready(RequestAddon);
 
     public bool HandOverEnabled
     {
         get
         {
-            if (!GenericHelpers.TryGetAddonByName<AtkUnitBase>(RequestAddon, out var addon) ||
-                !GenericHelpers.IsAddonReady(addon))
+            if (!Addons.TryGetReady(RequestAddon, out var addon))
                 return false;
             return new ECommons.UIHelpers.AddonMasterImplementations.AddonMaster.Request(addon).IsHandOverEnabled;
         }
@@ -88,8 +83,7 @@ public unsafe class FirmamentTurnInWindowHandler
 
     public bool HandOver()
     {
-        if (!GenericHelpers.TryGetAddonByName<AtkUnitBase>(RequestAddon, out var addon) ||
-            !GenericHelpers.IsAddonReady(addon))
+        if (!Addons.TryGetReady(RequestAddon, out var addon))
             return false;
 
         var master = new ECommons.UIHelpers.AddonMasterImplementations.AddonMaster.Request(addon);
@@ -98,14 +92,11 @@ public unsafe class FirmamentTurnInWindowHandler
         return true;
     }
 
-    public bool IsPickerOpen =>
-        GenericHelpers.TryGetAddonByName<AtkUnitBase>("ContextIconMenu", out var addon) &&
-        GenericHelpers.IsAddonReady(addon);
+    public bool IsPickerOpen => Addons.Ready("ContextIconMenu");
 
     public void OpenCollectablePicker()
     {
-        if (!GenericHelpers.TryGetAddonByName<AtkUnitBase>(RequestAddon, out var addon) ||
-            !GenericHelpers.IsAddonReady(addon))
+        if (!Addons.TryGetReady(RequestAddon, out var addon))
             return;
         var values = stackalloc AtkValue[4];
         values[0] = new AtkValue { Type = ValueType.Int, Int = 2 };
@@ -117,8 +108,7 @@ public unsafe class FirmamentTurnInWindowHandler
 
     public void SelectFirstPickerEntry()
     {
-        if (!GenericHelpers.TryGetAddonByName<AtkUnitBase>("ContextIconMenu", out var addon) ||
-            !GenericHelpers.IsAddonReady(addon))
+        if (!Addons.TryGetReady("ContextIconMenu", out var addon))
             return;
         var icon = addon->AtkValuesCount > 11 && addon->AtkValues[11].Type == ValueType.UInt
             ? addon->AtkValues[11].UInt
@@ -133,8 +123,7 @@ public unsafe class FirmamentTurnInWindowHandler
 
     public bool ProgressTalk()
     {
-        if (!GenericHelpers.TryGetAddonByName<AtkUnitBase>("Talk", out var addon) ||
-            !GenericHelpers.IsAddonReady(addon))
+        if (!Addons.TryGetReady("Talk", out var addon))
             return false;
         new ECommons.UIHelpers.AddonMasterImplementations.AddonMaster.Talk(addon).Click();
         return true;
@@ -142,8 +131,7 @@ public unsafe class FirmamentTurnInWindowHandler
 
     public bool ConfirmYesNo()
     {
-        if (!GenericHelpers.TryGetAddonByName<AtkUnitBase>("SelectYesno", out var addon) ||
-            !GenericHelpers.IsAddonReady(addon))
+        if (!Addons.TryGetReady("SelectYesno", out var addon))
             return false;
         new ECommons.UIHelpers.AddonMasterImplementations.AddonMaster.SelectYesno(addon).Yes();
         return true;
@@ -152,7 +140,7 @@ public unsafe class FirmamentTurnInWindowHandler
     public bool TryGetScripCount(uint scripItemId, out uint count)
     {
         count = 0;
-        if (!GenericHelpers.TryGetAddonByName<AtkUnitBase>(AddonName, out var addon))
+        if (!Addons.TryGet(AddonName, out var addon))
             return false;
         var cur = CurrencyManager.Instance();
         if (cur == null) return false;
@@ -162,8 +150,7 @@ public unsafe class FirmamentTurnInWindowHandler
 
     public void CloseWindow()
     {
-        if (GenericHelpers.TryGetAddonByName<AtkUnitBase>(AddonName, out var addon) &&
-            GenericHelpers.IsAddonReady(addon))
+        if (Addons.TryGetReady(AddonName, out var addon))
             addon->Close(true);
     }
 }

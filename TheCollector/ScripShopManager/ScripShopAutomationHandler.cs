@@ -8,7 +8,7 @@ namespace TheCollector.ScripShopManager;
 
 public partial class ScripShopAutomationHandler : TheCollector.Data.ScripSystem.IBuyPipeline
 {
-    public override string Key => "scripshop";
+    public override string Key => AddonDelays.ScripShop;
     private readonly Configuration _configuration;
     private readonly ScripShopWindowHandler _scripShopWindowHandler;
     private readonly VendorCatalog _vendorCatalog;

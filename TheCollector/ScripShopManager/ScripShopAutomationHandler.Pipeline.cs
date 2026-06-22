@@ -14,7 +14,7 @@ using TheCollector.Data;
 public partial class ScripShopAutomationHandler : FrameRunnerPipelineBase
 {
 
-    private TimeSpan UiInteractDelay => TimeSpan.FromMilliseconds(_configuration.UiDelayMs);
+    private TimeSpan UiInteractDelay => TimeSpan.FromMilliseconds(_configuration.GetUiDelayMs(Key));
 
     private bool _attemptedTarget;
 
@@ -55,18 +55,7 @@ public partial class ScripShopAutomationHandler : FrameRunnerPipelineBase
 
             new FrameRunner.Step(
                 "WaitScripShopReady",
-                () =>
-                {
-                    unsafe
-                    {
-                        if (ECommons.GenericHelpers.TryGetAddonByName<FFXIVClientStructs.FFXIV.Component.GUI.AtkUnitBase>(
-                                "InclusionShop", out var a) &&
-                            ECommons.GenericHelpers.IsAddonReady(a))
-                            return StepResult.Success();
-                    }
-
-                    return StepResult.Continue();
-                },
+                () => Addons.Ready("InclusionShop") ? StepResult.Success() : StepResult.Continue(),
                 TimeSpan.FromSeconds(10)
             ),
 

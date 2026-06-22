@@ -16,20 +16,42 @@ using ECommons.GameHelpers;
 
 public partial class CollectableAutomationHandler : FrameRunnerPipelineBase
 {
-    public override string Key => "collectables";
+    public override string Key => AddonDelays.Collectables;
     private Dictionary<uint, CollectablesShopItem> _collectableByItemId = new();
     private const int ScripCap = 4000;
-    private TimeSpan UiInteractDelay => TimeSpan.FromMilliseconds(_configuration.UiDelayMs);
+    private TimeSpan UiInteractDelay => TimeSpan.FromMilliseconds(_configuration.GetUiDelayMs(Key));
     public string? CurrentItemName { get; private set; }
     public uint? LastEarnedCurrency { get; private set; }
     private int _currentJobIndex = int.MinValue;
 
     public bool ScripCapReached { get; private set; }
 
+    private bool _windowAlreadyOpen;
+
+    public void StartFromOpenWindow()
+    {
+        if (IsRunning) return;
+        _windowAlreadyOpen = true;
+        Start();
+    }
 
     protected override FrameRunner.Step[] BuildSteps()
     {
         ScripCapReached = false;
+
+        if (_windowAlreadyOpen)
+        {
+            return new[]
+            {
+                new FrameRunner.Step("CollectableCheck", CollectableCheck, TimeSpan.FromSeconds(5), PrimeTurnIn),
+                new FrameRunner.Step(
+                    "WaitCollectablesReady",
+                    () => Addons.Ready("CollectablesShop") ? StepResult.Success() : StepResult.Continue(),
+                    TimeSpan.FromSeconds(5)),
+                TurnInDriver(),
+            };
+        }
+
         var territoryId = _configuration.PreferredTerritoryId;
         var vendor = _vendorCatalog.GetCollectableVendor(territoryId);
         var target = vendor?.Position ?? Vector3.Zero;
@@ -99,16 +121,7 @@ public partial class CollectableAutomationHandler : FrameRunnerPipelineBase
 
             new FrameRunner.Step(
                 "WaitCollectablesReady",
-                () =>
-                {
-                    unsafe
-                    {
-                        if (GenericHelpers.TryGetAddonByName<AtkUnitBase>("CollectablesShop", out var a) &&
-                            GenericHelpers.IsAddonReady(a))
-                            return StepResult.Success();
-                    }
-                    return StepResult.Continue();
-                },
+                () => Addons.Ready("CollectablesShop") ? StepResult.Success() : StepResult.Continue(),
                 TimeSpan.FromSeconds(5)
             ),
 
@@ -132,7 +145,9 @@ public partial class CollectableAutomationHandler : FrameRunnerPipelineBase
     protected override void OnFinished(bool ok)
     {
         base.OnFinished(ok);
-        if(ok)  OnFinishCollecting?.Invoke();
+        var wasWindowRun = _windowAlreadyOpen;
+        _windowAlreadyOpen = false;
+        if (ok && !wasWindowRun) OnFinishCollecting?.Invoke();
     }
     protected override void OnCanceledOrFailed(string? error)
     {
@@ -140,7 +155,9 @@ public partial class CollectableAutomationHandler : FrameRunnerPipelineBase
         VNavmesh_IPCSubscriber.Path_Stop();
         CurrentItemName = string.Empty;
         TurnInQueue = null;
-        _collectibleWindowHandler.CloseWindow();
+        if (!_windowAlreadyOpen)
+            _collectibleWindowHandler.CloseWindow();
+        _windowAlreadyOpen = false;
     }
     private bool _teleportAttempted;
     private StepResult MakeTeleportTick(uint territoryId)

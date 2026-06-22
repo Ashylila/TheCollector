@@ -50,6 +50,7 @@ public static class ServiceWrapper
         
         collection.AddSingleton<ArtisanWatcher>();
         collection.AddSingleton<FishingWatcher>();
+        collection.AddSingleton<CollectableTurnInWatcher>();
         
         collection.AddSingleton<PlogonLog>();
         collection.AddSingleton<DiscordWebhookService>();

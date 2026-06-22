@@ -27,6 +27,10 @@ public class Configuration : IPluginConfiguration
     public bool BuyAfterEachCollect { get; set; } = false;
     public bool ResetEachQuantityAfterCompletingList { get; set; } = false;
     public bool CollectOnFinishedFishing { get; set; } = false;
+
+    // When set, manually opening a collectables turn-in window (CollectablesShop or the
+    // Firmament HWDSupply appraiser) auto-runs a turn-in-only pass on whatever is in inventory.
+    public bool AutoTurnInOnWindowOpen { get; set; } = false;
     public int ArtisanListId { get; set; } = 0;
     public bool PauseArtisanOnInventoryFull { get; set; } = true;
     public int ArtisanInventoryFullThreshold { get; set; } = 3;
@@ -48,7 +52,17 @@ public class Configuration : IPluginConfiguration
     public Dictionary<uint, int> TotalScripsSpent { get; set; } = new();
 
     public const int DefaultUiDelayMs = 300;
+
+    // Legacy single global delay. No longer read by handlers or shown in the UI; kept only so
+    // Migrate_SeedPerAddonDelays can fold a previously-customised value into UiDelayMsByAddon.
     public int UiDelayMs { get; set; } = DefaultUiDelayMs;
+
+    // Per-addon interact interval overrides, keyed by AddonDelays.* / pipeline Key.
+    // A missing key falls back to DefaultUiDelayMs (see GetUiDelayMs).
+    public Dictionary<string, int> UiDelayMsByAddon { get; set; } = new();
+
+    public int GetUiDelayMs(string addonKey)
+        => UiDelayMsByAddon.TryGetValue(addonKey, out var ms) ? ms : DefaultUiDelayMs;
 
     public const int ScripCeiling = 4000;
     public int ReserveScripAmount { get; set; } = 0;
@@ -84,8 +98,24 @@ public class Configuration : IPluginConfiguration
             changed |= Migrate_FlattenPreferredTerritoryId();
             Version = 6;
         }
+        if (Version < 7)
+        {
+            changed |= Migrate_SeedPerAddonDelays();
+            Version = 7;
+        }
         if (changed) Save();
         return changed;
+    }
+
+    private bool Migrate_SeedPerAddonDelays()
+    {
+        // Fold a previously-customised global delay into per-addon overrides so existing
+        // users keep their pacing. A default (300) global just falls through to DefaultUiDelayMs.
+        if (UiDelayMs == DefaultUiDelayMs) return false;
+        if (UiDelayMsByAddon.Count > 0) return false;
+        foreach (var def in AddonDelays.All)
+            UiDelayMsByAddon[def.Key] = UiDelayMs;
+        return true;
     }
 
     private bool Migrate_FlattenPreferredTerritoryId()

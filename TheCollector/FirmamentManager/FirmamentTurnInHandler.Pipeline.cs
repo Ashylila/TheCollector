@@ -14,15 +14,37 @@ namespace TheCollector.FirmamentManager;
 
 public partial class FirmamentTurnInHandler
 {
-    private TimeSpan UiInteractDelay => TimeSpan.FromMilliseconds(_configuration.UiDelayMs);
+    private TimeSpan UiInteractDelay => TimeSpan.FromMilliseconds(_configuration.GetUiDelayMs(Key));
     public string? CurrentItemName { get; private set; }
 
     private List<(uint itemId, string name, int left, int job)>? _queue;
     private int _currentJob = -1;
+    private bool _windowAlreadyOpen;
+
+    public void StartFromOpenWindow()
+    {
+        if (IsRunning) return;
+        _windowAlreadyOpen = true;
+        Start();
+    }
 
     protected override FrameRunner.Step[] BuildSteps()
     {
         CapReached = false;
+
+        if (_windowAlreadyOpen)
+        {
+            return new[]
+            {
+                new FrameRunner.Step("PrimeCheck", PrimeAndCheck, TimeSpan.FromSeconds(5)),
+                new FrameRunner.Step(
+                    "WaitAppraiserReady",
+                    () => Addons.Ready(FirmamentTurnInWindowHandler.AddonName) ? StepResult.Success() : StepResult.Continue(),
+                    TimeSpan.FromSeconds(5)),
+                TurnInDriver(),
+            };
+        }
+
         var territoryId = _catalog.TerritoryId;
 
         if (!HasCollectible)
@@ -59,12 +81,8 @@ public partial class FirmamentTurnInHandler
             new FrameRunner.Step("OpenAppraiser",
                 () =>
                 {
-                    unsafe
-                    {
-                        if (GenericHelpers.TryGetAddonByName<AtkUnitBase>(FirmamentTurnInWindowHandler.AddonName, out var a) &&
-                            GenericHelpers.IsAddonReady(a))
-                            return StepResult.Success();
-                    }
+                    if (Addons.Ready(FirmamentTurnInWindowHandler.AddonName))
+                        return StepResult.Success();
                     if (DateTime.UtcNow >= _nextInteract)
                     {
                         // Potkin shows a one-page Talk dialogue before HWDSupply opens;
@@ -92,7 +110,9 @@ public partial class FirmamentTurnInHandler
     protected override void OnFinished(bool ok)
     {
         base.OnFinished(ok);
-        if (ok) OnFinishedTurnIn?.Invoke();
+        var wasWindowRun = _windowAlreadyOpen;
+        _windowAlreadyOpen = false;
+        if (ok && !wasWindowRun) OnFinishedTurnIn?.Invoke();
     }
 
     protected override void OnCanceledOrFailed(string? error)
@@ -101,7 +121,9 @@ public partial class FirmamentTurnInHandler
         VNavmesh_IPCSubscriber.Path_Stop();
         CurrentItemName = null;
         _queue = null;
-        _window.CloseWindow();
+        if (!_windowAlreadyOpen)
+            _window.CloseWindow();
+        _windowAlreadyOpen = false;
     }
 
     private StepResult PrimeAndCheck()
@@ -179,6 +201,9 @@ public partial class FirmamentTurnInHandler
             {
                 if (!fired)
                 {
+                    if (_window.FindRowIndex(itemId) < 0)
+                        return StepResult.Continue();
+
                     if (!_window.SelectItem(itemId))
                         return StepResult.Fail($"Could not select Firmament item {itemId}.");
                     CurrentItemName = name;

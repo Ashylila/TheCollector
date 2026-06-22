@@ -63,7 +63,9 @@ public partial class MainWindow
             if (pluginInterface.IsDev && ImGui.BeginTabItem("Debug"))
             {
                 ImGui.Spacing();
-                DrawSettingsDebug();
+                if (ImGui.BeginChild("##DebugScroll", new Vector2(0, 0), false))
+                    DrawSettingsDebug();
+                ImGui.EndChild();
                 ImGui.EndTabItem();
             }
 
@@ -180,6 +182,15 @@ public partial class MainWindow
             configuration.Save();
         }
 
+        var autoTurnInOnOpen = configuration.AutoTurnInOnWindowOpen;
+        if (ImGui.Checkbox("Auto turn in when opening a collectables window manually", ref autoTurnInOnOpen))
+        {
+            configuration.AutoTurnInOnWindowOpen = autoTurnInOnOpen;
+            configuration.Save();
+        }
+        if (ImGui.IsItemHovered())
+            ImGui.SetTooltip("When you open the Collectables shop or the Firmament appraiser (HWDSupply) yourself,\nturn in eligible collectables automatically. Skips travel and does not start buying.");
+
         ImGui.Spacing();
         ImGui.AlignTextToFramePadding();
         ImGui.TextUnformatted("Reserve scrips:");
@@ -266,7 +277,9 @@ public partial class MainWindow
         sb.AppendLine($"Config version:        {configuration.Version}");
         sb.AppendLine($"Preferred territory:   {prefId} ({(prefId == 0 ? "<none>" : VendorCatalog.GetTerritoryDisplayName(prefId))})");
         sb.AppendLine($"Active source:         {configuration.ActiveRunSource}");
-        sb.AppendLine($"UI delay:              {configuration.UiDelayMs}ms");
+        sb.AppendLine($"UI delay default:      {Configuration.DefaultUiDelayMs}ms");
+        foreach (var def in AddonDelays.All)
+            sb.AppendLine($"  {def.Key,-16} {configuration.GetUiDelayMs(def.Key)}ms{(configuration.UiDelayMsByAddon.ContainsKey(def.Key) ? "" : " (default)")}");
         sb.AppendLine($"Reserve scrips:        {configuration.ReserveScripAmount}");
         sb.AppendLine($"Buy after each:        {configuration.BuyAfterEachCollect}");
         sb.AppendLine($"Reset qty on complete: {configuration.ResetEachQuantityAfterCompletingList}");
@@ -616,21 +629,37 @@ public partial class MainWindow
     {
         ImGuiHelper.SectionHeader("UI Delay");
 
-        ImGui.TextWrapped("Delay between UI interactions during automation. Lower values run faster but may misbehave on slower machines or with high latency.");
+        ImGui.TextWrapped("Delay between UI interactions during automation, set per addon. Lower values " +
+                          "run faster but may misbehave on slower machines or with high latency. Addons " +
+                          $"without an override use the default ({Configuration.DefaultUiDelayMs} ms).");
         ImGui.Spacing();
 
-        var delay = configuration.UiDelayMs;
-        ImGui.SetNextItemWidth(-1);
-        if (ImGui.SliderInt("##UiDelay", ref delay, 50, 1500, "%d ms"))
+        foreach (var def in AddonDelays.All)
         {
-            configuration.UiDelayMs = delay;
-            configuration.Save();
-        }
+            var hasOverride = configuration.UiDelayMsByAddon.ContainsKey(def.Key);
+            var delay = configuration.GetUiDelayMs(def.Key);
 
-        if (ImGui.Button($"Reset to default ({Configuration.DefaultUiDelayMs} ms)"))
-        {
-            configuration.UiDelayMs = Configuration.DefaultUiDelayMs;
-            configuration.Save();
+            ImGui.SetNextItemWidth(-1);
+            if (ImGui.SliderInt($"##UiDelay-{def.Key}", ref delay, 50, 1500, $"{def.DisplayName}: %d ms"))
+            {
+                configuration.UiDelayMsByAddon[def.Key] = delay;
+                configuration.Save();
+            }
+
+            if (hasOverride)
+            {
+                if (ImGui.SmallButton($"Reset to default##{def.Key}"))
+                {
+                    configuration.UiDelayMsByAddon.Remove(def.Key);
+                    configuration.Save();
+                }
+            }
+            else
+            {
+                ImGui.TextDisabled($"Using default ({Configuration.DefaultUiDelayMs} ms)");
+            }
+
+            ImGui.Spacing();
         }
     }
 

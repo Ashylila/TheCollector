@@ -10,7 +10,7 @@ namespace TheCollector.FirmamentManager;
 
 public partial class FirmamentTurnInHandler : FrameRunnerPipelineBase, ITurnInPipeline
 {
-    public override string Key => "firmament-turnin";
+    public override string Key => AddonDelays.FirmamentTurnIn;
 
     private readonly FirmamentTurnInWindowHandler _window;
     private readonly FirmamentCatalog _catalog;

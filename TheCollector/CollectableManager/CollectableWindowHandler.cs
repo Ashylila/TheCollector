@@ -9,8 +9,7 @@ namespace TheCollector.CollectableManager;
 
  public unsafe class CollectableWindowHandler
  {
-     public unsafe bool IsReady => GenericHelpers.TryGetAddonByName<AtkUnitBase>("CollectablesShop", out var addon) &&
-                                   GenericHelpers.IsAddonReady(addon);
+     public bool IsReady => Addons.Ready("CollectablesShop");
      private readonly PlogonLog _log;
 
      public CollectableWindowHandler(PlogonLog log)
@@ -19,8 +18,7 @@ namespace TheCollector.CollectableManager;
      }
      public unsafe void SelectJob(uint id)
      {
-         if (GenericHelpers.TryGetAddonByName<AtkUnitBase>("CollectablesShop", out var addon) &&
-             GenericHelpers.IsAddonReady(addon))
+         if (Addons.TryGetReady("CollectablesShop", out var addon))
          {
              var selectJob = stackalloc AtkValue[]
              {
@@ -33,8 +31,7 @@ namespace TheCollector.CollectableManager;
      }
     public unsafe bool SelectItem(string itemName)
     {
-        if (GenericHelpers.TryGetAddonByName<AtkUnitBase>("CollectablesShop", out var addon) &&
-            GenericHelpers.IsAddonReady(addon))
+        if (Addons.TryGetReady("CollectablesShop", out var addon))
         {
             var turnIn = new TurninWindow(addon);
             var index = turnIn.GetItemIndexOf(itemName);
@@ -56,8 +53,7 @@ namespace TheCollector.CollectableManager;
     
     public unsafe void SubmitItem()
     {
-        if (GenericHelpers.TryGetAddonByName<AtkUnitBase>("CollectablesShop", out var addon) &&
-            GenericHelpers.IsAddonReady(addon))
+        if (Addons.TryGetReady("CollectablesShop", out var addon))
         {
             var submitItem = stackalloc AtkValue[]
             {
@@ -71,7 +67,7 @@ namespace TheCollector.CollectableManager;
     public bool TryGetScripCount(uint curType, out uint count)
     {
         count = 0;
-        if (!GenericHelpers.TryGetAddonByName("CollectablesShop", out AtkUnitBase* addon))
+        if (!Addons.TryGet("CollectablesShop", out var addon))
             return false;
         var cur = CurrencyManager.Instance();
         var itemId = cur->GetItemIdBySpecialId((byte)curType);
@@ -81,8 +77,7 @@ namespace TheCollector.CollectableManager;
 
     public unsafe void CloseWindow()
     {
-        if (GenericHelpers.TryGetAddonByName<AtkUnitBase>("CollectablesShop", out var addon) &&
-            GenericHelpers.IsAddonReady(addon))
+        if (Addons.TryGetReady("CollectablesShop", out var addon))
         {
             addon->Close(true);
         }

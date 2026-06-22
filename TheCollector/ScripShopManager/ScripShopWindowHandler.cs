@@ -24,7 +24,7 @@ public unsafe class ScripShopWindowHandler
     private DateTime _cooldownUntil;
 
     private const int DropdownNodeId = 9;
-    private TimeSpan UiDelay => TimeSpan.FromMilliseconds(_configuration.UiDelayMs);
+    private TimeSpan UiDelay => TimeSpan.FromMilliseconds(_configuration.GetUiDelayMs(AddonDelays.ScripShop));
     public ScripShopWindowHandler(PlogonLog log, Configuration configuration)
     {
         _log = log;
@@ -32,7 +32,7 @@ public unsafe class ScripShopWindowHandler
     }
     public void OpenShop()
     {
-        if (GenericHelpers.TryGetAddonByName("SelectIconString", out AtkUnitBase* addon))
+        if (Addons.TryGet("SelectIconString", out var addon))
         {
             var openShop = stackalloc AtkValue[]
             {
@@ -43,7 +43,7 @@ public unsafe class ScripShopWindowHandler
     }
     public void SelectPage(int page)
     {
-        if (GenericHelpers.TryGetAddonByName("InclusionShop", out AtkUnitBase* addon))
+        if (Addons.TryGet("InclusionShop", out var addon))
         {
             var selectPage = stackalloc AtkValue[]
             {
@@ -71,7 +71,7 @@ public unsafe class ScripShopWindowHandler
         if (DateTime.UtcNow < _cooldownUntil)
             return StepResult.Continue();
 
-        if (!GenericHelpers.TryGetAddonByName("InclusionShop", out AtkUnitBase* addon) || addon == null)
+        if (!Addons.TryGet("InclusionShop", out var addon) || addon == null)
         {
             ResetForceSearch();
             return StepResult.Fail("InclusionShop not open");
@@ -165,7 +165,7 @@ public unsafe class ScripShopWindowHandler
 
     public void SelectSubPage(int subPage)
     {
-        if (GenericHelpers.TryGetAddonByName("InclusionShop", out AtkUnitBase* addon))
+        if (Addons.TryGet("InclusionShop", out var addon))
         {
             var selectSubPage = stackalloc AtkValue[]
             {
@@ -206,7 +206,7 @@ public unsafe class ScripShopWindowHandler
 
     public void ConfirmPurchaseDialog()
     {
-        if (GenericHelpers.TryGetAddonByName("ShopExchangeItemDialog", out AtkUnitBase* shopAddon))
+        if (Addons.TryGet("ShopExchangeItemDialog", out var shopAddon))
         {
             var purchaseItem = stackalloc AtkValue[]
             {
@@ -219,7 +219,7 @@ public unsafe class ScripShopWindowHandler
 
     public bool ConfirmYesNo()
     {
-        if (GenericHelpers.TryGetAddonByName("SelectYesno", out AtkUnitBase* yesnoAddon))
+        if (Addons.TryGet("SelectYesno", out var yesnoAddon))
         {
             var addonMaster = new ECommons.UIHelpers.AddonMasterImplementations.AddonMaster.SelectYesno(yesnoAddon);
             addonMaster.Yes();
@@ -231,7 +231,7 @@ public unsafe class ScripShopWindowHandler
     public bool TryGetScripCount(uint currencyItemId, out uint count)
     {
         count = 0;
-        if (!GenericHelpers.TryGetAddonByName("InclusionShop", out AtkUnitBase* addon))
+        if (!Addons.TryGet("InclusionShop", out var addon))
             return false;
         var cur = CurrencyManager.Instance();
         count = cur->GetItemCount(currencyItemId);
@@ -239,7 +239,7 @@ public unsafe class ScripShopWindowHandler
     }
     public void CloseShop()
     {
-        if (GenericHelpers.TryGetAddonByName("InclusionShop", out AtkUnitBase* addon))
+        if (Addons.TryGet("InclusionShop", out var addon))
         {
             addon->Close(true);
         }
