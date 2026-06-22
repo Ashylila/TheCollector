@@ -467,15 +467,19 @@ public class AutomationHandler : IDisposable
 
     private void OnKupoFinished()
     {
+        // Cards drained — clear the sampled voucher count so a stale value can't re-trigger a trip.
+        _firmamentTurnInWindow.ResetVoucherCount();
+
         // A manual test run ends here without spilling into the buy/cascade flow.
         if (_kupoStartedManually) { _kupoStartedManually = false; return; }
 
         // The turn-in pauses when vouchers hit the threshold; having drained them, resume
         // turning in if collectables remain (and we're not at the scrip cap). This interleaves
-        // turn-in and Kupo so vouchers never pile up past the cap.
-        if (!_selector.Active.TurnIn.CapReached && _selector.Active.TurnIn.HasCollectible)
+        // turn-in and Kupo so vouchers never pile up past the cap. Use CurrentTurnIn so an
+        // inspection override (if ever active) isn't hijacked back to the appraiser.
+        if (!CurrentTurnIn.CapReached && CurrentTurnIn.HasCollectible)
         {
-            _selector.Active.TurnIn.Start();
+            CurrentTurnIn.Start();
             return;
         }
         ContinueAfterCollect();
@@ -483,16 +487,21 @@ public class AutomationHandler : IDisposable
 
     private bool ShouldPlayKupo()
     {
-        // Firmament-only, gated on the voucher count sampled from the turn-in window so we
-        // only detour to Lizbeth once the held vouchers reach the threshold (default = cap).
+        // Firmament-only, gated on the voucher count sampled from the turn-in window so we only
+        // detour to Lizbeth once the held vouchers reach the threshold (default = cap). Restricted
+        // to a real appraiser run (_turnInOverride == null): the inspection turn-in never samples
+        // LastVoucherCount, so a stale value must not trigger a pointless trip with no cards held.
         return _config.KupoOfFortuneEnabled &&
+               _turnInOverride == null &&
                _selector.Active.Id == ScripSystemId.Firmament &&
                _firmamentTurnInWindow.LastVoucherCount >= _config.KupoOfFortuneThreshold;
     }
 
     private void OnKupoError(Exception ex)
     {
-        // A failed minigame must not hard-fail the whole run — just log and carry on.
+        // A failed minigame must not hard-fail the whole run — just log and carry on. Clear the
+        // sampled count so a failed play doesn't immediately re-trigger another attempt.
+        _firmamentTurnInWindow.ResetVoucherCount();
         _log.Error(ex, "Kupo of Fortune play failed; continuing with the post-turn-in flow.");
         if (_kupoStartedManually) { _kupoStartedManually = false; return; }
         ContinueAfterCollect();

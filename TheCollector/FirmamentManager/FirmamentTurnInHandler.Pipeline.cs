@@ -171,8 +171,11 @@ public partial class FirmamentTurnInHandler
 
             // Pause the batch when held Kupo vouchers reach the threshold so the orchestrator
             // can play them off (and we resume turning in afterwards) — otherwise vouchers
-            // earned past the cap of 10 are wasted before the run ends.
-            if (_configuration.KupoOfFortuneEnabled &&
+            // earned past the cap of 10 are wasted before the run ends. Skipped on a manual
+            // window-open run: those suppress OnFinished, so Kupo would never fire and the
+            // turn-in would just stall part-way with vouchers still capped.
+            if (!_windowAlreadyOpen &&
+                _configuration.KupoOfFortuneEnabled &&
                 _window.TryGetVoucherCount(out var vouchers) &&
                 vouchers >= _configuration.KupoOfFortuneThreshold)
             {

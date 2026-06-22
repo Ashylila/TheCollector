@@ -24,6 +24,10 @@ public unsafe class FirmamentTurnInWindowHandler
     // counter, or -1 if not seen yet. Sampled during turn-in and used to gate the minigame.
     public int LastVoucherCount { get; private set; } = -1;
 
+    // Clears the sampled voucher count (e.g. after the cards have been played off), so a stale
+    // value can't re-trigger a Lizbeth trip on a later turn-in that never re-samples it.
+    public void ResetVoucherCount() => LastVoucherCount = -1;
+
     // Reads the Kupo voucher count from the window's "N/10" counter. The Skybuilders' Scrip
     // total ("6,120/10,000") is the only other "n/m" string and carries separators, so an
     // unseparated "(digits)/(digits)" match uniquely identifies the voucher counter.
