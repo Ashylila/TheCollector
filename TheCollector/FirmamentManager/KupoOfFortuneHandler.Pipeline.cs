@@ -21,6 +21,14 @@ public partial class KupoOfFortuneHandler
     private TimeSpan UiInteractDelay => TimeSpan.FromMilliseconds(_configuration.UiDelayMs);
     // Dwell after scratching so the choice registers before we close the result.
     private TimeSpan ScratchSettle => UiInteractDelay;
+    // A freshly opened Talk/SelectYesno/lottery addon reports "ready" (visible) a frame or two
+    // before its backing event Lua coroutine is actually live. Firing the advance/confirm/scratch
+    // callback inside that open-transition window resumes a null coroutine and crashes the game
+    // natively (Common::Lua::LuaThread.Resume access violation). Require any addon to be
+    // continuously ready for this long before we touch it — this is what actually prevents the
+    // crash where we clicked the post-card Talk on its first ready frame after the lottery closed.
+    // Independent of UiDelayMs so lowering the UI Delay can't shrink the guard below the safe window.
+    private static readonly TimeSpan DialogueSettle = TimeSpan.FromMilliseconds(300);
     // After interacting, how long to wait for a card to be offered before concluding there
     // are no vouchers left. The timer is held off while any dialogue/event is in progress.
     private static readonly TimeSpan OfferGrace = TimeSpan.FromSeconds(3);
@@ -91,6 +99,11 @@ public partial class KupoOfFortuneHandler
         var nextAction = DateTime.MinValue;
         var nextClose = DateTime.MinValue;
         var offerDeadline = DateTime.MinValue;
+        // When each addon first became ready (DateTime.MinValue while it is closed). We only act
+        // once it has been ready for DialogueSettle, so we never click into an open transition.
+        var lotteryReadySince = DateTime.MinValue;
+        var yesNoReadySince = DateTime.MinValue;
+        var talkReadySince = DateTime.MinValue;
         return new FrameRunner.Step("DrainKupoCards",
             () =>
             {
@@ -102,6 +115,15 @@ public partial class KupoOfFortuneHandler
                 var talk = _window.IsTalkOpen;
                 var occupied = Svc.Condition[ConditionFlag.OccupiedInQuestEvent] ||
                                Svc.Condition[ConditionFlag.OccupiedInEvent];
+
+                // Track readiness onset per addon and derive "settled" gates. An addon must have
+                // been continuously ready for DialogueSettle before we fire its callback.
+                lotteryReadySince = lottery ? (lotteryReadySince == DateTime.MinValue ? now : lotteryReadySince) : DateTime.MinValue;
+                yesNoReadySince = yesNo ? (yesNoReadySince == DateTime.MinValue ? now : yesNoReadySince) : DateTime.MinValue;
+                talkReadySince = talk ? (talkReadySince == DateTime.MinValue ? now : talkReadySince) : DateTime.MinValue;
+                var lotterySettled = lottery && now - lotteryReadySince >= DialogueSettle;
+                var yesNoSettled = yesNo && now - yesNoReadySince >= DialogueSettle;
+                var talkSettled = talk && now - talkReadySince >= DialogueSettle;
 
                 // A lottery card open always means "go play it", regardless of phase.
                 if (lottery && phase != KupoPhase.Play)
@@ -128,7 +150,7 @@ public partial class KupoOfFortuneHandler
                         if (yesNo)
                         {
                             offerDeadline = now + OfferGrace;
-                            if (now >= nextAction)
+                            if (yesNoSettled && now >= nextAction)
                             {
                                 _window.ConfirmYesNo();
                                 nextAction = now + UiInteractDelay;
@@ -138,7 +160,7 @@ public partial class KupoOfFortuneHandler
                         if (talk)
                         {
                             offerDeadline = now + OfferGrace;
-                            if (now >= nextAction)
+                            if (talkSettled && now >= nextAction)
                             {
                                 _window.ProgressTalk();
                                 nextAction = now + UiInteractDelay;
@@ -156,6 +178,9 @@ public partial class KupoOfFortuneHandler
                         {
                             if (!cardScratched)
                             {
+                                // Don't scratch on the addon's first ready frame — same
+                                // open-transition hazard as the dialogue clicks.
+                                if (!lotterySettled) return StepResult.Continue();
                                 var chestIndex = PickChestIndex();
                                 _window.Scratch(chestIndex);
                                 Log.Debug($"Kupo of Fortune: scratching chest index {chestIndex} ({_configuration.KupoChestPick}).");
@@ -194,8 +219,8 @@ public partial class KupoOfFortuneHandler
                         {
                             if (now >= nextAction)
                             {
-                                if (!_window.ProgressTalk()) _window.ConfirmYesNo();
-                                nextAction = now + UiInteractDelay;
+                                if (talk && talkSettled) { _window.ProgressTalk(); nextAction = now + UiInteractDelay; }
+                                else if (yesNo && yesNoSettled) { _window.ConfirmYesNo(); nextAction = now + UiInteractDelay; }
                             }
                             return StepResult.Continue();
                         }
