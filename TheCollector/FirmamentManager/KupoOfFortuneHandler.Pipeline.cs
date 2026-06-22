@@ -14,9 +14,13 @@ public partial class KupoOfFortuneHandler
     // miscount can never spin the loop forever.
     private const int MaxCardsPerRun = 12;
 
-    private static readonly TimeSpan InteractInterval = TimeSpan.FromMilliseconds(700);
-    // Minimum dwell after scratching so the choice registers before we close the result.
-    private static readonly TimeSpan ScratchSettle = TimeSpan.FromMilliseconds(600);
+    // Delay between UI interactions, driven by the shared, user-configurable UI Delay setting
+    // (Configuration.UiDelayMs) just like every other automation here. Kupo previously used its
+    // own hardcoded 700ms/600ms timings and ignored this setting; routing it through UiDelayMs
+    // makes the pace consistent and tunable from the Settings tab.
+    private TimeSpan UiInteractDelay => TimeSpan.FromMilliseconds(_configuration.UiDelayMs);
+    // Dwell after scratching so the choice registers before we close the result.
+    private TimeSpan ScratchSettle => UiInteractDelay;
     // After interacting, how long to wait for a card to be offered before concluding there
     // are no vouchers left. The timer is held off while any dialogue/event is in progress.
     private static readonly TimeSpan OfferGrace = TimeSpan.FromSeconds(3);
@@ -110,7 +114,7 @@ public partial class KupoOfFortuneHandler
                         {
                             VNavmesh_IPCSubscriber.Path_Stop();
                             TryInteractWithLizbeth();
-                            nextAction = now + InteractInterval;
+                            nextAction = now + UiInteractDelay;
                             offerDeadline = now + OfferGrace;
                             phase = KupoPhase.AwaitOffer;
                         }
@@ -127,7 +131,7 @@ public partial class KupoOfFortuneHandler
                             if (now >= nextAction)
                             {
                                 _window.ConfirmYesNo();
-                                nextAction = now + InteractInterval;
+                                nextAction = now + UiInteractDelay;
                             }
                             return StepResult.Continue();
                         }
@@ -137,7 +141,7 @@ public partial class KupoOfFortuneHandler
                             if (now >= nextAction)
                             {
                                 _window.ProgressTalk();
-                                nextAction = now + InteractInterval;
+                                nextAction = now + UiInteractDelay;
                             }
                             return StepResult.Continue();
                         }
@@ -164,7 +168,7 @@ public partial class KupoOfFortuneHandler
                             if (now >= nextClose)
                             {
                                 _window.CloseLottery();
-                                nextClose = now + InteractInterval;
+                                nextClose = now + UiInteractDelay;
                             }
                             return StepResult.Continue();
                         }
@@ -191,7 +195,7 @@ public partial class KupoOfFortuneHandler
                             if (now >= nextAction)
                             {
                                 if (!_window.ProgressTalk()) _window.ConfirmYesNo();
-                                nextAction = now + InteractInterval;
+                                nextAction = now + UiInteractDelay;
                             }
                             return StepResult.Continue();
                         }
