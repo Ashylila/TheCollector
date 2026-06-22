@@ -21,13 +21,11 @@ public partial class KupoOfFortuneHandler
     private TimeSpan UiInteractDelay => TimeSpan.FromMilliseconds(_configuration.GetUiDelayMs(Key));
     // Dwell after scratching so the choice registers before we close the result.
     private TimeSpan ScratchSettle => UiInteractDelay;
-    // A freshly opened Talk/SelectYesno/lottery addon reports "ready" (visible) a frame or two
-    // before its backing event Lua coroutine is actually live. Firing the advance/confirm/scratch
-    // callback inside that open-transition window resumes a null coroutine and crashes the game
-    // natively (Common::Lua::LuaThread.Resume access violation). Require any addon to be
-    // continuously ready for this long before we touch it — this is what actually prevents the
-    // crash where we clicked the post-card Talk on its first ready frame after the lottery closed.
-    // Independent of UiDelayMs so lowering the UI Delay can't shrink the guard below the safe window.
+    // Dialogue addons stay "ready" (visible) for a frame or two before their event Lua coroutine
+    // goes live and after it dies; firing a callback in either window resumes a null/dead coroutine
+    // and crashes the game (Common::Lua::LuaThread.Resume). Require an addon to be continuously ready
+    // this long before we touch it, re-armed after each click so the gate covers every dialogue page.
+    // Kept independent of UiDelayMs so a low UI Delay can't shrink it below the safe window.
     private static readonly TimeSpan DialogueSettle = TimeSpan.FromMilliseconds(300);
     // After interacting, how long to wait for a card to be offered before concluding there
     // are no vouchers left. The timer is held off while any dialogue/event is in progress.
@@ -99,8 +97,8 @@ public partial class KupoOfFortuneHandler
         var nextAction = DateTime.MinValue;
         var nextClose = DateTime.MinValue;
         var offerDeadline = DateTime.MinValue;
-        // When each addon first became ready (DateTime.MinValue while it is closed). We only act
-        // once it has been ready for DialogueSettle, so we never click into an open transition.
+        // When each addon became ready, or when we last clicked it (DateTime.MinValue while closed);
+        // DialogueSettle measures continuous readiness from here.
         var lotteryReadySince = DateTime.MinValue;
         var yesNoReadySince = DateTime.MinValue;
         var talkReadySince = DateTime.MinValue;
@@ -116,8 +114,8 @@ public partial class KupoOfFortuneHandler
                 var occupied = Svc.Condition[ConditionFlag.OccupiedInQuestEvent] ||
                                Svc.Condition[ConditionFlag.OccupiedInEvent];
 
-                // Track readiness onset per addon and derive "settled" gates. An addon must have
-                // been continuously ready for DialogueSettle before we fire its callback.
+                // Track readiness onset per addon and derive the "settled" gates. The onset is also
+                // re-armed after each click below, so the gate re-applies for every dialogue page.
                 lotteryReadySince = lottery ? (lotteryReadySince == DateTime.MinValue ? now : lotteryReadySince) : DateTime.MinValue;
                 yesNoReadySince = yesNo ? (yesNoReadySince == DateTime.MinValue ? now : yesNoReadySince) : DateTime.MinValue;
                 talkReadySince = talk ? (talkReadySince == DateTime.MinValue ? now : talkReadySince) : DateTime.MinValue;
@@ -150,20 +148,24 @@ public partial class KupoOfFortuneHandler
                         if (yesNo)
                         {
                             offerDeadline = now + OfferGrace;
-                            if (yesNoSettled && now >= nextAction)
+                            // occupied: only fire while the game reports an active event, so we never
+                            // click a torn-down addon. Re-arm the settle timer on click; see DialogueSettle.
+                            if (occupied && yesNoSettled && now >= nextAction)
                             {
                                 _window.ConfirmYesNo();
                                 nextAction = now + UiInteractDelay;
+                                yesNoReadySince = now;
                             }
                             return StepResult.Continue();
                         }
                         if (talk)
                         {
                             offerDeadline = now + OfferGrace;
-                            if (talkSettled && now >= nextAction)
+                            if (occupied && talkSettled && now >= nextAction)
                             {
                                 _window.ProgressTalk();
                                 nextAction = now + UiInteractDelay;
+                                talkReadySince = now;
                             }
                             return StepResult.Continue();
                         }
@@ -217,10 +219,12 @@ public partial class KupoOfFortuneHandler
                         // for the next card until vouchers run out.
                         if (talk || yesNo)
                         {
-                            if (now >= nextAction)
+                            // Same occupied gate + per-click re-arm as the offer dialogue above; this
+                            // post-card line, clicked as it lingered after the event ended, was the crash.
+                            if (occupied && now >= nextAction)
                             {
-                                if (talk && talkSettled) { _window.ProgressTalk(); nextAction = now + UiInteractDelay; }
-                                else if (yesNo && yesNoSettled) { _window.ConfirmYesNo(); nextAction = now + UiInteractDelay; }
+                                if (talk && talkSettled) { _window.ProgressTalk(); nextAction = now + UiInteractDelay; talkReadySince = now; }
+                                else if (yesNo && yesNoSettled) { _window.ConfirmYesNo(); nextAction = now + UiInteractDelay; yesNoReadySince = now; }
                             }
                             return StepResult.Continue();
                         }
