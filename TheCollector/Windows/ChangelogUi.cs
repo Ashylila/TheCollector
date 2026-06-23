@@ -43,6 +43,7 @@ public class ChangelogUi
         Add_0_6_1(Book);
         Add_0_6_2(Book);
         Add_0_7_0(Book);
+        Add_0_8_0(Book);
 
         Window = new ChangelogWindow("TheCollector_Changelog", Book, GetConfig, SetConfig);
     }
@@ -67,6 +68,21 @@ public class ChangelogUi
         }
         if (dirty) _config.Save();
     }
+    private static void Add_0_8_0(ChangelogBook book) =>
+        book.NextVersion("Version 0.8.0")
+            .RegisterImportant("The Kupo of Fortune and resource-inspection features live under the still-experimental Firmament mode (System toggle → Shift-click 'Firmament'). Please report anything that breaks")
+            .RegisterHighlight("Kupo of Fortune automation — after a Firmament turn-in, automatically walk to Lizbeth and play your held cards so Kupo Vouchers earned past the 10-card cap aren't wasted. Configurable play threshold and chest choice (Settings → General)", "mpolonioli")
+            .RegisterHighlight("Skybuilders' resource inspection and a full hands-free loop — chain GatherBuddyReborn autogather → resource inspection → Artisan craft → collect, then restart (Settings → Integrations)", "mpolonioli")
+            .RegisterEntry("Artisan crafting now triggers correctly inside the Firmament — it was silently inert before", "mpolonioli")
+            .RegisterEntry("Added an in-progress status while an Artisan list is crafting", "mpolonioli")
+            .RegisterEntry("Fixed a Kupo of Fortune game crash, and Kupo interactions now respect your configured UI delay", "mpolonioli")
+            .RegisterEntry("Added a 'stop after N full loops' stop condition, with full-loop counting in the session stats (Planner and Settings → Goal)", "mpolonioli")
+            .RegisterEntry("Fixed Firmament appraiser row resolution so the correct collectable is turned in")
+            .RegisterEntry("Per-addon UI delays — tune the wait for each game window individually (Settings → Timing)")
+            .RegisterEntry("Auto turn-in when you open a Collectables shop or Firmament appraiser window yourself — skips travel and doesn't start buying (Settings → General)")
+            .RegisterEntry("Kupo now waits for a real appraiser run before playing, resets the voucher count afterwards, resumes an interrupted turn-in, and skips the voucher pause on manual window turn-ins")
+            .RegisterEntry("The changelog now credits outside contributors inline, and you can reopen it any time with /collector changelog or Settings → General → View changelog");
+
     private static void Add_0_7_0(ChangelogBook book) =>
         book.NextVersion("Version 0.7.0")
             .RegisterHighlight("Experimental Firmament (Skybuilders' Scrip) support — turn in Skybuilders' collectables and buy from the Firmament scrip shop.")
