@@ -124,7 +124,9 @@ public class AutomationHandler : IDisposable
     private void OnAutoGatherStatusChanged(bool enabled)
     {
         if (enabled) return;
-        if (_config.RunInspectionOnAutogatherFinish)
+        // Resource inspection rides on the Firmament economy, so only honour it for
+        // Firmament-like systems even if a stale config flag survives on Normal.
+        if (_config.RunInspectionOnAutogatherFinish && _config.ActiveSystem.IsFirmamentLike())
         {
             _pendingCraftAfterInspection = _config.CraftOnInspectionFinish;
             if (!InvokeInspection()) _pendingCraftAfterInspection = false;

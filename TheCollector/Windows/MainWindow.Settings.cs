@@ -9,6 +9,7 @@ using Dalamud.Bindings.ImGui;
 using ECommons.DalamudServices;
 using ECommons.GameHelpers;
 using TheCollector.CollectableManager;
+using TheCollector.Data.ScripSystem;
 using TheCollector.Ipc;
 using TheCollector.ScripShopManager;
 using TheCollector.Utility;
@@ -429,6 +430,9 @@ public partial class MainWindow
         ImGuiHelper.SectionHeader("GatherBuddyReborn");
 
         bool gbrReady = IPCSubscriber_Common.IsReady("GatherBuddyReborn");
+        // Resource inspection rides on the Firmament economy, so its options are
+        // only meaningful when a Firmament-like system is active.
+        bool firmamentLike = configuration.ActiveSystem.IsFirmamentLike();
         ImGui.BeginDisabled(!gbrReady);
 
         var autogatherOnFinish = configuration.EnableAutogatherOnFinish;
@@ -440,8 +444,9 @@ public partial class MainWindow
         if (!gbrReady && ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
             ImGui.SetTooltip("GatherbuddyReborn is not installed or not ready.");
 
-        // Two mutually-exclusive actions to take when autogather finishes.
-        bool inspectOnAutogatherActive = configuration.RunInspectionOnAutogatherFinish;
+        // On Firmament-like systems, collecting and inspecting are mutually exclusive;
+        // on Normal the inspection option is hidden, so it can never gate the collect toggle.
+        bool inspectOnAutogatherActive = firmamentLike && configuration.RunInspectionOnAutogatherFinish;
         ImGui.BeginDisabled(inspectOnAutogatherActive);
         var collectOnAutogather = configuration.CollectOnAutogatherFinish;
         if (ImGui.Checkbox("Turn in collectables on autogather finish", ref collectOnAutogather))
@@ -455,19 +460,23 @@ public partial class MainWindow
             ImGui.SetTooltip("GatherbuddyReborn is not installed or not ready.");
         ImGui.EndDisabled();
 
-        bool collectOnAutogatherActive = configuration.CollectOnAutogatherFinish;
-        ImGui.BeginDisabled(collectOnAutogatherActive);
-        var inspectOnAutogather = configuration.RunInspectionOnAutogatherFinish;
-        if (ImGui.Checkbox("Run resource inspection on autogather finish", ref inspectOnAutogather))
+        // Resource inspection is Firmament-only (it shares the Firmament economy).
+        if (firmamentLike)
         {
-            configuration.RunInspectionOnAutogatherFinish = inspectOnAutogather;
-            configuration.Save();
+            bool collectOnAutogatherActive = configuration.CollectOnAutogatherFinish;
+            ImGui.BeginDisabled(collectOnAutogatherActive);
+            var inspectOnAutogather = configuration.RunInspectionOnAutogatherFinish;
+            if (ImGui.Checkbox("Run resource inspection on autogather finish", ref inspectOnAutogather))
+            {
+                configuration.RunInspectionOnAutogatherFinish = inspectOnAutogather;
+                configuration.Save();
+            }
+            if (collectOnAutogatherActive && ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
+                ImGui.SetTooltip("Disabled while \"Turn in collectables on autogather finish\" is enabled.");
+            else if (!gbrReady && ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
+                ImGui.SetTooltip("GatherbuddyReborn is not installed or not ready.");
+            ImGui.EndDisabled();
         }
-        if (collectOnAutogatherActive && ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
-            ImGui.SetTooltip("Disabled while \"Turn in collectables on autogather finish\" is enabled.");
-        else if (!gbrReady && ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
-            ImGui.SetTooltip("GatherbuddyReborn is not installed or not ready.");
-        ImGui.EndDisabled();
 
         ImGui.EndDisabled();
 
@@ -487,32 +496,37 @@ public partial class MainWindow
 
         ImGui.BeginDisabled(!artisanSectionReady);
 
-        var craftOnInspection = configuration.CraftOnInspectionFinish;
-        if (ImGui.Checkbox("Craft selected Artisan list on resource inspection finish", ref craftOnInspection))
+        // Craft-on-inspection-finish is part of the Firmament inspection loop only.
+        if (firmamentLike)
         {
-            configuration.CraftOnInspectionFinish = craftOnInspection;
-            configuration.Save();
+            var craftOnInspection = configuration.CraftOnInspectionFinish;
+            if (ImGui.Checkbox("Craft selected Artisan list on resource inspection finish", ref craftOnInspection))
+            {
+                configuration.CraftOnInspectionFinish = craftOnInspection;
+                configuration.Save();
+            }
+            if (artisanDisabledReason != null && ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
+                ImGui.SetTooltip(artisanDisabledReason);
+            else if (ImGui.IsItemHovered())
+                ImGui.SetTooltip("After a resource-inspection run finishes (gather → inspect → craft),\n" +
+                                 "start the selected Artisan list.");
+
+            ImGui.BeginDisabled(!craftOnInspection);
+
+            DrawArtisanListPicker();
+
+            var collectOnFinish = configuration.CollectOnFinishCraftingList;
+            if (ImGui.Checkbox("Collect on finish crafting an Artisan list", ref collectOnFinish))
+            {
+                configuration.CollectOnFinishCraftingList = collectOnFinish;
+                configuration.Save();
+            }
+
+            ImGui.EndDisabled();
+
+            ImGui.Spacing();
         }
-        if (artisanDisabledReason != null && ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
-            ImGui.SetTooltip(artisanDisabledReason);
-        else if (ImGui.IsItemHovered())
-            ImGui.SetTooltip("After a resource-inspection run finishes (gather → inspect → craft),\n" +
-                             "start the selected Artisan list.");
 
-        ImGui.BeginDisabled(!craftOnInspection);
-
-        DrawArtisanListPicker();
-
-        var collectOnFinish = configuration.CollectOnFinishCraftingList;
-        if (ImGui.Checkbox("Collect on finish crafting an Artisan list", ref collectOnFinish))
-        {
-            configuration.CollectOnFinishCraftingList = collectOnFinish;
-            configuration.Save();
-        }
-
-        ImGui.EndDisabled();
-
-        ImGui.Spacing();
         var pauseOnFull = configuration.PauseArtisanOnInventoryFull;
         if (ImGui.Checkbox("Pause Artisan when inventory is full, turn in, then resume", ref pauseOnFull))
         {
