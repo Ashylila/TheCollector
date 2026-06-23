@@ -44,6 +44,7 @@ public class ChangelogUi
         Add_0_6_2(Book);
         Add_0_7_0(Book);
         Add_0_8_0(Book);
+        Add_0_8_1(Book);
 
         Window = new ChangelogWindow("TheCollector_Changelog", Book, GetConfig, SetConfig);
     }
@@ -68,6 +69,11 @@ public class ChangelogUi
         }
         if (dirty) _config.Save();
     }
+    private static void Add_0_8_1(ChangelogBook book) =>
+        book.NextVersion("Version 0.8.1")
+            .RegisterEntry("Resource-inspection options now only appear on Firmament (where they apply), and the Normal system regains its 'Craft selected Artisan list on autogather finish' option")
+            .RegisterEntry("Fixed the scrip shop run wandering off when you weren't in your preferred shop's zone — it now stops cleanly instead of walking toward out-of-zone coordinates");
+
     private static void Add_0_8_0(ChangelogBook book) =>
         book.NextVersion("Version 0.8.0")
             .RegisterImportant("The Kupo of Fortune and resource-inspection features live under the still-experimental Firmament mode (System toggle → Shift-click 'Firmament'). Please report anything that breaks")
