@@ -29,10 +29,13 @@ public class ChangelogWindow : Window
         _getConfig = getConfig;
         _setConfig = setConfig;
 
+        Size          = new Vector2(700, 720);
+        SizeCondition = ImGuiCond.FirstUseEver;
+
         SizeConstraints = new WindowSizeConstraints
         {
-            MinimumSize = new Vector2(520, 380),
-            MaximumSize = new Vector2(720, 720),
+            MinimumSize = new Vector2(620, 480),
+            MaximumSize = new Vector2(1280, 1800),
         };
     }
 
