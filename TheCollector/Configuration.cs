@@ -27,6 +27,8 @@ public class Configuration : IPluginConfiguration
     public bool CollectOnAutogatherFinish { get; set; } = false;
     // Run the Skybuilders' resource inspection when GatherBuddyReborn autogather finishes.
     public bool RunInspectionOnAutogatherFinish { get; set; } = false;
+    // Normal only: start the selected Artisan list straight off autogather (no inspection step).
+    public bool CraftOnAutogatherFinish { get; set; } = false;
     public bool BuyAfterEachCollect { get; set; } = false;
     public bool ResetEachQuantityAfterCompletingList { get; set; } = false;
     public bool CollectOnFinishedFishing { get; set; } = false;

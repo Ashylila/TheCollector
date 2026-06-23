@@ -131,6 +131,9 @@ public class AutomationHandler : IDisposable
             _pendingCraftAfterInspection = _config.CraftOnInspectionFinish;
             if (!InvokeInspection()) _pendingCraftAfterInspection = false;
         }
+        // Normal crafts the selected Artisan list straight off autogather (no inspection step).
+        else if (_config.CraftOnAutogatherFinish && !_config.ActiveSystem.IsFirmamentLike())
+            _craftingHandler.ShouldStartCrafting();
         else if (_config.CollectOnAutogatherFinish)
             Invoke();
     }

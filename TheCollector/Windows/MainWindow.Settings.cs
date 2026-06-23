@@ -350,6 +350,7 @@ public partial class MainWindow
         sb.AppendLine($"Collect on craft/fish/gather: {configuration.CollectOnFinishCraftingList}/{configuration.CollectOnFinishedFishing}/{configuration.CollectOnAutogatherFinish}");
         sb.AppendLine($"Inspect on gather:     {configuration.RunInspectionOnAutogatherFinish}");
         sb.AppendLine($"Craft on inspection:   {configuration.CraftOnInspectionFinish} (Artisan list {configuration.ArtisanListId})");
+        sb.AppendLine($"Craft on autogather:   {configuration.CraftOnAutogatherFinish}");
         sb.AppendLine($"Artisan inv pause:     {configuration.PauseArtisanOnInventoryFull} (threshold {configuration.ArtisanInventoryFullThreshold})");
         sb.AppendLine($"AutoRetainer between:  {configuration.CheckForVenturesBetweenRuns}");
         sb.AppendLine($"Deliveroo between:     {configuration.CheckForDeliverooBetweenRuns}");
@@ -444,18 +445,22 @@ public partial class MainWindow
         if (!gbrReady && ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
             ImGui.SetTooltip("GatherbuddyReborn is not installed or not ready.");
 
-        // On Firmament-like systems, collecting and inspecting are mutually exclusive;
-        // on Normal the inspection option is hidden, so it can never gate the collect toggle.
-        bool inspectOnAutogatherActive = firmamentLike && configuration.RunInspectionOnAutogatherFinish;
-        ImGui.BeginDisabled(inspectOnAutogatherActive);
+        // Turning in collectables is mutually exclusive with the other autogather-finish action:
+        // resource inspection on Firmament-like systems, a direct Artisan craft on Normal.
+        bool otherAutogatherAction = firmamentLike
+            ? configuration.RunInspectionOnAutogatherFinish
+            : configuration.CraftOnAutogatherFinish;
+        ImGui.BeginDisabled(otherAutogatherAction);
         var collectOnAutogather = configuration.CollectOnAutogatherFinish;
         if (ImGui.Checkbox("Turn in collectables on autogather finish", ref collectOnAutogather))
         {
             configuration.CollectOnAutogatherFinish = collectOnAutogather;
             configuration.Save();
         }
-        if (inspectOnAutogatherActive && ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
-            ImGui.SetTooltip("Disabled while \"Run resource inspection on autogather finish\" is enabled.");
+        if (otherAutogatherAction && ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
+            ImGui.SetTooltip(firmamentLike
+                ? "Disabled while \"Run resource inspection on autogather finish\" is enabled."
+                : "Disabled while \"Craft selected Artisan list on autogather finish\" is enabled (Artisan section).");
         else if (!gbrReady && ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
             ImGui.SetTooltip("GatherbuddyReborn is not installed or not ready.");
         ImGui.EndDisabled();
@@ -496,7 +501,9 @@ public partial class MainWindow
 
         ImGui.BeginDisabled(!artisanSectionReady);
 
-        // Craft-on-inspection-finish is part of the Firmament inspection loop only.
+        // The craft step differs by system: Firmament-like crafts after the resource-inspection
+        // run; Normal crafts straight off autogather (mutually exclusive with turning in collectables).
+        bool craftActive;
         if (firmamentLike)
         {
             var craftOnInspection = configuration.CraftOnInspectionFinish;
@@ -510,22 +517,42 @@ public partial class MainWindow
             else if (ImGui.IsItemHovered())
                 ImGui.SetTooltip("After a resource-inspection run finishes (gather → inspect → craft),\n" +
                                  "start the selected Artisan list.");
-
-            ImGui.BeginDisabled(!craftOnInspection);
-
-            DrawArtisanListPicker();
-
-            var collectOnFinish = configuration.CollectOnFinishCraftingList;
-            if (ImGui.Checkbox("Collect on finish crafting an Artisan list", ref collectOnFinish))
+            craftActive = craftOnInspection;
+        }
+        else
+        {
+            bool collectOnAutogatherActive = configuration.CollectOnAutogatherFinish;
+            ImGui.BeginDisabled(collectOnAutogatherActive);
+            var craftOnAutogather = configuration.CraftOnAutogatherFinish;
+            if (ImGui.Checkbox("Craft selected Artisan list on autogather finish", ref craftOnAutogather))
             {
-                configuration.CollectOnFinishCraftingList = collectOnFinish;
+                configuration.CraftOnAutogatherFinish = craftOnAutogather;
                 configuration.Save();
             }
-
+            if (collectOnAutogatherActive && ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
+                ImGui.SetTooltip("Disabled while \"Turn in collectables on autogather finish\" is enabled (GatherBuddyReborn section).");
+            else if (artisanDisabledReason != null && ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
+                ImGui.SetTooltip(artisanDisabledReason);
+            else if (ImGui.IsItemHovered())
+                ImGui.SetTooltip("After GatherBuddyReborn autogather finishes, start the selected Artisan list.");
             ImGui.EndDisabled();
-
-            ImGui.Spacing();
+            craftActive = craftOnAutogather;
         }
+
+        ImGui.BeginDisabled(!craftActive);
+
+        DrawArtisanListPicker();
+
+        var collectOnFinish = configuration.CollectOnFinishCraftingList;
+        if (ImGui.Checkbox("Collect on finish crafting an Artisan list", ref collectOnFinish))
+        {
+            configuration.CollectOnFinishCraftingList = collectOnFinish;
+            configuration.Save();
+        }
+
+        ImGui.EndDisabled();
+
+        ImGui.Spacing();
 
         var pauseOnFull = configuration.PauseArtisanOnInventoryFull;
         if (ImGui.Checkbox("Pause Artisan when inventory is full, turn in, then resume", ref pauseOnFull))
