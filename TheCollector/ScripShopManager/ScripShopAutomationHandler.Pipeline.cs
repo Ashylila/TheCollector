@@ -217,6 +217,11 @@ public partial class ScripShopAutomationHandler : FrameRunnerPipelineBase
 
     private StepResult MakeMoveTick()
     {
+        if (!Player.Available)
+            return StepResult.Continue();
+        if (Player.Territory.RowId != _configuration.PreferredTerritoryId)
+            return StepResult.Cancel("Not in the preferred scrip-shop territory; skipping the buy run.");
+
         var vendor = _vendorCatalog.GetScripVendor(_configuration.PreferredTerritoryId);
         if (vendor == null)
             return StepResult.Fail("No scrip vendor known for the preferred territory.");
