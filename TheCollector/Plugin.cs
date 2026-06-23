@@ -55,7 +55,7 @@ public sealed class Plugin : IDalamudPlugin
 
         CommandManager.AddHandler(CommandName, new CommandInfo(OnCommand)
         {
-            HelpMessage = "Opens the main UI. \n/collector config - Opens up the config UI\n/collector collect - Starts turning in collectables.\n/collector inspect - Runs the Skybuilders' resource inspection."
+            HelpMessage = "Opens the main UI. \n/collector config - Opens up the config UI\n/collector collect - Starts turning in collectables.\n/collector inspect - Runs the Skybuilders' resource inspection.\n/collector changelog - Opens the changelog."
         });
 
         PluginInterface.UiBuilder.Draw += DrawUI;
@@ -128,6 +128,9 @@ public sealed class Plugin : IDalamudPlugin
                 break;
             case "buy":
                 _automationHandler.InvokeBuy();
+                break;
+            case "changelog":
+                ChangelogUi.Open();
                 break;
             default:
                 ToggleMainUI();

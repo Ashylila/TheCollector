@@ -23,10 +23,13 @@ public class ChangelogEntry
     public string Text { get; }
     public ChangelogEntryKind Kind { get; }
 
-    public ChangelogEntry(string text, ChangelogEntryKind kind)
+    public string Credit { get; }
+
+    public ChangelogEntry(string text, ChangelogEntryKind kind, string credit = "")
     {
         Text = text;
         Kind = kind;
+        Credit = credit;
     }
 }
 
@@ -62,21 +65,21 @@ public class ChangelogVersion
         }
     }
 
-    public ChangelogVersion RegisterEntry(string text)
+    public ChangelogVersion RegisterEntry(string text, string credit = "")
     {
-        Entries.Add(new ChangelogEntry(text, ChangelogEntryKind.Entry));
+        Entries.Add(new ChangelogEntry(text, ChangelogEntryKind.Entry, credit));
         return this;
     }
 
-    public ChangelogVersion RegisterHighlight(string text)
+    public ChangelogVersion RegisterHighlight(string text, string credit = "")
     {
-        Entries.Add(new ChangelogEntry(text, ChangelogEntryKind.Highlight));
+        Entries.Add(new ChangelogEntry(text, ChangelogEntryKind.Highlight, credit));
         return this;
     }
 
-    public ChangelogVersion RegisterImportant(string text)
+    public ChangelogVersion RegisterImportant(string text, string credit = "")
     {
-        Entries.Add(new ChangelogEntry(text, ChangelogEntryKind.Important));
+        Entries.Add(new ChangelogEntry(text, ChangelogEntryKind.Important, credit));
         return this;
     }
 }

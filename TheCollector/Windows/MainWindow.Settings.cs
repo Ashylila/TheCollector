@@ -262,6 +262,13 @@ public partial class MainWindow
         ImGui.Spacing();
         ImGuiHelper.SectionHeader("Troubleshooting");
         DrawCopyTroubleshootingButton();
+
+        ImGui.Spacing();
+        ImGuiHelper.SectionHeader("About");
+        if (ImGui.Button("View changelog"))
+            ServiceWrapper.Get<ChangelogUi>().Open();
+        if (ImGui.IsItemHovered())
+            ImGui.SetTooltip("Opens the changelog window.");
     }
 
     private DateTime _troubleshootCopiedAt = DateTime.MinValue;

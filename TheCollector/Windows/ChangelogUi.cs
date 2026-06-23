@@ -47,6 +47,8 @@ public class ChangelogUi
         Window = new ChangelogWindow("TheCollector_Changelog", Book, GetConfig, SetConfig);
     }
 
+    public void Open() => Window.Open();
+
     private (int, ChangeLogDisplayType) GetConfig()
         => (_config.LastSeenVersion, _config.ChangeLogDisplayType);
 
@@ -65,7 +67,6 @@ public class ChangelogUi
         }
         if (dirty) _config.Save();
     }
-
     private static void Add_0_7_0(ChangelogBook book) =>
         book.NextVersion("Version 0.7.0")
             .RegisterHighlight("Experimental Firmament (Skybuilders' Scrip) support — turn in Skybuilders' collectables and buy from the Firmament scrip shop.")

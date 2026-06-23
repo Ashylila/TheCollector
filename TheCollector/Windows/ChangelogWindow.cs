@@ -64,6 +64,15 @@ public class ChangelogWindow : Window
         WindowName = $"What's new — {_book.Versions[_viewIndex].Title}###changelog";
     }
 
+
+    public void Open()
+    {
+        if (_book.Versions.Count == 0) return;
+        _viewIndex = _book.Versions.Count - 1;
+        WindowName = $"Changelog — {_book.Versions[_viewIndex].Title}###changelog";
+        IsOpen = true;
+    }
+
     public override void PreDraw()
     {
         UiTheme.Push();
@@ -135,7 +144,7 @@ public class ChangelogWindow : Window
                 ImGuiHelper.SectionHeader("Heads up", UiTheme.Danger);
                 foreach (var e in version.Entries)
                     if (e.Kind == ChangelogEntryKind.Important)
-                        DrawImportantEntry(e.Text);
+                        DrawImportantEntry(e.Text, e.Credit);
             });
         }
 
@@ -146,7 +155,7 @@ public class ChangelogWindow : Window
                 ImGuiHelper.SectionHeader("Highlights", UiTheme.Accent);
                 foreach (var e in version.Entries)
                     if (e.Kind == ChangelogEntryKind.Highlight)
-                        DrawBulletEntry(e.Text, UiTheme.Accent, bold: true);
+                        DrawBulletEntry(e.Text, UiTheme.Accent, bold: true, e.Credit);
             });
         }
 
@@ -157,7 +166,7 @@ public class ChangelogWindow : Window
                 ImGuiHelper.SectionHeader("Changes", UiTheme.TextDim);
                 foreach (var e in version.Entries)
                     if (e.Kind == ChangelogEntryKind.Entry)
-                        DrawBulletEntry(e.Text, UiTheme.TextDim, bold: false);
+                        DrawBulletEntry(e.Text, UiTheme.TextDim, bold: false, e.Credit);
             });
         }
 
@@ -167,7 +176,7 @@ public class ChangelogWindow : Window
         }
     }
 
-    private static void DrawBulletEntry(string text, Vector4 bulletColor, bool bold)
+    private static void DrawBulletEntry(string text, Vector4 bulletColor, bool bold, string credit = "")
     {
         var availW = ImGui.GetContentRegionAvail().X;
         var startCursor = ImGui.GetCursorPos();
@@ -185,10 +194,22 @@ public class ChangelogWindow : Window
         if (bold) ImGui.PopStyleColor();
         ImGui.PopTextWrapPos();
 
+        DrawCredit(credit, textCursor.X);
+
         ImGui.Dummy(new Vector2(0, 2));
     }
 
-    private static void DrawImportantEntry(string text)
+    private static void DrawCredit(string credit, float textIndentX)
+    {
+        if (string.IsNullOrEmpty(credit)) return;
+
+        ImGui.SetCursorPosX(textIndentX);
+        ImGui.PushStyleColor(ImGuiCol.Text, UiTheme.TextFaint);
+        ImGui.TextUnformatted($"— @{credit}");
+        ImGui.PopStyleColor();
+    }
+
+    private static void DrawImportantEntry(string text, string credit = "")
     {
         var dl     = ImGui.GetWindowDrawList();
         var pos    = ImGui.GetCursorScreenPos();
@@ -202,9 +223,18 @@ public class ChangelogWindow : Window
         ImGui.PushStyleColor(ImGuiCol.Text, UiTheme.Danger);
         ImGui.TextUnformatted("⚠ ");
         ImGui.SameLine();
+        var textX = ImGui.GetCursorScreenPos().X;
         ImGui.PushStyleColor(ImGuiCol.Text, UiTheme.Text);
         ImGui.TextUnformatted(text);
         ImGui.PopStyleColor(2);
+
+        if (!string.IsNullOrEmpty(credit))
+        {
+            ImGui.SetCursorScreenPos(new Vector2(textX, ImGui.GetCursorScreenPos().Y));
+            ImGui.PushStyleColor(ImGuiCol.Text, UiTheme.TextFaint);
+            ImGui.TextUnformatted($"— @{credit}");
+            ImGui.PopStyleColor();
+        }
 
         ImGui.PopTextWrapPos();
         ImGui.Unindent(2f);
