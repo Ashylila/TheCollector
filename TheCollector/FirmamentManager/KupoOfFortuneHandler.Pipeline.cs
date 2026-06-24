@@ -96,7 +96,12 @@ public partial class KupoOfFortuneHandler
                     if (!cardScratched)
                     {
                         var chestIndex = PickChestIndex();
-                        _window.Scratch(chestIndex);
+                        if (!_window.Scratch(chestIndex))
+                        {
+                            // Hexagon nodes not present yet; retry on the next tick.
+                            nextAction = now + UiInteractDelay;
+                            return StepResult.Continue();
+                        }
                         cardScratched = true;
                         Log.Debug($"Kupo of Fortune: scratched chest {chestIndex} ({_configuration.KupoChestPick}); waiting {ChestRevealDelay.TotalSeconds:0}s.");
                         nextAction = now + ChestRevealDelay;

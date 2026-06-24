@@ -1,7 +1,7 @@
 using ECommons;
+using ECommons.Automation.UIInput;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using TheCollector.Utility;
-using ValueType = FFXIVClientStructs.FFXIV.Component.GUI.AtkValueType;
 
 namespace TheCollector.FirmamentManager;
 
@@ -10,7 +10,7 @@ public unsafe class KupoOfFortuneWindowHandler
 {
     public const string AddonName = "HWDLottery";
 
-    // Chest indices for the scratch (0, index) callback: one chest left, three right.
+    // Hexagon index: 0 is the lone left hexagon, 1-3 the three on the right.
     public const int LeftChestIndex = 0;
     public static readonly int[] RightChestIndices = { 1, 2, 3 };
 
@@ -23,15 +23,51 @@ public unsafe class KupoOfFortuneWindowHandler
 
     public bool IsYesNoOpen => Addons.Ready("SelectYesno");
 
-    public void Scratch(int chestIndex)
+    // The hexagons are top-level nodes id 17 (left) and 18-20 (right), so chestIndex maps to 17+index.
+    private const uint FirstHexagonNodeId = 17;
+
+    // Scratches the chosen hexagon by clicking its node.
+    // Returns false if the hexagon isn't present yet, so the caller can retry.
+    // chestIndex: 0 = left, 1-3 = right.
+    public bool Scratch(int chestIndex)
     {
         if (!Addons.TryGetReady(AddonName, out var addon))
-            return;
+            return false;
 
-        var values = stackalloc AtkValue[2];
-        values[0] = new AtkValue { Type = ValueType.Int, Int = 0 };
-        values[1] = new AtkValue { Type = ValueType.Int, Int = chestIndex };
-        addon->FireCallback(2, values, true);
+        var hexNode = FindNodeById(&addon->UldManager, FirstHexagonNodeId + (uint)chestIndex);
+        var button = hexNode == null ? null : FindButtonChild(hexNode);
+        if (button == null)
+            return false;
+
+        button->ClickAddonButton(addon);
+        return true;
+    }
+
+    private static AtkResNode* FindNodeById(AtkUldManager* uld, uint id)
+    {
+        for (var i = 0; i < uld->NodeListCount; i++)
+        {
+            var node = uld->NodeList[i];
+            if (node != null && node->NodeId == id)
+                return node;
+        }
+        return null;
+    }
+
+    private static AtkComponentButton* FindButtonChild(AtkResNode* node)
+    {
+        var component = node->GetAsAtkComponentNode();
+        if (component == null || component->Component == null)
+            return null;
+        var uld = component->Component->UldManager;
+        for (var i = 0; i < uld.NodeListCount; i++)
+        {
+            var child = uld.NodeList[i];
+            var button = child == null ? null : child->GetAsAtkComponentButton();
+            if (button != null)
+                return button;
+        }
+        return null;
     }
 
     // True once the reward is shown and the Close button is live.
