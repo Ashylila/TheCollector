@@ -10,38 +10,19 @@ namespace TheCollector.FirmamentManager;
 
 public partial class KupoOfFortuneHandler
 {
-    // Cap on cards drained in one run: the game holds at most 10, plus a little slack so a
-    // miscount can never spin the loop forever.
-    private const int MaxCardsPerRun = 12;
-
-    // Delay between UI interactions, driven by the shared, per-addon UI Delay setting just like
-    // every other automation here. Kupo previously used its own hardcoded 700ms/600ms timings and
-    // ignored this setting; routing it through the per-addon delay makes the pace consistent and
-    // tunable from the Settings tab.
+    // Pace for ordinary interactions (interact, advance a line, close), from the per-addon UI Delay.
     private TimeSpan UiInteractDelay => TimeSpan.FromMilliseconds(_configuration.GetUiDelayMs(Key));
-    // Dwell after scratching so the choice registers before we close the result.
-    private TimeSpan ScratchSettle => UiInteractDelay;
-    // Dialogue addons stay "ready" (visible) for a frame or two before their event Lua coroutine
-    // goes live and after it dies; firing a callback in either window resumes a null/dead coroutine
-    // and crashes the game (Common::Lua::LuaThread.Resume). Require an addon to be continuously ready
-    // this long before we touch it, re-armed after each click so the gate covers every dialogue page.
-    // Kept independent of UiDelayMs so a low UI Delay can't shrink it below the safe window.
-    private static readonly TimeSpan DialogueSettle = TimeSpan.FromMilliseconds(300);
-    // After interacting, how long to wait for a card to be offered before concluding there
-    // are no vouchers left. The timer is held off while any dialogue/event is in progress.
+
+    // The two animated minigame beats that must not be raced: confirming "play?" opens a voucher
+    // (~6s to reveal) and scratching a chest runs its animation/reward (~6s).
+    private static readonly TimeSpan VoucherOpenDelay = TimeSpan.FromSeconds(6);
+    private static readonly TimeSpan ChestRevealDelay = TimeSpan.FromSeconds(6);
+
+    // How long to wait for the next prompt/line before concluding no vouchers remain.
     private static readonly TimeSpan OfferGrace = TimeSpan.FromSeconds(3);
-
-    // Each card is a self-contained NPC conversation: interact -> intro -> "play?" yes/no ->
-    // scratch card -> reward -> post-card lines -> conversation ends. We must re-interact for
-    // every card, so the drain runs as a small state machine over these phases.
-    private enum KupoPhase { Interact, AwaitOffer, Play, PostCard }
-
-    private int _cardsPlayed;
 
     protected override FrameRunner.Step[] BuildSteps()
     {
-        _cardsPlayed = 0;
-
         if (_clientState.TerritoryType != _catalog.TerritoryId)
         {
             Log.Debug("Not in The Firmament; skipping Kupo of Fortune.");
@@ -86,156 +67,101 @@ public partial class KupoOfFortuneHandler
         return MoveTowardsTick(FirmamentRouting.LivePosition(_catalog.LizbethDataIds, _catalog.LizbethPosition));
     }
 
-    // Drains every held card as a state machine over one long-running step. Each card is its
-    // own conversation, so we re-interact per card; we stop when interacting no longer yields
-    // a "play?" prompt (no vouchers left) or the safety cap is hit.
+    // Reactive drain: interact once, then handle whatever addon the game shows next, looping until no
+    // further play is offered. One throttle (nextAction) paces the flow — the two animated beats wait
+    // several seconds, everything else uses the configured UI delay.
     private FrameRunner.Step DrainCardsStep()
     {
-        var phase = KupoPhase.Interact;
+        var interacted = false;
         var cardScratched = false;
-        var settleUntil = DateTime.MinValue;
+        var cardsPlayed = 0;
         var nextAction = DateTime.MinValue;
-        var nextClose = DateTime.MinValue;
         var offerDeadline = DateTime.MinValue;
-        // When each addon became ready, or when we last clicked it (DateTime.MinValue while closed);
-        // DialogueSettle measures continuous readiness from here.
-        var lotteryReadySince = DateTime.MinValue;
-        var yesNoReadySince = DateTime.MinValue;
-        var talkReadySince = DateTime.MinValue;
         return new FrameRunner.Step("DrainKupoCards",
             () =>
             {
                 var now = DateTime.UtcNow;
                 Status.Set(PluginState.ExchangingItems, "Kupo of Fortune");
 
+                if (now < nextAction)
+                    return StepResult.Continue();
+
                 var lottery = _window.IsLotteryOpen;
                 var yesNo = _window.IsYesNoOpen;
                 var talk = _window.IsTalkOpen;
-                var occupied = Svc.Condition[ConditionFlag.OccupiedInQuestEvent] ||
-                               Svc.Condition[ConditionFlag.OccupiedInEvent];
 
-                // Track readiness onset per addon and derive the "settled" gates. The onset is also
-                // re-armed after each click below, so the gate re-applies for every dialogue page.
-                lotteryReadySince = lottery ? (lotteryReadySince == DateTime.MinValue ? now : lotteryReadySince) : DateTime.MinValue;
-                yesNoReadySince = yesNo ? (yesNoReadySince == DateTime.MinValue ? now : yesNoReadySince) : DateTime.MinValue;
-                talkReadySince = talk ? (talkReadySince == DateTime.MinValue ? now : talkReadySince) : DateTime.MinValue;
-                var lotterySettled = lottery && now - lotteryReadySince >= DialogueSettle;
-                var yesNoSettled = yesNo && now - yesNoReadySince >= DialogueSettle;
-                var talkSettled = talk && now - talkReadySince >= DialogueSettle;
-
-                // A lottery card open always means "go play it", regardless of phase.
-                if (lottery && phase != KupoPhase.Play)
-                    phase = KupoPhase.Play;
-
-                switch (phase)
+                // Voucher open: scratch a chest, then close it once the reveal has played out.
+                if (lottery)
                 {
-                    case KupoPhase.Interact:
-                        if (now >= nextAction)
-                        {
-                            VNavmesh_IPCSubscriber.Path_Stop();
-                            TryInteractWithLizbeth();
-                            nextAction = now + UiInteractDelay;
-                            offerDeadline = now + OfferGrace;
-                            phase = KupoPhase.AwaitOffer;
-                        }
+                    if (!cardScratched)
+                    {
+                        var chestIndex = PickChestIndex();
+                        _window.Scratch(chestIndex);
+                        cardScratched = true;
+                        Log.Debug($"Kupo of Fortune: scratched chest {chestIndex} ({_configuration.KupoChestPick}); waiting {ChestRevealDelay.TotalSeconds:0}s.");
+                        nextAction = now + ChestRevealDelay;
                         return StepResult.Continue();
-
-                    case KupoPhase.AwaitOffer:
-                        // Accept the "play?" prompt or advance the intro dialogue. While any
-                        // dialogue/event is up, hold off the no-offer deadline. The decision to
-                        // play at all was already made by the caller (loop threshold gate or the
-                        // manual test button), so here we always confirm.
-                        if (yesNo)
-                        {
-                            offerDeadline = now + OfferGrace;
-                            // occupied: only fire while the game reports an active event, so we never
-                            // click a torn-down addon. Re-arm the settle timer on click; see DialogueSettle.
-                            if (occupied && yesNoSettled && now >= nextAction)
-                            {
-                                _window.ConfirmYesNo();
-                                nextAction = now + UiInteractDelay;
-                                yesNoReadySince = now;
-                            }
-                            return StepResult.Continue();
-                        }
-                        if (talk)
-                        {
-                            offerDeadline = now + OfferGrace;
-                            if (occupied && talkSettled && now >= nextAction)
-                            {
-                                _window.ProgressTalk();
-                                nextAction = now + UiInteractDelay;
-                                talkReadySince = now;
-                            }
-                            return StepResult.Continue();
-                        }
-                        if (occupied) { offerDeadline = now + OfferGrace; return StepResult.Continue(); }
-                        if (now < offerDeadline) return StepResult.Continue();
-                        // Interacted but nothing was offered -> no vouchers left.
-                        Log.Debug($"Kupo of Fortune: no more vouchers; {_cardsPlayed} played, finishing.");
-                        return StepResult.Success();
-
-                    case KupoPhase.Play:
-                        if (lottery)
-                        {
-                            if (!cardScratched)
-                            {
-                                // Don't scratch on the addon's first ready frame — same
-                                // open-transition hazard as the dialogue clicks.
-                                if (!lotterySettled) return StepResult.Continue();
-                                var chestIndex = PickChestIndex();
-                                _window.Scratch(chestIndex);
-                                Log.Debug($"Kupo of Fortune: scratching chest index {chestIndex} ({_configuration.KupoChestPick}).");
-                                cardScratched = true;
-                                settleUntil = now + ScratchSettle;
-                                return StepResult.Continue();
-                            }
-                            if (now < settleUntil) return StepResult.Continue();
-                            if (!_window.IsRevealComplete) return StepResult.Continue();
-                            if (now >= nextClose)
-                            {
-                                _window.CloseLottery();
-                                nextClose = now + UiInteractDelay;
-                            }
-                            return StepResult.Continue();
-                        }
-                        // Lottery closed -> the card is done.
-                        if (cardScratched)
-                        {
-                            _cardsPlayed++;
-                            Log.Debug($"Kupo of Fortune: played card #{_cardsPlayed}.");
-                            cardScratched = false;
-                        }
-                        if (_cardsPlayed >= MaxCardsPerRun)
-                        {
-                            Log.Debug($"Kupo of Fortune: hit the {MaxCardsPerRun}-card safety cap, finishing.");
-                            return StepResult.Success();
-                        }
-                        phase = KupoPhase.PostCard;
-                        return StepResult.Continue();
-
-                    case KupoPhase.PostCard:
-                        // Advance the post-card lines; once the conversation ends, re-interact
-                        // for the next card until vouchers run out.
-                        if (talk || yesNo)
-                        {
-                            // Same occupied gate + per-click re-arm as the offer dialogue above; this
-                            // post-card line, clicked as it lingered after the event ended, was the crash.
-                            if (occupied && now >= nextAction)
-                            {
-                                if (talk && talkSettled) { _window.ProgressTalk(); nextAction = now + UiInteractDelay; talkReadySince = now; }
-                                else if (yesNo && yesNoSettled) { _window.ConfirmYesNo(); nextAction = now + UiInteractDelay; yesNoReadySince = now; }
-                            }
-                            return StepResult.Continue();
-                        }
-                        if (occupied) return StepResult.Continue();
-                        nextAction = DateTime.MinValue;
-                        phase = KupoPhase.Interact;
-                        return StepResult.Continue();
-
-                    default:
-                        return StepResult.Success();
+                    }
+                    // No-ops until the Close button is live, so an early press just retries.
+                    _window.CloseLottery();
+                    nextAction = now + UiInteractDelay;
+                    return StepResult.Continue();
                 }
+
+                // The scratched voucher has closed: count it (for logging only).
+                if (cardScratched)
+                {
+                    cardScratched = false;
+                    cardsPlayed++;
+                    Log.Debug($"Kupo of Fortune: played card #{cardsPlayed}.");
+                    offerDeadline = now + OfferGrace;
+                    nextAction = now + UiInteractDelay;
+                    return StepResult.Continue();
+                }
+
+                // "Play?" prompt: confirm; Yes opens a voucher.
+                if (yesNo)
+                {
+                    _window.ConfirmYesNo();
+                    Log.Debug($"Kupo of Fortune: confirmed play prompt; waiting {VoucherOpenDelay.TotalSeconds:0}s.");
+                    offerDeadline = now + OfferGrace;
+                    nextAction = now + VoucherOpenDelay;
+                    return StepResult.Continue();
+                }
+
+                // Line of dialogue: advance it.
+                if (talk)
+                {
+                    _window.ProgressTalk();
+                    offerDeadline = now + OfferGrace;
+                    nextAction = now + UiInteractDelay;
+                    return StepResult.Continue();
+                }
+
+                // Nothing open: start the conversation if we haven't.
+                if (!interacted)
+                {
+                    VNavmesh_IPCSubscriber.Path_Stop();
+                    TryInteractWithLizbeth();
+                    interacted = true;
+                    Log.Debug("Kupo of Fortune: interacted with Lizbeth.");
+                    offerDeadline = now + OfferGrace;
+                    nextAction = now + UiInteractDelay;
+                    return StepResult.Continue();
+                }
+
+                // Between lines while the event runs: keep waiting.
+                if (Svc.Condition[ConditionFlag.OccupiedInQuestEvent] || Svc.Condition[ConditionFlag.OccupiedInEvent])
+                {
+                    offerDeadline = now + OfferGrace;
+                    return StepResult.Continue();
+                }
+
+                if (now < offerDeadline)
+                    return StepResult.Continue();
+
+                Log.Debug($"Kupo of Fortune: no more vouchers; {cardsPlayed} played, finishing.");
+                return StepResult.Success();
             },
             TimeSpan.FromSeconds(300));
     }
