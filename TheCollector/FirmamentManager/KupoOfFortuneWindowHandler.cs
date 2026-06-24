@@ -14,8 +14,8 @@ public unsafe class KupoOfFortuneWindowHandler
     public const int LeftChestIndex = 0;
     public static readonly int[] RightChestIndices = { 1, 2, 3 };
 
-    // NodeList index of the Close button; only enabled once the reward is shown.
-    private const int CloseButtonNodeIndex = 7;
+    // Node id of the result view's Close button; only enabled once the reward is shown.
+    private const uint CloseButtonNodeId = 36;
 
     public bool IsLotteryOpen => Addons.Ready(AddonName);
 
@@ -91,16 +91,13 @@ public unsafe class KupoOfFortuneWindowHandler
         if (closeButton == null || !closeButton->IsEnabled)
             return false;
 
-        var eventData = new AtkEvent();
-        addon->ReceiveEvent(AtkEventType.ButtonClick, 0, &eventData);
+        closeButton->ClickAddonButton(addon);
         return true;
     }
 
     private static AtkComponentButton* GetCloseButton(AtkUnitBase* addon)
     {
-        if (addon->UldManager.NodeListCount <= CloseButtonNodeIndex)
-            return null;
-        var node = addon->UldManager.NodeList[CloseButtonNodeIndex];
+        var node = FindNodeById(&addon->UldManager, CloseButtonNodeId);
         return node == null ? null : node->GetAsAtkComponentButton();
     }
 
