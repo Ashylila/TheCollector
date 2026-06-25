@@ -1,27 +1,21 @@
 using ECommons;
+using ECommons.Automation.UIInput;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using TheCollector.Utility;
-using ValueType = FFXIVClientStructs.FFXIV.Component.GUI.AtkValueType;
 
 namespace TheCollector.FirmamentManager;
 
 // Drives the "HWDLottery" addon — the Kupo of Fortune scratch card you play at Lizbeth.
-// Scratch a chest with the (0, chestIndex) callback, then once the reward is shown and the
-// Close button (node id 36) is enabled, click it to claim and dismiss the card.
 public unsafe class KupoOfFortuneWindowHandler
 {
     public const string AddonName = "HWDLottery";
 
-    // Scratch-callback chest indices (second arg of the (0, index) callback). The card has one
-    // chest on the left and three on the right; the previously hard-coded index was 1 (a right
-    // chest). Confirm the left/right mapping in-game and swap these if it turns out inverted.
+    // Hexagon index: 0 is the lone left hexagon, 1-3 the three on the right.
     public const int LeftChestIndex = 0;
     public static readonly int[] RightChestIndices = { 1, 2, 3 };
 
-    // The Close/claim button on the lottery result view (node id 36), verified in-game via
-    // the addon dump. It only becomes enabled once a chest has been scratched and the reward
-    // is shown, so its enabled state is our "ready to close" signal.
-    private const int CloseButtonNodeIndex = 7;
+    // Node id of the result view's Close button; only enabled once the reward is shown.
+    private const uint CloseButtonNodeId = 36;
 
     public bool IsLotteryOpen => Addons.Ready(AddonName);
 
@@ -29,19 +23,54 @@ public unsafe class KupoOfFortuneWindowHandler
 
     public bool IsYesNoOpen => Addons.Ready("SelectYesno");
 
-    public void Scratch(int chestIndex)
+    // The hexagons are top-level nodes id 17 (left) and 18-20 (right), so chestIndex maps to 17+index.
+    private const uint FirstHexagonNodeId = 17;
+
+    // Scratches the chosen hexagon by clicking its node.
+    // Returns false if the hexagon isn't present yet, so the caller can retry.
+    // chestIndex: 0 = left, 1-3 = right.
+    public bool Scratch(int chestIndex)
     {
         if (!Addons.TryGetReady(AddonName, out var addon))
-            return;
+            return false;
 
-        var values = stackalloc AtkValue[2];
-        values[0] = new AtkValue { Type = ValueType.Int, Int = 0 };
-        values[1] = new AtkValue { Type = ValueType.Int, Int = chestIndex };
-        addon->FireCallback(2, values, true);
+        var hexNode = FindNodeById(&addon->UldManager, FirstHexagonNodeId + (uint)chestIndex);
+        var button = hexNode == null ? null : FindButtonChild(hexNode);
+        if (button == null)
+            return false;
+
+        button->ClickAddonButton(addon);
+        return true;
     }
 
-    // True once the scratched chest's reward is shown and the close button is live — i.e.
-    // the card is finished and safe to claim/dismiss.
+    private static AtkResNode* FindNodeById(AtkUldManager* uld, uint id)
+    {
+        for (var i = 0; i < uld->NodeListCount; i++)
+        {
+            var node = uld->NodeList[i];
+            if (node != null && node->NodeId == id)
+                return node;
+        }
+        return null;
+    }
+
+    private static AtkComponentButton* FindButtonChild(AtkResNode* node)
+    {
+        var component = node->GetAsAtkComponentNode();
+        if (component == null || component->Component == null)
+            return null;
+        var uld = component->Component->UldManager;
+        for (var i = 0; i < uld.NodeListCount; i++)
+        {
+            var child = uld.NodeList[i];
+            var button = child == null ? null : child->GetAsAtkComponentButton();
+            if (button != null)
+                return button;
+        }
+        return null;
+    }
+
+    // True once the reward is shown and the Close button is live.
     public bool IsRevealComplete
     {
         get
@@ -62,23 +91,16 @@ public unsafe class KupoOfFortuneWindowHandler
         if (closeButton == null || !closeButton->IsEnabled)
             return false;
 
-        // Click the result window's Close button (node id 36). The reward is already granted
-        // on scratch, so this just dismisses the display.
-        var eventData = new AtkEvent();
-        addon->ReceiveEvent(AtkEventType.ButtonClick, 0, &eventData);
+        closeButton->ClickAddonButton(addon);
         return true;
     }
 
     private static AtkComponentButton* GetCloseButton(AtkUnitBase* addon)
     {
-        if (addon->UldManager.NodeListCount <= CloseButtonNodeIndex)
-            return null;
-        var node = addon->UldManager.NodeList[CloseButtonNodeIndex];
+        var node = FindNodeById(&addon->UldManager, CloseButtonNodeId);
         return node == null ? null : node->GetAsAtkComponentButton();
     }
 
-    // Lizbeth shows a one-page Talk dialogue and a yes/no confirmation before the lottery
-    // opens; reuse the same advance helpers the appraiser flow uses.
     public bool ProgressTalk()
     {
         if (!Addons.TryGetReady("Talk", out var addon))
@@ -94,5 +116,4 @@ public unsafe class KupoOfFortuneWindowHandler
         new ECommons.UIHelpers.AddonMasterImplementations.AddonMaster.SelectYesno(addon).Yes();
         return true;
     }
-
 }
