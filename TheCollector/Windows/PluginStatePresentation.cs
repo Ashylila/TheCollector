@@ -17,6 +17,7 @@ internal static class PluginStatePresentation
             PluginState.AutoRetainer              => UiTheme.Info,
             PluginState.Deliveroo                 => UiTheme.Info,
             PluginState.ProcessingArtisanList     => UiTheme.Accent,
+            PluginState.ReturningToBarracks       => UiTheme.Warning,
             _                                     => UiTheme.Idle,
         };
 

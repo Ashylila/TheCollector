@@ -351,6 +351,7 @@ public partial class MainWindow
         sb.AppendLine($"Inspect on gather:     {configuration.RunInspectionOnAutogatherFinish}");
         sb.AppendLine($"Craft on inspection:   {configuration.CraftOnInspectionFinish} (Artisan list {configuration.ArtisanListId})");
         sb.AppendLine($"Craft on autogather:   {configuration.CraftOnAutogatherFinish}");
+        sb.AppendLine($"Barracks before follow-up: {configuration.ReturnToBarracksOnAutogatherFinish}");
         sb.AppendLine($"Artisan inv pause:     {configuration.PauseArtisanOnInventoryFull} (threshold {configuration.ArtisanInventoryFullThreshold})");
         sb.AppendLine($"AutoRetainer between:  {configuration.CheckForVenturesBetweenRuns}");
         sb.AppendLine($"Deliveroo between:     {configuration.CheckForDeliverooBetweenRuns}");
@@ -481,6 +482,26 @@ public partial class MainWindow
             else if (!gbrReady && ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
                 ImGui.SetTooltip("GatherbuddyReborn is not installed or not ready.");
             ImGui.EndDisabled();
+        }
+
+        bool barracksFollowupActive =
+            configuration.CollectOnAutogatherFinish
+            || configuration.RunInspectionOnAutogatherFinish
+            || configuration.CraftOnAutogatherFinish;
+        var returnToBarracks = configuration.ReturnToBarracksOnAutogatherFinish;
+        if (ImGui.Checkbox("Return to GC barracks before autogather follow-up actions", ref returnToBarracks))
+        {
+            configuration.ReturnToBarracksOnAutogatherFinish = returnToBarracks;
+            configuration.Save();
+        }
+        if (ImGui.IsItemHovered())
+            ImGui.SetTooltip("Before the autogather-finish follow-up runs, route back to your Grand Company\n" +
+                             "personnel officer and enter your Squadron barracks first.\n" +
+                             "Requires Adventurer Squadrons to be unlocked on the current character.");
+        if (!barracksFollowupActive)
+        {
+            ImGui.SameLine();
+            ImGui.TextDisabled("(no autogather follow-up enabled)");
         }
 
         ImGui.EndDisabled();

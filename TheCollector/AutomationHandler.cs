@@ -38,6 +38,7 @@ public class AutomationHandler : IDisposable
     private readonly VendorCatalog _vendorCatalog;
     private readonly KupoOfFortuneHandler _kupo;
     private readonly FirmamentTurnInWindowHandler _firmamentTurnInWindow;
+    private readonly GrandCompanyBarracksReturnHandler _barracksReturn;
     public bool IsRunning => _pipelineRegistry.All.Any(p => p.IsRunning);
 
     public int SessionCollectablesTurnedIn { get; private set; }
@@ -56,8 +57,11 @@ public class AutomationHandler : IDisposable
     // by the turn-in loop, so its completion does not spill into the post-turn-in cascade.
     private bool _kupoStartedManually;
 
+    private enum AutogatherFollowupAction { None, Collect, Inspection, Craft }
+    private AutogatherFollowupAction _pendingAutogatherFollowup;
+
     public AutomationHandler(
-        PlogonLog log, ScripSystemSelector selector, Configuration config, FirmamentCatalog firmamentCatalog, IChatGui chatGui, GatherbuddyReborn_IPCSubscriber gatherbuddyReborn_IPCSubscriber, ArtisanWatcher artisanWatcher, IFramework framework, FishingWatcher fishingWatcher, CraftingHandler craftingHandler, PipelineRegistry registry, AutoRetainerManager retainer, DeliverooManager deliveroo, ScripPlannerService plannerService, FirmamentPlannerService firmamentPlannerService, DiscordWebhookService discord, CharacterBalanceTracker balanceTracker, VendorCatalog vendorCatalog, KupoOfFortuneHandler kupo, FirmamentTurnInWindowHandler firmamentTurnInWindow)
+        PlogonLog log, ScripSystemSelector selector, Configuration config, FirmamentCatalog firmamentCatalog, IChatGui chatGui, GatherbuddyReborn_IPCSubscriber gatherbuddyReborn_IPCSubscriber, ArtisanWatcher artisanWatcher, IFramework framework, FishingWatcher fishingWatcher, CraftingHandler craftingHandler, PipelineRegistry registry, AutoRetainerManager retainer, DeliverooManager deliveroo, ScripPlannerService plannerService, FirmamentPlannerService firmamentPlannerService, DiscordWebhookService discord, CharacterBalanceTracker balanceTracker, VendorCatalog vendorCatalog, KupoOfFortuneHandler kupo, FirmamentTurnInWindowHandler firmamentTurnInWindow, GrandCompanyBarracksReturnHandler barracksReturn)
     {
         _log = log;
         _gatherbuddyReborn_IPCSubscriber = gatherbuddyReborn_IPCSubscriber;
@@ -79,6 +83,7 @@ public class AutomationHandler : IDisposable
         _vendorCatalog = vendorCatalog;
         _kupo = kupo;
         _firmamentTurnInWindow = firmamentTurnInWindow;
+        _barracksReturn = barracksReturn;
     }
 
     public void Init()
@@ -106,6 +111,8 @@ public class AutomationHandler : IDisposable
         _deliverooManager.OnError += OnError;
         _kupo.OnFinishedPlaying += OnKupoFinished;
         _kupo.OnError += OnKupoError;
+        _barracksReturn.OnFinishedReturning += OnBarracksReturnFinished;
+        _barracksReturn.OnError += OnError;
     }
 
     // Set when an autogather-triggered resource inspection should be followed by an Artisan
@@ -124,18 +131,56 @@ public class AutomationHandler : IDisposable
     private void OnAutoGatherStatusChanged(bool enabled)
     {
         if (enabled) return;
+        var followup = GetAutogatherFollowupAction();
+        if (followup == AutogatherFollowupAction.None) return;
+
+        if (_config.ReturnToBarracksOnAutogatherFinish)
+        {
+            _pendingAutogatherFollowup = followup;
+            _barracksReturn.Start();
+            return;
+        }
+
+        RunAutogatherFollowup(followup);
+    }
+
+    private AutogatherFollowupAction GetAutogatherFollowupAction()
+    {
         // Resource inspection rides on the Firmament economy, so only honour it for
         // Firmament-like systems even if a stale config flag survives on Normal.
         if (_config.RunInspectionOnAutogatherFinish && _config.ActiveSystem.IsFirmamentLike())
-        {
-            _pendingCraftAfterInspection = _config.CraftOnInspectionFinish;
-            if (!InvokeInspection()) _pendingCraftAfterInspection = false;
-        }
+            return AutogatherFollowupAction.Inspection;
         // Normal crafts the selected Artisan list straight off autogather (no inspection step).
-        else if (_config.CraftOnAutogatherFinish && !_config.ActiveSystem.IsFirmamentLike())
-            _craftingHandler.ShouldStartCrafting();
-        else if (_config.CollectOnAutogatherFinish)
-            Invoke();
+        if (_config.CraftOnAutogatherFinish && !_config.ActiveSystem.IsFirmamentLike())
+            return AutogatherFollowupAction.Craft;
+        if (_config.CollectOnAutogatherFinish)
+            return AutogatherFollowupAction.Collect;
+        return AutogatherFollowupAction.None;
+    }
+
+    private void OnBarracksReturnFinished()
+    {
+        if (_pendingAutogatherFollowup == AutogatherFollowupAction.None) return;
+        var pending = _pendingAutogatherFollowup;
+        _pendingAutogatherFollowup = AutogatherFollowupAction.None;
+        RunAutogatherFollowup(pending);
+    }
+
+    private void RunAutogatherFollowup(AutogatherFollowupAction followup)
+    {
+        switch (followup)
+        {
+            case AutogatherFollowupAction.Inspection:
+                _pendingCraftAfterInspection = _config.CraftOnInspectionFinish;
+                if (!InvokeInspection()) _pendingCraftAfterInspection = false;
+                break;
+            case AutogatherFollowupAction.Craft:
+                _craftingHandler.ShouldStartCrafting();
+                break;
+            case AutogatherFollowupAction.Collect:
+                Invoke();
+                break;
+        }
     }
     public bool Invoke()
     {
@@ -391,6 +436,7 @@ public class AutomationHandler : IDisposable
     public void OnDeliverooFinish() => RunPostRunCascade(PostRunStage.Autogather);
     public void ForceStop(string reason)
     {
+        _pendingAutogatherFollowup = AutogatherFollowupAction.None;
         _pendingCraftAfterInspection = false;
         _turnInOverride = null;
         // If we're mid-turn-in on a self-pause, drop the bookkeeping (leaving Artisan
@@ -650,5 +696,7 @@ public class AutomationHandler : IDisposable
         _autoretainerManager.OnRetainerFinish -= OnAutoRetainerFinish;
         _deliverooManager.OnDeliverooFinish -= OnDeliverooFinish;
         _deliverooManager.OnError -= OnError;
+        _barracksReturn.OnFinishedReturning -= OnBarracksReturnFinished;
+        _barracksReturn.OnError -= OnError;
     }
 }

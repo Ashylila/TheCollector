@@ -16,6 +16,7 @@ public enum PluginState
     [Description("AutoRetainer running")] AutoRetainer,
     [Description("Deliveroo running")]    Deliveroo,
     [Description("Crafting Artisan list")] ProcessingArtisanList,
+    [Description("Returning to barracks")] ReturningToBarracks,
 }
 
 public static class PluginStateExtensions

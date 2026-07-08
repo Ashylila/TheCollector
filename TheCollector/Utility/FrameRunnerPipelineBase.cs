@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using Dalamud.Game.ClientState.Objects.Enums;
 using Dalamud.Plugin.Services;
 using ECommons.DalamudServices;
 using ECommons.GameHelpers;
@@ -114,6 +115,19 @@ public abstract class FrameRunnerPipelineBase : IPipeline
         if (gameObj == null) return false;
 
         TargetSystem.Instance()->Target = (FFXIVClientStructs.FFXIV.Client.Game.Object.GameObject*)gameObj.Address;
+        TargetSystem.Instance()->OpenObjectInteraction(TargetSystem.Instance()->Target);
+        return true;
+    }
+
+    protected unsafe bool TryInteractWithNearestEObj(float maxDistance = 4f)
+    {
+        var nearest = Svc.Objects
+            .Where(o => o.ObjectKind == ObjectKind.EventObj && Player.DistanceTo(o.Position) <= maxDistance)
+            .OrderBy(o => Player.DistanceTo(o.Position))
+            .FirstOrDefault();
+        if (nearest == null) return false;
+
+        TargetSystem.Instance()->Target = (FFXIVClientStructs.FFXIV.Client.Game.Object.GameObject*)nearest.Address;
         TargetSystem.Instance()->OpenObjectInteraction(TargetSystem.Instance()->Target);
         return true;
     }
