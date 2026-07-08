@@ -29,9 +29,10 @@ public class Configuration : IPluginConfiguration
     public bool RunInspectionOnAutogatherFinish { get; set; } = false;
     // Normal only: start the selected Artisan list straight off autogather (no inspection step).
     public bool CraftOnAutogatherFinish { get; set; } = false;
-    // When a GatherBuddy-triggered follow-up action is queued, first route back to the
-    // player's GC headquarters, talk to the personnel officer, and zone into the barracks.
-    public bool ReturnToBarracksOnAutogatherFinish { get; set; } = false;
+    // Before starting an Artisan crafting list from an autogather flow, first route back to the
+    // player's GC headquarters and zone into the barracks.
+    [JsonPropertyName("ReturnToBarracksOnAutogatherFinish")]
+    public bool ReturnToBarracksBeforeCraftStart { get; set; } = false;
     public bool BuyAfterEachCollect { get; set; } = false;
     public bool ResetEachQuantityAfterCompletingList { get; set; } = false;
     public bool CollectOnFinishedFishing { get; set; } = false;

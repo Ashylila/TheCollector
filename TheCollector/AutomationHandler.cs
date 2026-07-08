@@ -133,15 +133,7 @@ public class AutomationHandler : IDisposable
         if (enabled) return;
         var followup = GetAutogatherFollowupAction();
         if (followup == AutogatherFollowupAction.None) return;
-
-        if (_config.ReturnToBarracksOnAutogatherFinish)
-        {
-            _pendingAutogatherFollowup = followup;
-            _barracksReturn.Start();
-            return;
-        }
-
-        RunAutogatherFollowup(followup);
+        RunAutogatherFollowup(followup, allowBarracksDetour: true);
     }
 
     private AutogatherFollowupAction GetAutogatherFollowupAction()
@@ -163,10 +155,23 @@ public class AutomationHandler : IDisposable
         if (_pendingAutogatherFollowup == AutogatherFollowupAction.None) return;
         var pending = _pendingAutogatherFollowup;
         _pendingAutogatherFollowup = AutogatherFollowupAction.None;
-        RunAutogatherFollowup(pending);
+        RunAutogatherFollowup(pending, allowBarracksDetour: false);
     }
 
-    private void RunAutogatherFollowup(AutogatherFollowupAction followup)
+    private bool TryStartCraftWithBarracksDetour()
+    {
+        if (!_config.ReturnToBarracksBeforeCraftStart)
+        {
+            _craftingHandler.ShouldStartCrafting();
+            return false;
+        }
+
+        _pendingAutogatherFollowup = AutogatherFollowupAction.Craft;
+        _barracksReturn.Start();
+        return true;
+    }
+
+    private void RunAutogatherFollowup(AutogatherFollowupAction followup, bool allowBarracksDetour)
     {
         switch (followup)
         {
@@ -175,7 +180,10 @@ public class AutomationHandler : IDisposable
                 if (!InvokeInspection()) _pendingCraftAfterInspection = false;
                 break;
             case AutogatherFollowupAction.Craft:
-                _craftingHandler.ShouldStartCrafting();
+                if (allowBarracksDetour)
+                    TryStartCraftWithBarracksDetour();
+                else
+                    _craftingHandler.ShouldStartCrafting();
                 break;
             case AutogatherFollowupAction.Collect:
                 Invoke();
@@ -386,8 +394,10 @@ public class AutomationHandler : IDisposable
                 // inventory-full-during-crafting case, so we only reach here for a fresh start.
                 if (!_pendingCraftAfterInspection) return false;
                 _pendingCraftAfterInspection = false;
-                _craftingHandler.ShouldStartCrafting();
-                _chatGui.Print("Resource inspection done — starting Artisan list.", "TheCollector");
+                if (TryStartCraftWithBarracksDetour())
+                    _chatGui.Print("Resource inspection done — returning to GC barracks before starting Artisan list.", "TheCollector");
+                else
+                    _chatGui.Print("Resource inspection done — starting Artisan list.", "TheCollector");
                 return true;
 
             case PostRunStage.AutoRetainer:

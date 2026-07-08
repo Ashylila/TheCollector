@@ -351,7 +351,7 @@ public partial class MainWindow
         sb.AppendLine($"Inspect on gather:     {configuration.RunInspectionOnAutogatherFinish}");
         sb.AppendLine($"Craft on inspection:   {configuration.CraftOnInspectionFinish} (Artisan list {configuration.ArtisanListId})");
         sb.AppendLine($"Craft on autogather:   {configuration.CraftOnAutogatherFinish}");
-        sb.AppendLine($"Barracks before follow-up: {configuration.ReturnToBarracksOnAutogatherFinish}");
+        sb.AppendLine($"Barracks before craft:     {configuration.ReturnToBarracksBeforeCraftStart}");
         sb.AppendLine($"Artisan inv pause:     {configuration.PauseArtisanOnInventoryFull} (threshold {configuration.ArtisanInventoryFullThreshold})");
         sb.AppendLine($"AutoRetainer between:  {configuration.CheckForVenturesBetweenRuns}");
         sb.AppendLine($"Deliveroo between:     {configuration.CheckForDeliverooBetweenRuns}");
@@ -484,26 +484,6 @@ public partial class MainWindow
             ImGui.EndDisabled();
         }
 
-        bool barracksFollowupActive =
-            configuration.CollectOnAutogatherFinish
-            || configuration.RunInspectionOnAutogatherFinish
-            || configuration.CraftOnAutogatherFinish;
-        var returnToBarracks = configuration.ReturnToBarracksOnAutogatherFinish;
-        if (ImGui.Checkbox("Return to GC barracks before autogather follow-up actions", ref returnToBarracks))
-        {
-            configuration.ReturnToBarracksOnAutogatherFinish = returnToBarracks;
-            configuration.Save();
-        }
-        if (ImGui.IsItemHovered())
-            ImGui.SetTooltip("Before the autogather-finish follow-up runs, route back to your Grand Company\n" +
-                             "personnel officer and enter your Squadron barracks first.\n" +
-                             "Requires Adventurer Squadrons to be unlocked on the current character.");
-        if (!barracksFollowupActive)
-        {
-            ImGui.SameLine();
-            ImGui.TextDisabled("(no autogather follow-up enabled)");
-        }
-
         ImGui.EndDisabled();
 
         ImGui.Spacing();
@@ -573,6 +553,27 @@ public partial class MainWindow
 
         ImGui.EndDisabled();
 
+        bool barracksFollowupActive =
+            configuration.CraftOnAutogatherFinish
+            || configuration.CraftOnInspectionFinish;
+        var returnToBarracks = configuration.ReturnToBarracksBeforeCraftStart;
+        if (ImGui.Checkbox("Return to GC barracks before starting Artisan craft", ref returnToBarracks))
+        {
+            configuration.ReturnToBarracksBeforeCraftStart = returnToBarracks;
+            configuration.Save();
+        }
+        if (ImGui.IsItemHovered())
+            ImGui.SetTooltip("Before starting an Artisan crafting list from an autogather flow,\n" +
+                             "route back to your Grand Company and enter your Squadron barracks first.\n" +
+                             "Requires Adventurer Squadrons to be unlocked on the current character.");
+        if (!barracksFollowupActive)
+        {
+            ImGui.SameLine();
+            ImGui.TextDisabled("(no autogather craft flow enabled)");
+        }
+
+        ImGui.EndDisabled();
+        
         ImGui.Spacing();
 
         var pauseOnFull = configuration.PauseArtisanOnInventoryFull;
