@@ -45,6 +45,7 @@ public class ChangelogUi
         Add_0_7_0(Book);
         Add_0_8_0(Book);
         Add_0_8_1(Book);
+        Add_0_8_2(Book);
 
         Window = new ChangelogWindow("TheCollector_Changelog", Book, GetConfig, SetConfig);
     }
@@ -69,6 +70,14 @@ public class ChangelogUi
         }
         if (dirty) _config.Save();
     }
+    private static void Add_0_8_2(ChangelogBook book) =>
+        book.NextVersion("Version 0.8.2")
+            .RegisterHighlight("Custom commands — run any chat command at points in the loop (before the Artisan craft starts, after a turn-in, buy or Kupo run, when the loop goes idle, ...), e.g. /li gc to craft away from the vendor. Optionally wait until travel is done before continuing (Settings → Integrations)")
+            .RegisterEntry("Fixed Kupo of Fortune crashing the game")
+            .RegisterEntry("Fixed Firmament turn-ins stalling on the second item")
+            .RegisterEntry("Fixed resource inspection looping forever")
+            .RegisterEntry("Added /collector kupo to play your held Kupo of Fortune cards on demand");
+
     private static void Add_0_8_1(ChangelogBook book) =>
         book.NextVersion("Version 0.8.1")
             .RegisterEntry("Resource-inspection options now only appear on Firmament (where they apply), and the Normal system regains its 'Craft selected Artisan list on autogather finish' option")
