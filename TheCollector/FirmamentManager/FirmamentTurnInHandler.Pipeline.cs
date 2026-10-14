@@ -159,6 +159,9 @@ public partial class FirmamentTurnInHandler
             Status.Set(PluginState.ExchangingItems);
             if (_queue == null || _queue.Count == 0) return StepResult.Success();
 
+            if (_window.IsRequestPresent || !_window.IsReady)
+                return StepResult.Continue();
+
             var h = _queue[0];
             if (!_window.TryGetScripCount(_catalog.ScripItemId, out var current))
                 return StepResult.Fail("Firmament appraiser window closed during turn-in.");
@@ -214,25 +217,32 @@ public partial class FirmamentTurnInHandler
             TimeSpan.FromSeconds(10));
     }
 
+    private static readonly TimeSpan SelectRetryInterval = TimeSpan.FromMilliseconds(1500);
+
     private FrameRunner.Step SelectItemStep(uint itemId, string name)
     {
-        var fired = false;
-        DateTime until = default;
+        var attempts = 0;
+        DateTime nextFire = DateTime.MinValue;
         return new FrameRunner.Step("SelectItem",
             () =>
             {
-                if (!fired)
-                {
-                    if (_window.FindRowIndex(itemId) < 0)
-                        return StepResult.Continue();
+                if (attempts > 0 && _window.IsRequestOpen)
+                    return StepResult.Success();
 
-                    if (!_window.SelectItem(itemId))
-                        return StepResult.Fail($"Could not select Firmament item {itemId}.");
-                    CurrentItemName = name;
-                    until = DateTime.UtcNow + UiInteractDelay;
-                    fired = true;
-                }
-                return DateTime.UtcNow >= until ? StepResult.Success() : StepResult.Continue();
+                if (DateTime.UtcNow < nextFire)
+                    return StepResult.Continue();
+
+                if (_window.FindRowIndex(itemId) < 0)
+                    return StepResult.Continue();
+
+                if (!_window.SelectItem(itemId))
+                    return StepResult.Fail($"Could not select Firmament item {itemId}.");
+                CurrentItemName = name;
+                attempts++;
+                if (attempts > 1)
+                    Log.Debug($"HWDSupply: Request window did not open for {name}; re-selecting (attempt {attempts}).");
+                nextFire = DateTime.UtcNow + SelectRetryInterval;
+                return StepResult.Continue();
             },
             TimeSpan.FromSeconds(10));
     }

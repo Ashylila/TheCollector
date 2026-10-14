@@ -104,6 +104,8 @@ public unsafe class FirmamentTurnInWindowHandler
 
     public bool IsRequestOpen => Addons.Ready(RequestAddon);
 
+    public bool IsRequestPresent => Addons.TryGet(RequestAddon, out _);
+
     public bool HandOverEnabled
     {
         get
