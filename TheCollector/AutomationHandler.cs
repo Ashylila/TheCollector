@@ -38,6 +38,7 @@ public class AutomationHandler : IDisposable
     private readonly VendorCatalog _vendorCatalog;
     private readonly KupoOfFortuneHandler _kupo;
     private readonly FirmamentTurnInWindowHandler _firmamentTurnInWindow;
+    private readonly CommandHookRunner _hooks;
     public bool IsRunning => _pipelineRegistry.All.Any(p => p.IsRunning);
 
     public int SessionCollectablesTurnedIn { get; private set; }
@@ -57,9 +58,10 @@ public class AutomationHandler : IDisposable
     private bool _kupoStartedManually;
 
     public AutomationHandler(
-        PlogonLog log, ScripSystemSelector selector, Configuration config, FirmamentCatalog firmamentCatalog, IChatGui chatGui, GatherbuddyReborn_IPCSubscriber gatherbuddyReborn_IPCSubscriber, ArtisanWatcher artisanWatcher, IFramework framework, FishingWatcher fishingWatcher, CraftingHandler craftingHandler, PipelineRegistry registry, AutoRetainerManager retainer, DeliverooManager deliveroo, ScripPlannerService plannerService, FirmamentPlannerService firmamentPlannerService, DiscordWebhookService discord, CharacterBalanceTracker balanceTracker, VendorCatalog vendorCatalog, KupoOfFortuneHandler kupo, FirmamentTurnInWindowHandler firmamentTurnInWindow)
+        PlogonLog log, ScripSystemSelector selector, Configuration config, FirmamentCatalog firmamentCatalog, IChatGui chatGui, GatherbuddyReborn_IPCSubscriber gatherbuddyReborn_IPCSubscriber, ArtisanWatcher artisanWatcher, IFramework framework, FishingWatcher fishingWatcher, CraftingHandler craftingHandler, PipelineRegistry registry, AutoRetainerManager retainer, DeliverooManager deliveroo, ScripPlannerService plannerService, FirmamentPlannerService firmamentPlannerService, DiscordWebhookService discord, CharacterBalanceTracker balanceTracker, VendorCatalog vendorCatalog, KupoOfFortuneHandler kupo, FirmamentTurnInWindowHandler firmamentTurnInWindow, CommandHookRunner hooks)
     {
         _log = log;
+        _hooks = hooks;
         _gatherbuddyReborn_IPCSubscriber = gatherbuddyReborn_IPCSubscriber;
         _selector = selector;
         _config = config;
@@ -124,6 +126,11 @@ public class AutomationHandler : IDisposable
     private void OnAutoGatherStatusChanged(bool enabled)
     {
         if (enabled) return;
+        _hooks.Run(CommandHookTrigger.AfterAutogatherFinish, OnAutogatherFinished);
+    }
+
+    private void OnAutogatherFinished()
+    {
         // Resource inspection rides on the Firmament economy, so only honour it for
         // Firmament-like systems even if a stale config flag survives on Normal.
         if (_config.RunInspectionOnAutogatherFinish && _config.ActiveSystem.IsFirmamentLike())
@@ -133,10 +140,13 @@ public class AutomationHandler : IDisposable
         }
         // Normal crafts the selected Artisan list straight off autogather (no inspection step).
         else if (_config.CraftOnAutogatherFinish && !_config.ActiveSystem.IsFirmamentLike())
-            _craftingHandler.ShouldStartCrafting();
+            StartCrafting();
         else if (_config.CollectOnAutogatherFinish)
             Invoke();
     }
+
+    public void StartCrafting()
+        => _hooks.Run(CommandHookTrigger.BeforeCraftStart, _craftingHandler.ShouldStartCrafting);
     public bool Invoke()
     {
         if (IsRunning)
@@ -292,6 +302,7 @@ public class AutomationHandler : IDisposable
         _chatGui.PrintError($"Automation stopped: {reason}", "TheCollector");
         _discord.Notify(DiscordEvent.HardFail, $"❌ TheCollector hard-failed: {reason}");
         ForceStop(reason);
+        _hooks.Run(CommandHookTrigger.OnHardFail);
     }
 
     public void OnFinishedWatching(WatchType watchType)
@@ -341,7 +352,7 @@ public class AutomationHandler : IDisposable
                 // inventory-full-during-crafting case, so we only reach here for a fresh start.
                 if (!_pendingCraftAfterInspection) return false;
                 _pendingCraftAfterInspection = false;
-                _craftingHandler.ShouldStartCrafting();
+                StartCrafting();
                 _chatGui.Print("Resource inspection done — starting Artisan list.", "TheCollector");
                 return true;
 
@@ -372,7 +383,8 @@ public class AutomationHandler : IDisposable
                     _discord.Notify(DiscordEvent.StopCondition, $"🛑 TheCollector stopped: {reason}");
                     return true; // handled — stop without re-enabling autogather
                 }
-                _gatherbuddyReborn_IPCSubscriber.SetAutoGatherEnabled(true);
+                _hooks.Run(CommandHookTrigger.BeforeAutogatherStart,
+                    () => _gatherbuddyReborn_IPCSubscriber.SetAutoGatherEnabled(true));
                 return true;
 
             default:
@@ -384,6 +396,7 @@ public class AutomationHandler : IDisposable
     {
         for (var stage = from; stage <= PostRunStage.Autogather; stage++)
             if (TryStartStage(stage)) return;
+        _hooks.Run(CommandHookTrigger.OnLoopIdle);
     }
 
     public void OnAutoRetainerFinish() => RunPostRunCascade(PostRunStage.Deliveroo);
@@ -438,10 +451,14 @@ public class AutomationHandler : IDisposable
         _chatGui.Print($"Stop condition met: {reason}", "TheCollector");
         _discord.Notify(DiscordEvent.StopCondition, $"🛑 TheCollector stopped: {reason}");
         ForceStop(reason);
+        _hooks.Run(CommandHookTrigger.OnStopCondition);
         return true;
     }
 
     private void OnFinishedCollecting()
+        => _hooks.Run(CommandHookTrigger.AfterTurnIn, OnFinishedCollectingCore);
+
+    private void OnFinishedCollectingCore()
     {
         SessionCollectablesTurnedIn++;
         _balanceTracker.SampleNow();
@@ -471,6 +488,9 @@ public class AutomationHandler : IDisposable
     }
 
     private void OnKupoFinished()
+        => _hooks.Run(CommandHookTrigger.AfterKupo, OnKupoFinishedCore);
+
+    private void OnKupoFinishedCore()
     {
         // Cards drained — clear the sampled voucher count so a stale value can't re-trigger a trip.
         _firmamentTurnInWindow.ResetVoucherCount();
@@ -528,6 +548,9 @@ public class AutomationHandler : IDisposable
         RunPostRunCascade(PostRunStage.ResumeArtisan);
     }
     private void OnFinishedTrading(Dictionary<uint, int> scripsSpent)
+        => _hooks.Run(CommandHookTrigger.AfterBuy, () => OnFinishedTradingCore(scripsSpent));
+
+    private void OnFinishedTradingCore(Dictionary<uint, int> scripsSpent)
     {
         SessionItemsPurchased++;
         _balanceTracker.SampleNow();

@@ -95,6 +95,9 @@ public static class ServiceWrapper
         collection.AddSingleton<DeliverooManager>();
         collection.AddSingleton<IPipeline>(sp => sp.GetRequiredService<DeliverooManager>());
 
+        collection.AddSingleton<CommandHookRunner>();
+        collection.AddSingleton<IPipeline>(sp => sp.GetRequiredService<CommandHookRunner>());
+
         collection.AddSingleton<PipelineRegistry>();
 
         collection.AddSingleton<MainWindow>();

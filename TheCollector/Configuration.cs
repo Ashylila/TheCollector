@@ -91,6 +91,8 @@ public class Configuration : IPluginConfiguration
     // the three right chests can win any of the 5 (incl. the jackpot and the consolation).
     public KupoChestPick KupoChestPick { get; set; } = KupoChestPick.Left;
 
+    public List<CommandHook> CommandHooks { get; set; } = new();
+
     public void Save()
     {
         Svc.PluginInterface.SavePluginConfig(this);

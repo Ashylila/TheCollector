@@ -9,6 +9,7 @@ using Dalamud.Bindings.ImGui;
 using ECommons.DalamudServices;
 using ECommons.GameHelpers;
 using TheCollector.CollectableManager;
+using TheCollector.Data.Models;
 using TheCollector.Data.ScripSystem;
 using TheCollector.Ipc;
 using TheCollector.ScripShopManager;
@@ -351,6 +352,9 @@ public partial class MainWindow
         sb.AppendLine($"Inspect on gather:     {configuration.RunInspectionOnAutogatherFinish}");
         sb.AppendLine($"Craft on inspection:   {configuration.CraftOnInspectionFinish} (Artisan list {configuration.ArtisanListId})");
         sb.AppendLine($"Craft on autogather:   {configuration.CraftOnAutogatherFinish}");
+        sb.AppendLine($"Command hooks:         {configuration.CommandHooks.Count}");
+        foreach (var hook in configuration.CommandHooks)
+            sb.AppendLine($"  [{(hook.Enabled ? "on " : "off")}] {hook.Trigger} -> \"{hook.Command}\"{(hook.WaitUntilSettled ? " (wait)" : "")}");
         sb.AppendLine($"Artisan inv pause:     {configuration.PauseArtisanOnInventoryFull} (threshold {configuration.ArtisanInventoryFullThreshold})");
         sb.AppendLine($"AutoRetainer between:  {configuration.CheckForVenturesBetweenRuns}");
         sb.AppendLine($"Deliveroo between:     {configuration.CheckForDeliverooBetweenRuns}");
@@ -624,7 +628,85 @@ public partial class MainWindow
         ImGui.EndDisabled();
 
         ImGui.Spacing();
+        DrawSettingsCommandHooks();
+
+        ImGui.Spacing();
         DrawSettingsDiscord();
+    }
+
+    private void DrawSettingsCommandHooks()
+    {
+        ImGuiHelper.SectionHeader("Custom Commands");
+        ImGui.TextWrapped("Run any chat command at a point in the loop — e.g. \"/li gc\" before crafting to craft at your " +
+                          "Grand Company " +
+                          "\"Wait\" holds the loop until Lifestream is idle and you can act again before continuing.");
+        ImGui.Spacing();
+
+        var hooks = configuration.CommandHooks;
+        var changed = false;
+        int? remove = null;
+
+        if (hooks.Count > 0 && ImGui.BeginTable("##CommandHooks", 5, ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.RowBg))
+        {
+            ImGui.TableSetupColumn("On", ImGuiTableColumnFlags.WidthFixed, 30f);
+            ImGui.TableSetupColumn("Trigger", ImGuiTableColumnFlags.WidthFixed, 210f);
+            ImGui.TableSetupColumn("Command", ImGuiTableColumnFlags.WidthStretch);
+            ImGui.TableSetupColumn("Wait", ImGuiTableColumnFlags.WidthFixed, 40f);
+            ImGui.TableSetupColumn("##rm", ImGuiTableColumnFlags.WidthFixed, 28f);
+            ImGui.TableHeadersRow();
+
+            for (var i = 0; i < hooks.Count; i++)
+            {
+                var hook = hooks[i];
+                ImGui.PushID(i);
+                ImGui.TableNextRow();
+
+                ImGui.TableNextColumn();
+                var enabled = hook.Enabled;
+                if (ImGui.Checkbox("##en", ref enabled)) { hook.Enabled = enabled; changed = true; }
+
+                ImGui.TableNextColumn();
+                ImGui.SetNextItemWidth(-1);
+                if (ImGui.BeginCombo("##trigger", hook.Trigger.Label()))
+                {
+                    foreach (var trigger in CommandHookTriggers.All)
+                        if (ImGui.Selectable(trigger.Label(), trigger == hook.Trigger)) { hook.Trigger = trigger; changed = true; }
+                    ImGui.EndCombo();
+                }
+
+                ImGui.TableNextColumn();
+                ImGui.SetNextItemWidth(-1);
+                var command = hook.Command;
+                if (ImGui.InputText("##cmd", ref command, 256)) { hook.Command = command; changed = true; }
+                if (ImGui.IsItemHovered())
+                    ImGui.SetTooltip("Sent through the chat handler, so plugin commands (/li, /vnav, …) and game commands both work.");
+
+                ImGui.TableNextColumn();
+                if (hook.Trigger.HasContinuation())
+                {
+                    var wait = hook.WaitUntilSettled;
+                    if (ImGui.Checkbox("##wait", ref wait)) { hook.WaitUntilSettled = wait; changed = true; }
+                    if (ImGui.IsItemHovered())
+                        ImGui.SetTooltip("Hold the loop until Lifestream is idle, no zone change is in flight\nand you can act again, before the next step runs.");
+                }
+
+                ImGui.TableNextColumn();
+                if (ImGuiHelper.DangerButton("X")) remove = i;
+
+                ImGui.PopID();
+            }
+            ImGui.EndTable();
+        }
+
+        if (remove is { } idx) { hooks.RemoveAt(idx); changed = true; }
+
+        if (ImGuiHelper.AccentButton("Add command"))
+        {
+            hooks.Add(new CommandHook());
+            changed = true;
+        }
+
+        if (changed) configuration.Save();
     }
 
     private void DrawArtisanListPicker()
