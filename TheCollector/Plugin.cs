@@ -112,7 +112,12 @@ public sealed class Plugin : IDalamudPlugin
 
     private void HandleCommand(string args)
     {
-        switch (args.ToLower())
+        var trimmed = args.Trim();
+        var space = trimmed.IndexOf(' ');
+        var verb = (space < 0 ? trimmed : trimmed[..space]).ToLowerInvariant();
+        var rest = space < 0 ? string.Empty : trimmed[(space + 1)..].Trim();
+
+        switch (verb)
         {
             case "collect":
                 _automationHandler.Invoke();
@@ -131,6 +136,9 @@ public sealed class Plugin : IDalamudPlugin
                 break;
             case "changelog":
                 ChangelogUi.Open();
+                break;
+            case "kupo":
+                _automationHandler.InvokeKupo();
                 break;
             default:
                 ToggleMainUI();
