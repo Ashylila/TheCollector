@@ -57,10 +57,8 @@ public partial class ResourceInspectionHandler : FrameRunnerPipelineBase, ITurnI
     public bool CapReached { get; private set; }
 
     // There's no cheap way to know which gathered items are inspectable without opening the
-    // window (the HWDGathererInspection sheet only lists Heavensward-era items). So we always
-    // consider it worth a run; the window's per-job "resources available" flag (#76) makes the
-    // run a fast no-op when nothing is left, and stops the post-buy resume loop.
-    public bool HasCollectible => true;
+    public bool HasCollectible => !_exhausted;
+    private bool _exhausted;
 
     // Flotpassant the Resource Inspector, in The Firmament.
     private const uint InspectorBaseId = 1031693;

@@ -33,18 +33,12 @@ public unsafe class ResourceInspectionWindowHandler
 
     public bool IsReady => TryGetAddon(out _);
 
-    // Live window state, decoded from the addon's AtkValues (see
-    // images/resource-inspection-atkvalues.txt):
     //   [1]          = selected gathering job (0 = Miner, 1 = Botanist, 2 = Fisher)
-    //   [count - 4]  = number of materials currently queued for inspection (0..5)
-    //   [count - 1]  = "resources available" — false once the selected job has nothing left
-    // The item list between them is variable-length, so the summary fields are read relative
-    // to AtkValuesCount rather than at fixed indices.
-    public bool TryReadState(out int selectedJob, out int queuedCount, out bool resourcesAvailable)
+    public bool TryReadState(out int selectedJob, out int queuedCount, out bool queueEmpty)
     {
         selectedJob = -1;
         queuedCount = 0;
-        resourcesAvailable = false;
+        queueEmpty = true;
         if (!TryGetAddon(out var addon)) return false;
         var count = (int)addon->AtkValuesCount;
         var v = addon->AtkValues;
@@ -53,7 +47,7 @@ public unsafe class ResourceInspectionWindowHandler
         if (v[1].Type == ValueType.UInt) selectedJob = (int)v[1].UInt;
         var queued = v[count - 4];
         if (queued.Type == ValueType.UInt) queuedCount = (int)queued.UInt;
-        resourcesAvailable = v[count - 1].Byte != 0;
+        queueEmpty = v[count - 1].Byte != 0;
         return true;
     }
 

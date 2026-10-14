@@ -12,7 +12,6 @@ public partial class ResourceInspectionHandler
 {
     private TimeSpan UiInteractDelay => TimeSpan.FromMilliseconds(_configuration.GetUiDelayMs(Key));
     // How long to wait for the server to apply an inspection (scrip/inventory change) before
-    // concluding the current job has no more eligible materials.
     private static readonly TimeSpan ChangeTimeout = TimeSpan.FromSeconds(5);
 
     private bool _firmamentRouteIssued;
@@ -25,6 +24,7 @@ public partial class ResourceInspectionHandler
     {
         CapReached = false;
         LastEarnedCurrency = null;
+        _exhausted = false;
         _jobCursor = 0;
         _currentSelectedTab = -1;
         _jobMadeProgress = true; // don't skip the first job before it has had a cycle
@@ -120,7 +120,11 @@ public partial class ResourceInspectionHandler
             _jobMadeProgress = false;
 
             if (_jobCursor >= JobTabIndices.Length)
+            {
+                _exhausted = true;
+                Log.Debug("Resource inspection: every job tab is exhausted; nothing left to inspect.");
                 return StepResult.Success();
+            }
 
             var tab = JobTabIndices[_jobCursor];
             var steps = new List<FrameRunner.Step>();
@@ -137,7 +141,9 @@ public partial class ResourceInspectionHandler
         TimeSpan.FromSeconds(15));
 
     private FrameRunner.Step SelectJobStep(int tab)
-        => FireAndSettle("SelectInspectionJob", () => _window.SelectJob(tab), UiInteractDelay, TimeSpan.FromSeconds(10));
+        => FireAndSettle("SelectInspectionJob",
+            () => _window.SelectJob(tab),
+            UiInteractDelay, TimeSpan.FromSeconds(10));
 
     private FrameRunner.Step InspectJobCycleStep()
     {
@@ -151,12 +157,6 @@ public partial class ResourceInspectionHandler
                 switch (phase)
                 {
                     case 0:
-                        // Nothing left for this job -> let the driver advance to the next one.
-                        if (_window.TryReadState(out _, out _, out var available) && !available)
-                        {
-                            _jobMadeProgress = false;
-                            return StepResult.Success();
-                        }
                         _window.TryGetScripCount(_catalog.ScripItemId, out scripBefore);
                         _window.AutoSubmit();
                         until = DateTime.UtcNow + UiInteractDelay;
@@ -202,9 +202,8 @@ public partial class ResourceInspectionHandler
                         }
 
                         if (DateTime.UtcNow < changeDeadline) return StepResult.Continue();
-                        // Assume the batch went through even if we couldn't observe a delta
-                        // (e.g. at the scrip cap); let the next cycle re-evaluate.
-                        _jobMadeProgress = true;
+                        Log.Error("Resource inspection: request had no effect (no scrip or queue change); check free inventory slots. Skipping this job.");
+                        _jobMadeProgress = false;
                         return StepResult.Success();
                 }
             },
